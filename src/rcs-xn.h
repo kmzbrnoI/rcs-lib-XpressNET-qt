@@ -39,8 +39,8 @@ enum class RcsXnLogLevel {
 };
 
 extern "C" {
-	RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char* filename);
-	RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char* filename);
+	RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t* filename);
+	RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t* filename);
 
 	RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel);
 	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel();
@@ -63,20 +63,20 @@ extern "C" {
 	RCS_XN_SHARED_EXPORT int CALL_CONV GetInputType(unsigned int module, unsigned int port);
 	RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module, unsigned int port);
 
-	RCS_XN_SHARED_EXPORT void CALL_CONV GetDeviceSerial(int index, char* serial,
+	RCS_XN_SHARED_EXPORT void CALL_CONV GetDeviceSerial(int index, char16_t* serial,
 	                                                    unsigned int serialLen);
 
 	RCS_XN_SHARED_EXPORT bool CALL_CONV IsModule(unsigned int module);
 	RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int module);
-	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(char* type, unsigned int typeLen);
-	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char* name,
+	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(char16_t* type, unsigned int typeLen);
+	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t* name,
 	                                                 unsigned int nameLen);
-	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char* fw, unsigned int fwLen);
+	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t* fw, unsigned int fwLen);
 	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleInputsCount(unsigned int module);
 	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module);
 
-	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetDeviceVersion(char* version, unsigned int versionLen);
-	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetDriverVersion(char* version, unsigned int versionLen);
+	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetDeviceVersion(char16_t* version, unsigned int versionLen);
+	RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetDriverVersion(char16_t* version, unsigned int versionLen);
 
 	RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void* data);
 	RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterOpen(StdNotifyEvent f, void* data);
