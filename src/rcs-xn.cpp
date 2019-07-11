@@ -261,8 +261,9 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, uns
 		portAddr,
 		state,
 		nullptr,
-		std::make_unique<Xn::XnCb>([rx](void *s, void *d) { rx.xnSetOutputError(s, d); }, reinterpret_cast<void*>(module))
+		std::make_unique<Xn::XnCb>([&rx](void *s, void *d) { rx.xnSetOutputError(s, d); }, reinterpret_cast<void*>(module))
 	);
+	rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
 	return 0;
 }
 
