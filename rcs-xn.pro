@@ -4,7 +4,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += RCS_XN_SHARED_LIBRARY
 
 SOURCES += src/rcs-xn.cpp
-HEADERS += src/rcs-xn.h
+HEADERS += src/rcs-xn.h src/errors.h
 
 SOURCES += \
 	lib/xn-lib-cpp-qt/xn.cpp
