@@ -75,7 +75,8 @@ int RcsXn::close() {
 	if (!xn.connected())
 		return RCS_NOT_OPENED;
 
-	// TODO: RCS_SCANNING_NOT_FINISHED
+	if (this->started > RcsStartState::stopped)
+		return RCS_SCANNING_NOT_FINISHED;
 	
 	log("Disconnecting from XN...", RcsXnLogLevel::llInfo);
 	try {
@@ -91,6 +92,9 @@ void RcsXn::loadConfig(const QString& filename) {
 	s.load(CONFIG_FN);
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
+}
+
+void RcsXn::first_scan() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -137,6 +141,37 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() {
 
 extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
 	return rx.xn.connected();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Start/stop
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Start() {
+	if (rx.started > RcsStartState::stopped)
+		return RCS_ALREADY_STARTED;
+	if (!rx.xn.connected())
+		return RCS_NOT_OPENED;
+	// TODO : wtf is RCS_SCANNING_NOT_FINISHED?
+
+	rx.events.call(rx.events.beforeStart);
+	rx.started = RcsStartState::scanning;
+	rx.events.call(rx.events.afterStart);
+	rx.first_scan();
+	return 0;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Stop() {
+	if (rx.started == RcsStartState::stopped)
+		return RCS_NOT_STARTED;
+
+	rx.events.call(rx.events.beforeStop);
+	rx.started = RcsStartState::stopped;
+	rx.events.call(rx.events.afterStop);
+	return 0;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Started() {
+	return (rx.started > RcsStartState::stopped);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

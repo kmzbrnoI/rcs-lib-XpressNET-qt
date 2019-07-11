@@ -38,6 +38,12 @@ enum class RcsXnLogLevel {
 	llDebug = 5,
 };
 
+enum class RcsStartState {
+	stopped = 0,
+	scanning = 1,
+	started = 2,
+};
+
 extern "C" {
 	RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t* filename);
 	RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t* filename);
@@ -103,6 +109,7 @@ public:
 	Xn::XpressNet xn;
 	Settings s;
 	RcsXnLogLevel loglevel;
+	RcsStartState started = RcsStartState::stopped;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
@@ -111,6 +118,7 @@ public:
 	void error(const QString& message, uint16_t code, unsigned int module);
 	void error(const QString& message, uint16_t code);
 	void error(const QString& message);
+	void first_scan();
 
 	int openDevice(const QString& device, bool persist);
 	int close();
