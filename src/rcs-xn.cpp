@@ -23,14 +23,15 @@ RcsXn::~RcsXn() {
 	try {
 		if (xn.connected())
 			close();
-	s.save(CONFIG_FN); // optional
+		s.save(CONFIG_FN); // optional
 	} catch (...) {
 		// No exceptions in destructor!
 	}
 }
 
 void RcsXn::log(const QString& msg, RcsXnLogLevel loglevel) {
-	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
+	if (loglevel <= this->loglevel)
+		this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
 }
 
 void RcsXn::error(const QString& message, uint16_t code, unsigned int module) {
@@ -159,6 +160,19 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t* filename) {
 		return RCS_FILE_CANNOT_ACCESS;
 	}
 	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Loglevel
+
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel) {
+	rx.loglevel = static_cast<RcsXnLogLevel>(loglevel);
+	rx.xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
+	rx.s["XN"]["loglevel"] = loglevel;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel() {
+	return static_cast<unsigned int>(rx.loglevel);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
