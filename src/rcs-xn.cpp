@@ -8,6 +8,34 @@ RcsXn rx;
 
 RcsXn::RcsXn(QObject *parent)
 	: QObject(parent), xn(this) {
+	QObject::connect(&xn, SIGNAL(onError()), this, SLOT(onOnError()));
+	QObject::connect(&xn, SIGNAL(onLog()), this, SLOT(onOnLog()));
+	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(onOnConnect()));
+	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(onOnDisconnect()));
+	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(onOnTrkStatusChanged()));
+	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(onOnAccInputChanged()));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Xn events
+
+void RcsXn::xnOnError(QString error) {
+}
+
+void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
+}
+
+void RcsXn::xnOnConnect() {
+}
+
+void RcsXn::xnOnDisconnect() {
+}
+
+void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus) {
+}
+
+void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::XnFeedbackType inputType,
+                                Xn::XnAccInputsState state) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////

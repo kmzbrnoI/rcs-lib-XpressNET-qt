@@ -102,6 +102,13 @@ public:
 	explicit RcsXn(QObject *parent = nullptr);
 
 private slots:
+	void xnOnError(QString error);
+	void xnOnLog(QString message, Xn::XnLogLevel loglevel);
+	void xnOnConnect();
+	void xnOnDisconnect();
+	void xnOnTrkStatusChanged(Xn::XnTrkStatus);
+	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::XnFeedbackType inputType,
+	                         Xn::XnAccInputsState state);
 
 signals:
 
