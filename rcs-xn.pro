@@ -1,6 +1,7 @@
 TARGET = rcs-xn
 TEMPLATE = lib
 DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += RCS_XN_SHARED_LIBRARY
 
 SOURCES += src/rcs-xn.cpp
 HEADERS += src/rcs-xn.h
@@ -15,7 +16,7 @@ HEADERS += \
 	lib/xn-lib-cpp-qt/xn-loco-addr.h
 
 CONFIG += c++14 dll
-QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
+QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -enable-stdcall-fixup
 
 QT += serialport
 
