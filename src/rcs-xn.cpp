@@ -97,6 +97,9 @@ void RcsXn::loadConfig(const QString& filename) {
 void RcsXn::first_scan() {
 }
 
+void RcsXn::xnSetOutputError(void* sender, void* data) {
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Xn events
 
@@ -208,6 +211,33 @@ extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel
 
 extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel() {
 	return static_cast<unsigned int>(rx.loglevel);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// RCS IO
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInput(unsigned int module, unsigned int port) {
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutput(unsigned int module, unsigned int port) {
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, unsigned int port, int state) {
+	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
+	rx.outputs[portAddr] = state;
+	rx.xn.accOpRequest(
+		portAddr,
+		state,
+		nullptr,
+		std::make_unique<Xn::XnCb>([rx](void *s, void *d) { rx.xnSetOutputError(s, d); }, nullptr)
+	);
+	return 0;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInputType(unsigned int module, unsigned int port) {
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module, unsigned int port) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include <QtCore/QtGlobal>
+#include <array>
 
 #include "events.h"
 #include "lib/xn-lib-cpp-qt/xn.h"
@@ -28,6 +29,7 @@
 namespace RcsXn {
 
 constexpr char CONFIG_FN[] = "rcsXn.ini";
+constexpr size_t IO_COUNT = 2048;
 
 enum class RcsXnLogLevel {
 	llNo = 0,
@@ -110,6 +112,8 @@ public:
 	Settings s;
 	RcsXnLogLevel loglevel;
 	RcsStartState started = RcsStartState::stopped;
+	std::array<bool, IO_COUNT> inputs;
+	std::array<bool, IO_COUNT> outputs; // TODO: reset outputs at start?
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
@@ -123,6 +127,8 @@ public:
 	int openDevice(const QString& device, bool persist);
 	int close();
 	void loadConfig(const QString& filename);
+
+	void xnSetOutputError(void* sender, void* data);
 
 private slots:
 	void xnOnError(QString error);
