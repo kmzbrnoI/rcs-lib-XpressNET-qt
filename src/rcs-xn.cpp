@@ -235,9 +235,15 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, uns
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInputType(unsigned int module, unsigned int port) {
+	(void)module;
+	(void)port;
+	return 0; // all inputs are plain inputs
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module, unsigned int port) {
+	(void)module;
+	(void)port;
+	return 0; // al output are plain outputs yet
 }
 
 ///////////////////////////////////////////////////////////////////////////////
