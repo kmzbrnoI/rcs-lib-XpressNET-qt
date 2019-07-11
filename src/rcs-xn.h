@@ -49,7 +49,7 @@ extern "C" {
 	RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog();
 
 	RCS_XN_SHARED_EXPORT int CALL_CONV Open();
-	RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char* device, bool persist);
+	RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t* device, bool persist);
 	RCS_XN_SHARED_EXPORT int CALL_CONV Close();
 	RCS_XN_SHARED_EXPORT bool CALL_CONV Opened();
 
@@ -110,6 +110,8 @@ public:
 	void error(const QString& message, uint16_t code, unsigned int module);
 	void error(const QString& message, uint16_t code);
 	void error(const QString& message);
+
+	int openDevice(const QString& device, bool persist);
 
 private slots:
 	void xnOnError(QString error);
