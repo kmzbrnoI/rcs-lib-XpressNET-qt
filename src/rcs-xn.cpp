@@ -23,16 +23,32 @@ RcsXn::~RcsXn() {
 	s.save(CONFIG_FN); // optional
 }
 
+void RcsXn::log(const QString& msg, RcsXnLogLevel loglevel) {
+	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
+}
+
+void RcsXn::error(const QString& message, uint16_t code, unsigned int module) {
+	this->events.call(this->events.onError, code, module, message);
+}
+
+void RcsXn::error(const QString& message, uint16_t code) {
+	this->error(message, code, 0);
+}
+
+void RcsXn::error(const QString& message) {
+	this->error(message, RCS_GENERAL_EXCEPTION, 0);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Xn events
 
 void RcsXn::xnOnError(QString error) {
-	this->events.call(this->events.onError, RCS_GENERAL_EXCEPTION, 0, error);
+	this->error(error);
 }
 
 void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
 	// TODO: a little loglevel mismatch
-	this->events.call(this->events.onLog, static_cast<int>(loglevel), message);
+	this->log(message, static_cast<RcsXnLogLevel>(loglevel));
 }
 
 void RcsXn::xnOnConnect() {
@@ -55,6 +71,20 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Open() {
 	rx.events.call(rx.events.beforeOpen);
+
+	if (rx.xn.connected())
+		return RCS_ALREADY_OPENNED;
+
+	rx.log("Connecting to XN...", RcsXnLogLevel::llInfo);
+
+	try {
+		rx.xn.connect(rx.s["XN"]["port"].toString(), rx.s["XN"]["baudrate"].toInt(),
+		              static_cast<QSerialPort::FlowControl>(rx.s["XN"]["flowcontrol"].toInt()));
+	} catch (const Xn::QStrException& e) {
+		rx.error("XN connect error while opening serial port '" +
+		         rx.s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
+		return RCS_CANNOT_OPEN_PORT;
+	}
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char* device, bool persist) {

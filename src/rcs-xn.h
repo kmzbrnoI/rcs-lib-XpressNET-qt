@@ -31,9 +31,9 @@ constexpr char CONFIG_FN[] = "rcsXn.ini";
 
 enum class RcsXnLogLevel {
 	llNo = 0,
-	llErrors = 1,
-	llStateChange = 2,
-	llCommands = 3,
+	llError = 1,
+	llWarning = 2,
+	llInfo = 3,
 	llRawCommands = 4,
 	llDebug = 5,
 };
@@ -105,6 +105,11 @@ public:
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
+
+	void log(const QString& msg, RcsXnLogLevel loglevel);
+	void error(const QString& message, uint16_t code, unsigned int module);
+	void error(const QString& message, uint16_t code);
+	void error(const QString& message);
 
 private slots:
 	void xnOnError(QString error);

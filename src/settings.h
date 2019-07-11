@@ -11,6 +11,9 @@ using Config = std::map<QString, std::map<QString, QVariant>>;
 const Config DEFAULTS {
 	{"XN", {
 		{"port", "/dev/ttyUSB0"},
+		{"baudrate", 19200},
+		{"flowcontrol", 1},
+		{"loglevel", 1},
 	}},
 };
 
