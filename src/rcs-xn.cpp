@@ -54,13 +54,16 @@ int RcsXn::openDevice(const QString& device, bool persist) {
 	log("Connecting to XN...", RcsXnLogLevel::llInfo);
 
 	try {
-		xn.connect(s["XN"]["port"].toString(), s["XN"]["baudrate"].toInt(),
+		xn.connect(device, s["XN"]["baudrate"].toInt(),
 		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()));
 	} catch (const Xn::QStrException& e) {
 		error("XN connect error while opening serial port '" +
 		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
 		return RCS_CANNOT_OPEN_PORT;
 	}
+
+	if (persist)
+		s["XN"]["port"] = device;
 
 	return 0;
 }
