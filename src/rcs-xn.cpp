@@ -133,6 +133,29 @@ extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Config
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t* filename) {
+	if (rx.xn.connected())
+		return RCS_FILE_DEVICE_OPENED;
+	try {
+		rx.s.load(QString::fromUtf16(filename));
+	} catch (...) {
+		return RCS_FILE_CANNOT_ACCESS;
+	}
+	return 0;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t* filename) {
+	try {
+		rx.s.save(QString::fromUtf16(filename));
+	} catch (...) {
+		return RCS_FILE_CANNOT_ACCESS;
+	}
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
 extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void* data) {
