@@ -280,6 +280,61 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Config dialogs
+
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV ShowConfigDialog() { /* Nothing here intentionally */ }
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog() { /* Nothing here intentionally */ }
+
+///////////////////////////////////////////////////////////////////////////////
+// Module qustionaries
+
+extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModule(unsigned int module) {
+	(void)module;
+	return true; // XpressNET provides no info about module existence
+}
+
+extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int module) {
+	(void)module;
+	return false; // XpressNET provides no info about module failure
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(char16_t* type, unsigned int typeLen) {
+	// TODO WTF is signaure of this function?
+	(void)typeLen;
+	return 0;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t* name,
+                                                 unsigned int nameLen) {
+	(void)nameLen;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	const QString out_name = "Module "+QString::number(module);
+	out_name.utf16();
+	return 0;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t* fw, unsigned int fwLen) {
+	(void)fwLen;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// General library configuration
+
+extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleInputsCount(unsigned int module) {
+	(void)module;
+	return IO_MODULE_PIN_COUNT;
+}
+
+extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module) {
+	(void)module;
+	return IO_MODULE_PIN_COUNT;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
 extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void* data) {
