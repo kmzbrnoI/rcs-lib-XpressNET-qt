@@ -50,6 +50,12 @@ struct RcsEvents {
 		if (e.defined())
 			e.func(this, e.data, module);
 	}
+
+	template <typename F>
+	static void bind(EventData<F>& event, const F& func,  void* const data) {
+		event.func = func;
+		event.data = data;
+	}
 };
 
 } // namespace RcsXn

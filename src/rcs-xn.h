@@ -105,7 +105,7 @@ private:
 
 };
 
-extern RcsXn rcsxn;
+extern RcsXn rx;
 
 } // namespace RcsXn
 
