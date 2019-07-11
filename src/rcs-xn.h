@@ -37,6 +37,12 @@ using StdLogEvent = void CALL_CONV (*)(void* sender, void* data, int loglevel, c
 using StdErrorEvent = void CALL_CONV (*)(void* sender, void* data, uint16_t errValue, uint8_t errAddr, char* errMsg);
 using StdModuleChangeEvent = void CALL_CONV (*)(void* sender, void* data, uint8_t module);
 
+template <typename F>
+struct EventData {
+	F event = nullptr;
+	void* data = nullptr;
+};
+
 extern "C" {
 	RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char* filename);
 	RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char* filename);
@@ -94,10 +100,33 @@ extern "C" {
 	RCS_XN_SHARED_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void* data);
 }
 
+struct RcsEvents {
+	EventData<StdNotifyEvent> beforeOpen;
+	EventData<StdNotifyEvent> afterOpen;
+	EventData<StdNotifyEvent> beforeClose;
+	EventData<StdNotifyEvent> afterClose;
+
+	EventData<StdNotifyEvent> beforeStart;
+	EventData<StdNotifyEvent> afterStart;
+	EventData<StdNotifyEvent> beforeStop;
+	EventData<StdNotifyEvent> afterStop;
+
+	EventData<StdNotifyEvent> onScanned;
+	EventData<StdErrorEvent> onError;
+	EventData<StdLogEvent> onLog;
+	EventData<StdModuleChangeEvent> onInputChanged;
+	EventData<StdModuleChangeEvent> onOutputChanged;
+
+	template <typename F>
+	void call(F func) {
+	}
+};
+
 class RcsXn : public QObject {
 	Q_OBJECT
 
 public:
+	RcsEvents events;
 
 private slots:
 
