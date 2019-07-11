@@ -112,6 +112,7 @@ public:
 	void error(const QString& message);
 
 	int openDevice(const QString& device, bool persist);
+	int close();
 
 private slots:
 	void xnOnError(QString error);
