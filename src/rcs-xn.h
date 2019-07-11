@@ -22,6 +22,7 @@
 #include <QtCore/QtGlobal>
 
 #include "events.h"
+#include "lib/xn-lib-cpp-qt/xn.h"
 
 namespace RcsXn {
 
@@ -96,6 +97,9 @@ class RcsXn : public QObject {
 
 public:
 	RcsEvents events;
+	Xn::XpressNet xn;
+
+	explicit RcsXn(QObject *parent = nullptr);
 
 private slots:
 
