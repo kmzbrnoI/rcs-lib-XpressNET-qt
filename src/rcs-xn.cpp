@@ -55,6 +55,8 @@ int RcsXn::openDevice(const QString& device, bool persist) {
 		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
 		return RCS_CANNOT_OPEN_PORT;
 	}
+
+	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,6 +99,20 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t* device, bool 
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() {
 	rx.events.call(rx.events.beforeClose);
+
+	if (!rx.xn.connected())
+		return RCS_NOT_OPENED;
+
+	// TODO: RCS_SCANNING_NOT_FINISHED
+	
+	rx.log("Disconnecting from XN...", RcsXnLogLevel::llInfo);
+	try {
+		rx.xn.disconnect();
+	} catch (const Xn::QStrException& e) {
+		rx.error("XN disconnect error while closing serial port:" + e);
+	}
+
+	return 0;
 }
 
 extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
