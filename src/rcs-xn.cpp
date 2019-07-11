@@ -98,6 +98,10 @@ void RcsXn::first_scan() {
 }
 
 void RcsXn::xnSetOutputError(void* sender, void* data) {
+	// TODO: mark module as failed?
+	unsigned int module = reinterpret_cast<unsigned int>(data);
+	error("Command Station did not respond to SetOutput command!", RCS_MODULE_NOT_ANSWERED_CMD,
+	      module);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,7 +249,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, uns
 		portAddr,
 		state,
 		nullptr,
-		std::make_unique<Xn::XnCb>([rx](void *s, void *d) { rx.xnSetOutputError(s, d); }, nullptr)
+		std::make_unique<Xn::XnCb>([rx](void *s, void *d) { rx.xnSetOutputError(s, d); }, reinterpret_cast<void*>(module))
 	);
 	return 0;
 }
