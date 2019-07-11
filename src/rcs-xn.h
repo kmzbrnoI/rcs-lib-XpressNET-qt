@@ -102,6 +102,7 @@ public:
 	RcsEvents events;
 	Xn::XpressNet xn;
 	Settings s;
+	RcsXnLogLevel loglevel;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
@@ -113,6 +114,7 @@ public:
 
 	int openDevice(const QString& device, bool persist);
 	int close();
+	void loadConfig(const QString& filename);
 
 private slots:
 	void xnOnError(QString error);

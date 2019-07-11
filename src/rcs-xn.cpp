@@ -16,7 +16,7 @@ RcsXn::RcsXn(QObject *parent)
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(onOnTrkStatusChanged()));
 	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(onOnAccInputChanged()));
 
-	s.load(CONFIG_FN);
+	this->loadConfig(CONFIG_FN);
 }
 
 RcsXn::~RcsXn() {
@@ -86,6 +86,12 @@ int RcsXn::close() {
 	return 0;
 }
 
+void RcsXn::loadConfig(const QString& filename) {
+	s.load(CONFIG_FN);
+	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
+	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Xn events
 
@@ -139,7 +145,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t* filename) {
 	if (rx.xn.connected())
 		return RCS_FILE_DEVICE_OPENED;
 	try {
-		rx.s.load(QString::fromUtf16(filename));
+		rx.loadConfig(QString::fromUtf16(filename));
 	} catch (...) {
 		return RCS_FILE_CANNOT_ACCESS;
 	}
