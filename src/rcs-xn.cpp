@@ -20,9 +20,13 @@ RcsXn::RcsXn(QObject *parent)
 }
 
 RcsXn::~RcsXn() {
-	if (xn.connected())
-		close();
+	try {
+		if (xn.connected())
+			close();
 	s.save(CONFIG_FN); // optional
+	} catch (...) {
+		// No exceptions in destructor!
+	}
 }
 
 void RcsXn::log(const QString& msg, RcsXnLogLevel loglevel) {
