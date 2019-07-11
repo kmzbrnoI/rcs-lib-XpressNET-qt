@@ -1,4 +1,5 @@
 #include "rcs-xn.h"
+#include "errors.h"
 
 namespace RcsXn {
 
@@ -20,22 +21,27 @@ RcsXn::RcsXn(QObject *parent)
 // Xn events
 
 void RcsXn::xnOnError(QString error) {
+	this->events.call(this->events.onError, RCS_GENERAL_EXCEPTION, 0, error);
 }
 
 void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
+	// TODO: a little loglevel mismatch
+	this->events.call(this->events.onLog, static_cast<int>(loglevel), message);
 }
 
 void RcsXn::xnOnConnect() {
+	this->events.call(this->events.afterOpen);
 }
 
 void RcsXn::xnOnDisconnect() {
+	this->events.call(this->events.afterClose);
 }
 
 void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus) {
 }
 
-void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::XnFeedbackType inputType,
-                                Xn::XnAccInputsState state) {
+void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
+                                Xn::XnFeedbackType inputType, Xn::XnAccInputsState state) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
