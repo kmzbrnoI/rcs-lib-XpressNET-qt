@@ -15,6 +15,12 @@ RcsXn::RcsXn(QObject *parent)
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(onOnDisconnect()));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(onOnTrkStatusChanged()));
 	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(onOnAccInputChanged()));
+
+	s.load(CONFIG_FN);
+}
+
+RcsXn::~RcsXn() {
+	s.save(CONFIG_FN); // optional
 }
 
 ///////////////////////////////////////////////////////////////////////////////

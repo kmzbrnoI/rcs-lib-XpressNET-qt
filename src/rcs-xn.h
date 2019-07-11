@@ -23,8 +23,11 @@
 
 #include "events.h"
 #include "lib/xn-lib-cpp-qt/xn.h"
+#include "settings.h"
 
 namespace RcsXn {
+
+constexpr char CONFIG_FN[] = "rcsXn.ini";
 
 enum class RcsXnLogLevel {
 	llNo = 0,
@@ -98,8 +101,10 @@ class RcsXn : public QObject {
 public:
 	RcsEvents events;
 	Xn::XpressNet xn;
+	Settings s;
 
 	explicit RcsXn(QObject *parent = nullptr);
+	virtual ~RcsXn();
 
 private slots:
 	void xnOnError(QString error);
