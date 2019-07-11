@@ -5,10 +5,10 @@
 
 namespace RcsXn {
 
-using StdNotifyEvent = void CALL_CONV (*)(void* sender, void* data);
-using StdLogEvent = void CALL_CONV (*)(void* sender, void* data, int loglevel, const uint16_t* msg);
-using StdErrorEvent = void CALL_CONV (*)(void* sender, void* data, uint16_t errValue, unsigned int errAddr, const uint16_t* errMsg);
-using StdModuleChangeEvent = void CALL_CONV (*)(void* sender, void* data, unsigned int module);
+using StdNotifyEvent = void CALL_CONV (*)(const void* sender, const void* data);
+using StdLogEvent = void CALL_CONV (*)(const void* sender, const void* data, int loglevel, const uint16_t* msg);
+using StdErrorEvent = void CALL_CONV (*)(const void* sender, const void* data, uint16_t errValue, unsigned int errAddr, const uint16_t* errMsg);
+using StdModuleChangeEvent = void CALL_CONV (*)(const void* sender, const void* data, unsigned int module);
 
 template <typename F>
 struct EventData {
@@ -34,19 +34,19 @@ struct RcsEvents {
 	EventData<StdModuleChangeEvent> onInputChanged;
 	EventData<StdModuleChangeEvent> onOutputChanged;
 
-	void call(EventData<StdNotifyEvent> e) {
+	void call(const EventData<StdNotifyEvent>& e) const {
 		if (e.defined())
 			e.func(this, e.data);
 	}
-	void call(EventData<StdErrorEvent> e, uint16_t errValue, unsigned int errAddr, const QString& errMsg) {
+	void call(const EventData<StdErrorEvent>& e, uint16_t errValue, unsigned int errAddr, const QString& errMsg) const {
 		if (e.defined())
 			e.func(this, e.data, errValue, errAddr, errMsg.utf16());
 	}
-	void call(EventData<StdLogEvent> e, int loglevel, const QString& msg) {
+	void call(const EventData<StdLogEvent>& e, int loglevel, const QString& msg) const {
 		if (e.defined())
 			e.func(this, e.data, loglevel, msg.utf16());
 	}
-	void call(EventData<StdModuleChangeEvent> e, unsigned int module) {
+	void call(const EventData<StdModuleChangeEvent>& e, unsigned int module) const {
 		if (e.defined())
 			e.func(this, e.data, module);
 	}
