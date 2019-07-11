@@ -40,19 +40,19 @@ void RcsXn::error(const QString& message) {
 }
 
 int RcsXn::openDevice(const QString& device, bool persist) {
-	rx.events.call(rx.events.beforeOpen);
+	events.call(rx.events.beforeOpen);
 
-	if (rx.xn.connected())
+	if (xn.connected())
 		return RCS_ALREADY_OPENNED;
 
-	rx.log("Connecting to XN...", RcsXnLogLevel::llInfo);
+	log("Connecting to XN...", RcsXnLogLevel::llInfo);
 
 	try {
-		rx.xn.connect(rx.s["XN"]["port"].toString(), rx.s["XN"]["baudrate"].toInt(),
-		              static_cast<QSerialPort::FlowControl>(rx.s["XN"]["flowcontrol"].toInt()));
+		xn.connect(s["XN"]["port"].toString(), s["XN"]["baudrate"].toInt(),
+		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()));
 	} catch (const Xn::QStrException& e) {
-		rx.error("XN connect error while opening serial port '" +
-		         rx.s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
+		error("XN connect error while opening serial port '" +
+		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
 		return RCS_CANNOT_OPEN_PORT;
 	}
 }
