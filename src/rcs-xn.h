@@ -30,6 +30,8 @@ namespace RcsXn {
 
 constexpr char CONFIG_FN[] = "rcsXn.ini";
 constexpr size_t IO_COUNT = 2048;
+constexpr size_t IO_MODULES_COUNT = 1024;
+constexpr size_t IO_MODULE_PIN_COUNT = 2;
 
 enum class RcsXnLogLevel {
 	llNo = 0,

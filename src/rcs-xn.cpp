@@ -217,9 +217,25 @@ extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel() {
 // RCS IO
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInput(unsigned int module, unsigned int port) {
+	if (rx.started != RcsStartState::started)
+		return RCS_NOT_STARTED;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	if (port >= IO_MODULE_PIN_COUNT)
+		return RCS_PORT_INVALID_NUMBER;
+	
+	return rx.inputs[module*2 + port];
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutput(unsigned int module, unsigned int port) {
+	if (rx.started != RcsStartState::started)
+		return RCS_NOT_STARTED;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	if (port >= IO_MODULE_PIN_COUNT)
+		return RCS_PORT_INVALID_NUMBER;
+
+	return rx.outputs[module*2 + port];
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, unsigned int port, int state) {
