@@ -2,4 +2,6 @@
 
 namespace RcsXn {
 
+RcsXn rcsxn;
+
 } // namespace RcsXn
