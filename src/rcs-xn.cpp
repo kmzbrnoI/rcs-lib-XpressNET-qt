@@ -10,6 +10,24 @@ RcsXn::RcsXn(QObject *parent)
 	: QObject(parent), xn(this) {
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Open/close
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Open() {
+	rx.events.call(rx.events.beforeOpen);
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char* device, bool persist) {
+	rx.events.call(rx.events.beforeOpen);
+}
+
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() {
+	rx.events.call(rx.events.beforeClose);
+}
+
+extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
+	return rx.xn.connected();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Events binders
