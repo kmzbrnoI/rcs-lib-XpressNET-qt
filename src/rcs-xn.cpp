@@ -89,7 +89,7 @@ int RcsXn::close() {
 }
 
 void RcsXn::loadConfig(const QString& filename) {
-	s.load(CONFIG_FN);
+	s.load(filename);
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
 }
@@ -98,6 +98,7 @@ void RcsXn::first_scan() {
 }
 
 void RcsXn::xnSetOutputError(void* sender, void* data) {
+	(void)sender;
 	// TODO: mark module as failed?
 	unsigned int module = reinterpret_cast<unsigned int>(data);
 	error("Command Station did not respond to SetOutput command!", RCS_MODULE_NOT_ANSWERED_CMD,
@@ -124,11 +125,22 @@ void RcsXn::xnOnDisconnect() {
 	this->events.call(this->events.afterClose);
 }
 
-void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus) {
+void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus s) {
+	(void)s;
+	// Nothing here yet.
 }
 
 void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
                                 Xn::XnFeedbackType inputType, Xn::XnAccInputsState state) {
+	(void)error; // ignoring errors reported by decoders
+	(void)inputType; // ignoring input type reported by decoder
+	unsigned int port = 8*groupAddr + 4*nibble;
+	this->inputs[port+0] = state.sep.i0;
+	this->inputs[port+1] = state.sep.i1;
+	this->inputs[port+2] = state.sep.i2;
+	this->inputs[port+3] = state.sep.i3;
+
+	events.call(events.onInputChanged, port/2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
