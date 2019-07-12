@@ -12,12 +12,12 @@ RcsXn rx;
 
 RcsXn::RcsXn(QObject *parent)
 	: QObject(parent), xn(this) {
-	QObject::connect(&xn, SIGNAL(onError()), this, SLOT(onOnError()));
-	QObject::connect(&xn, SIGNAL(onLog()), this, SLOT(onOnLog()));
-	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(onOnConnect()));
-	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(onOnDisconnect()));
-	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(onOnTrkStatusChanged()));
-	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(onOnAccInputChanged()));
+	QObject::connect(&xn, SIGNAL(onError()), this, SLOT(xnOnError()));
+	QObject::connect(&xn, SIGNAL(onLog()), this, SLOT(xnOnLog()));
+	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
+	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
+	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(xnOnTrkStatusChanged()));
+	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(xnOnAccInputChanged()));
 
 	this->loadConfig(CONFIG_FN);
 }
