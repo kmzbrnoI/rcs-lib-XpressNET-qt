@@ -1,6 +1,9 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+#include <cstdint>
+#include <QString>
+
 // TODO Add docstring
 
 namespace RcsXn {

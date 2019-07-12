@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include <QSettings>
+#include <QString>
 #include <map>
 
 /* This file defines global settings of the application */
