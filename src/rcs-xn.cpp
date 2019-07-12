@@ -93,11 +93,12 @@ int RcsXn::close() {
 }
 
 int RcsXn::start() {
-	if (this->started > RcsStartState::stopped)
+	if (this->started == RcsStartState::started)
 		return RCS_ALREADY_STARTED;
+	if (this->started == RcsStartState::scanning)
+		return RCS_SCANNING_NOT_FINISHED;
 	if (!xn.connected())
 		return RCS_NOT_OPENED;
-	// TODO : wtf is RCS_SCANNING_NOT_FINISHED?
 
 	events.call(rx.events.beforeStart);
 	started = RcsStartState::scanning;
