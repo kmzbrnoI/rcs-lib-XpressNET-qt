@@ -1,7 +1,7 @@
 #include <cstring>
 
-#include "rcs-xn.h"
 #include "errors.h"
+#include "rcs-xn.h"
 #include "util.h"
 
 namespace RcsXn {
@@ -10,8 +10,7 @@ RcsXn rx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RcsXn::RcsXn(QObject *parent)
-	: QObject(parent), xn(this) {
+RcsXn::RcsXn(QObject *parent) : QObject(parent), xn(this) {
 	QObject::connect(&xn, SIGNAL(onError()), this, SLOT(xnOnError()));
 	QObject::connect(&xn, SIGNAL(onLog()), this, SLOT(xnOnLog()));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
@@ -32,24 +31,19 @@ RcsXn::~RcsXn() {
 	}
 }
 
-void RcsXn::log(const QString& msg, RcsXnLogLevel loglevel) {
+void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	if (loglevel <= this->loglevel)
 		this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
 }
 
-void RcsXn::error(const QString& message, uint16_t code, unsigned int module) {
+void RcsXn::error(const QString &message, uint16_t code, unsigned int module) {
 	this->events.call(this->events.onError, code, module, message);
 }
 
-void RcsXn::error(const QString& message, uint16_t code) {
-	this->error(message, code, 0);
-}
+void RcsXn::error(const QString &message, uint16_t code) { this->error(message, code, 0); }
+void RcsXn::error(const QString &message) { this->error(message, RCS_GENERAL_EXCEPTION, 0); }
 
-void RcsXn::error(const QString& message) {
-	this->error(message, RCS_GENERAL_EXCEPTION, 0);
-}
-
-int RcsXn::openDevice(const QString& device, bool persist) {
+int RcsXn::openDevice(const QString &device, bool persist) {
 	events.call(rx.events.beforeOpen);
 
 	if (xn.connected())
@@ -60,7 +54,7 @@ int RcsXn::openDevice(const QString& device, bool persist) {
 	try {
 		xn.connect(device, s["XN"]["baudrate"].toInt(),
 		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()));
-	} catch (const Xn::QStrException& e) {
+	} catch (const Xn::QStrException &e) {
 		error("XN connect error while opening serial port '" +
 		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
 		return RCS_CANNOT_OPEN_PORT;
@@ -85,7 +79,7 @@ int RcsXn::close() {
 	this->opening = false;
 	try {
 		xn.disconnect();
-	} catch (const Xn::QStrException& e) {
+	} catch (const Xn::QStrException &e) {
 		error("XN disconnect error while closing serial port:" + e);
 	}
 
@@ -117,7 +111,7 @@ int RcsXn::stop() {
 	return 0;
 }
 
-void RcsXn::loadConfig(const QString& filename) {
+void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename);
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
@@ -156,7 +150,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	// TODO: what if CS will respond "OK", but not with status of module
 }
 
-void RcsXn::xnOnInitScanningError(void*, void*) {
+void RcsXn::xnOnInitScanningError(void *, void *) {
 	error("Module scanning: no response!", RCS_NOT_OPENED);
 	this->stop();
 }
@@ -166,7 +160,7 @@ void RcsXn::initScanningDone() {
 	events.call(events.onScanned);
 }
 
-void RcsXn::xnSetOutputError(void* sender, void* data) {
+void RcsXn::xnSetOutputError(void *sender, void *data) {
 	(void)sender;
 	// TODO: mark module as failed?
 	unsigned int module = reinterpret_cast<intptr_t>(data);
@@ -177,9 +171,7 @@ void RcsXn::xnSetOutputError(void* sender, void* data) {
 ///////////////////////////////////////////////////////////////////////////////
 // Xn events
 
-void RcsXn::xnOnError(QString error) {
-	this->error(error);
-}
+void RcsXn::xnOnError(QString error) { this->error(error); }
 
 void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
 	// TODO: a little loglevel mismatch
@@ -191,8 +183,8 @@ void RcsXn::xnOnConnect() {
 
 	try {
 		xn.getLIVersion(
-			[this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
-			std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
+		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
+		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
 		);
 	}
 	catch (const Xn::QStrException& e) {
@@ -201,9 +193,7 @@ void RcsXn::xnOnConnect() {
 	}
 }
 
-void RcsXn::xnOnDisconnect() {
-	this->events.call(this->events.afterClose);
-}
+void RcsXn::xnOnDisconnect() { this->events.call(this->events.afterClose); }
 
 void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus s) {
 	(void)s;
@@ -229,17 +219,17 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	}
 }
 
-void RcsXn::xnOnLIVersionError(void*, void*) {
+void RcsXn::xnOnLIVersionError(void *, void *) {
 	error("Get LI Version: no response!", RCS_NOT_OPENED);
 	this->close();
 }
 
-void RcsXn::xnOnCSStatusError(void*, void*) {
+void RcsXn::xnOnCSStatusError(void *, void *) {
 	error("Get CS Status: no response!", RCS_NOT_OPENED);
 	this->close();
 }
 
-void RcsXn::xnOnCSStatusOk(void*, void*) {
+void RcsXn::xnOnCSStatusOk(void *, void *) {
 	// Device opened
 	this->opening = false;
 	this->events.call(this->events.afterOpen);
@@ -250,8 +240,8 @@ void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 	    RcsXnLogLevel::llInfo);
 	try {
 		xn.getCommandStationStatus(
-			std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
-			std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
+		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
 	}
 	catch (const Xn::QStrException& e) {
@@ -267,13 +257,11 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Open() {
 	return rx.openDevice(rx.s["XN"]["port"].toString(), false);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t* device, bool persist) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t *device, bool persist) {
 	return rx.openDevice(QString::fromUtf16(device), persist);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() {
-	return rx.close();
-}
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() { return rx.close(); }
 
 extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
 	return (rx.xn.connected() && (!rx.opening));
@@ -292,7 +280,7 @@ extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Started() {
 ///////////////////////////////////////////////////////////////////////////////
 // Config
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t* filename) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t *filename) {
 	if (rx.xn.connected())
 		return RCS_FILE_DEVICE_OPENED;
 	try {
@@ -303,7 +291,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t* filename) {
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t* filename) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t *filename) {
 	try {
 		rx.s.save(QString::fromUtf16(filename));
 	} catch (...) {
@@ -335,7 +323,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInput(unsigned int module, unsi
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT)
 		return RCS_PORT_INVALID_NUMBER;
-	
+
 	return rx.inputs[module*2 + port];
 }
 
@@ -350,14 +338,14 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutput(unsigned int module, uns
 	return rx.outputs[module*2 + port];
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, unsigned int port, int state) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, unsigned int port,
+                                                        int state) {
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
 	rx.xn.accOpRequest(
-		portAddr,
-		state,
-		nullptr,
-		std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); }, reinterpret_cast<void*>(module))
+	    portAddr, state, nullptr,
+	    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+	                               reinterpret_cast<void *>(module))
 	);
 	rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
 	return 0;
@@ -369,7 +357,8 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInputType(unsigned int module, 
 	return 0; // all inputs are plain inputs
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module, unsigned int port) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module,
+                                                            unsigned int port) {
 	(void)module;
 	(void)port;
 	return 0; // al output are plain outputs yet
@@ -378,8 +367,12 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module,
 ///////////////////////////////////////////////////////////////////////////////
 // Config dialogs
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV ShowConfigDialog() { /* Nothing here intentionally */ }
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog() { /* Nothing here intentionally */ }
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV ShowConfigDialog() {
+	/* Nothing here intentionally */
+}
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog() {
+	/* Nothing here intentionally */
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Module qustionaries
@@ -394,28 +387,29 @@ extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int modu
 	return false; // XpressNET provides no info about module failure
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t* type, unsigned int typeLen) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t *type,
+                                                               unsigned int typeLen) {
 	(void)module;
-	const char16_t* type_utf16 = reinterpret_cast<const char16_t*>(QString("XN").utf16());
+	const char16_t *type_utf16 = reinterpret_cast<const char16_t *>(QString("XN").utf16());
 	StrUtil::strcpy<char16_t>(type_utf16, type, typeLen);
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t* name,
-                                                 unsigned int nameLen) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t *name,
+                                                            unsigned int nameLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	const char16_t* name_utf16 = reinterpret_cast<const char16_t*>(
-		QString("Module "+QString::number(module)).utf16()
-	);
+	const char16_t *name_utf16 =
+	    reinterpret_cast<const char16_t *>(QString("Module " + QString::number(module)).utf16());
 	StrUtil::strcpy<char16_t>(name_utf16, name, nameLen);
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t* fw, unsigned int fwLen) {
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw,
+                                                          unsigned int fwLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	const char16_t* fw_utf16 = reinterpret_cast<const char16_t*>(QString("-").utf16());
+	const char16_t *fw_utf16 = reinterpret_cast<const char16_t *>(QString("-").utf16());
 	StrUtil::strcpy<char16_t>(fw_utf16, fw, fwLen);
 	return 0;
 }
@@ -436,55 +430,57 @@ extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(uns
 ///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeOpen, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterOpen(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterOpen(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterOpen, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeClose(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeClose(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeClose, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterClose(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterClose(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterClose, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeStart(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeStart(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeStart, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterStart(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterStart(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterStart, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeStop(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeStop(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeStop, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterStop(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterStop(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterStop, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnError(StdErrorEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnError(StdErrorEvent f, void *data) {
 	rx.events.bind(rx.events.onError, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnLog(StdLogEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnLog(StdLogEvent f, void *data) {
 	rx.events.bind(rx.events.onLog, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnInputChanged(StdModuleChangeEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnInputChanged(StdModuleChangeEvent f,
+                                                                  void *data) {
 	rx.events.bind(rx.events.onInputChanged, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f,
+                                                                   void *data) {
 	rx.events.bind(rx.events.onOutputChanged, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void* data) {
+extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.onScanned, f, data);
 }
 

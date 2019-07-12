@@ -1,17 +1,17 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
-#define RCS_GENERAL_EXCEPTION  (1000)
-#define RCS_FT_EXCEPTION  (1001)       // device is always closed when this exception happens
+#define RCS_GENERAL_EXCEPTION (1000)
+#define RCS_FT_EXCEPTION (1001) // device is always closed when this exception happens
 #define RCS_FILE_CANNOT_ACCESS (1010)
 #define RCS_FILE_DEVICE_OPENED (1011)
 #define RCS_MODULE_INVALID_ADDR (1100)
-#define RCS_MODULE_FAILED  (1102)
+#define RCS_MODULE_FAILED (1102)
 #define RCS_PORT_INVALID_NUMBER (1103)
 #define RCS_MODULE_UNKNOWN_TYPE (1104)
-#define RCS_INVALID_SPEED  (1105)
-#define RCS_INVALID_SCOM_CODE  (1106)
-#define RCS_INVALID_MODULES_COUNT  (1107)
+#define RCS_INVALID_SPEED (1105)
+#define RCS_INVALID_SCOM_CODE (1106)
+#define RCS_INVALID_MODULES_COUNT (1107)
 #define RCS_INPUT_NOT_YET_SCANNED (1108)
 
 #define RCS_ALREADY_OPENNED (2001)
