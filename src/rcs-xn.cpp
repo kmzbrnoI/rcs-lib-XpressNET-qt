@@ -123,6 +123,46 @@ void RcsXn::loadConfig(const QString& filename) {
 }
 
 void RcsXn::first_scan() {
+	this->scan_group = 0;
+	this->scan_nibble = false;
+	xn.accInfoRequest(
+		0, false, nullptr,
+		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+	);
+}
+
+void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
+	if (group == 0xFF && nibble) {
+		this->initScanningDone();
+		return;
+	}
+
+	if (!nibble) {
+		nibble = true;
+	} else {
+		group++;
+		nibble = false;
+	}
+
+	this->scan_group = group;
+	this->scan_nibble = nibble;
+
+	xn.accInfoRequest(
+		group, nibble, nullptr,
+		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+	);
+
+	// TODO: what if CS will respond "OK", but not with status of module
+}
+
+void RcsXn::xnOnInitScanningError(void*, void*) {
+	error("Module scanning: no response!", RCS_NOT_OPENED);
+	this->stop();
+}
+
+void RcsXn::initScanningDone() {
+	this->started = RcsStartState::started;
+	events.call(events.onScanned);
 }
 
 void RcsXn::xnSetOutputError(void* sender, void* data) {
@@ -173,13 +213,19 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
                                 Xn::XnFeedbackType inputType, Xn::XnAccInputsState state) {
 	(void)error; // ignoring errors reported by decoders
 	(void)inputType; // ignoring input type reported by decoder
+
 	unsigned int port = 8*groupAddr + 4*nibble;
 	this->inputs[port+0] = state.sep.i0;
 	this->inputs[port+1] = state.sep.i1;
 	this->inputs[port+2] = state.sep.i2;
 	this->inputs[port+3] = state.sep.i3;
 
-	events.call(events.onInputChanged, port/2);
+	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group) &&
+	    (nibble == this->scan_nibble)) {
+		this->initModuleScanned(groupAddr, nibble);
+	} else {
+		events.call(events.onInputChanged, port/2);
+	}
 }
 
 void RcsXn::xnOnLIVersionError(void*, void*) {

@@ -117,6 +117,8 @@ public:
 	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs; // TODO: reset outputs at start?
+	uint8_t scan_group;
+	bool scan_nibble;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
@@ -151,6 +153,9 @@ private:
 	void xnOnLIVersionError(void*, void*);
 	void xnOnCSStatusError(void*, void*);
 	void xnOnCSStatusOk(void*, void*);
+	void xnOnInitScanningError(void*, void*);
+	void initModuleScanned(uint8_t group, bool nibble);
+	void initScanningDone();
 
 };
 
