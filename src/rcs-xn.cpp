@@ -393,8 +393,8 @@ extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int modu
 	return false; // XpressNET provides no info about module failure
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(char16_t* type, unsigned int typeLen) {
-	// TODO WTF is signature of this function?
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t* type, unsigned int typeLen) {
+	(void)module;
 	const char16_t* type_utf16 = reinterpret_cast<const char16_t*>(QString("XN").utf16());
 	StrUtil::strcpy<char16_t>(type_utf16, type, typeLen);
 	return 0;

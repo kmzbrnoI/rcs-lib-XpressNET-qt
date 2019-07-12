@@ -78,7 +78,7 @@ extern "C" {
 
 	RCS_XN_SHARED_EXPORT bool CALL_CONV IsModule(unsigned int module);
 	RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int module);
-	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(char16_t* type, unsigned int typeLen);
+	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t* type, unsigned int typeLen);
 	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t* name,
 	                                                 unsigned int nameLen);
 	RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t* fw, unsigned int fwLen);
