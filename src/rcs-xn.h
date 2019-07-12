@@ -147,8 +147,6 @@ private:
 
 };
 
-extern RcsXn rx;
-
 } // namespace RcsXn
 
 #endif

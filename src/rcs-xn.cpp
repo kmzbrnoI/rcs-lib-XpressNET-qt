@@ -1,5 +1,8 @@
+#include <cstring>
+
 #include "rcs-xn.h"
 #include "errors.h"
+#include "util.h"
 
 namespace RcsXn {
 
@@ -100,7 +103,7 @@ void RcsXn::first_scan() {
 void RcsXn::xnSetOutputError(void* sender, void* data) {
 	(void)sender;
 	// TODO: mark module as failed?
-	unsigned int module = reinterpret_cast<unsigned int>(data);
+	unsigned int module = reinterpret_cast<intptr_t>(data);
 	error("Command Station did not respond to SetOutput command!", RCS_MODULE_NOT_ANSWERED_CMD,
 	      module);
 }
@@ -299,25 +302,28 @@ extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int modu
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(char16_t* type, unsigned int typeLen) {
-	// TODO WTF is signaure of this function?
-	(void)typeLen;
+	// TODO WTF is signature of this function?
+	const char16_t* type_utf16 = reinterpret_cast<const char16_t*>(QString("XN").utf16());
+	StrUtil::strcpy<char16_t>(type_utf16, type, typeLen);
 	return 0;
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t* name,
                                                  unsigned int nameLen) {
-	(void)nameLen;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	const QString out_name = "Module "+QString::number(module);
-	out_name.utf16();
+	const char16_t* name_utf16 = reinterpret_cast<const char16_t*>(
+		QString("Module "+QString::number(module)).utf16()
+	);
+	StrUtil::strcpy<char16_t>(name_utf16, name, nameLen);
 	return 0;
 }
 
 extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t* fw, unsigned int fwLen) {
-	(void)fwLen;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
+	const char16_t* fw_utf16 = reinterpret_cast<const char16_t*>(QString("-").utf16());
+	StrUtil::strcpy<char16_t>(fw_utf16, fw, fwLen);
 	return 0;
 }
 
