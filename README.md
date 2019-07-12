@@ -1,11 +1,18 @@
 # XpressNET library for RCS of hJOPserver
 
-TODO
+This library allows [hJOPserver](https://github.com/kmzbrnoI/hJOPserver) to
+operate with XpressNET accessory modules. It replaces
+[MTB library](https://github.com/kmzbrnoI/mtb-lib). Library is distributed as
+a single dll file. It uses [XpressNET library](https://github.com/kmzbrnoI/xn-lib-cpp-qt)
+for XpressNET communication. The library is written in C++ in framework
+[Qt](https://www.qt.io/)5. Built dlls are available in *Releases* section.
+
+This library implements
+[RCS API of hJOPserver](https://github.com/kmzbrnoI/mtb-lib/wiki/api-specs).
 
 ## Building & toolkit
 
-This SW was developed in `vim` using `qmake` & `make`. Downloads are available
-in *Releases* section.
+This library was developed in `vim` using `qmake` & `make`.
 
 ### Prerequisities
 
