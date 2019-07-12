@@ -130,6 +130,8 @@ public:
 	int openDevice(const QString& device, bool persist);
 	int close();
 	void loadConfig(const QString& filename);
+	int start();
+	int stop();
 
 	void xnSetOutputError(void* sender, void* data);
 

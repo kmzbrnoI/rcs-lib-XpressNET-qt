@@ -92,6 +92,30 @@ int RcsXn::close() {
 	return 0;
 }
 
+int RcsXn::start() {
+	if (this->started > RcsStartState::stopped)
+		return RCS_ALREADY_STARTED;
+	if (!xn.connected())
+		return RCS_NOT_OPENED;
+	// TODO : wtf is RCS_SCANNING_NOT_FINISHED?
+
+	events.call(rx.events.beforeStart);
+	started = RcsStartState::scanning;
+	events.call(rx.events.afterStart);
+	this->first_scan();
+	return 0;
+}
+
+int RcsXn::stop() {
+	if (rx.started == RcsStartState::stopped)
+		return RCS_NOT_STARTED;
+
+	events.call(rx.events.beforeStop);
+	this->started = RcsStartState::stopped;
+	events.call(rx.events.afterStop);
+	return 0;
+}
+
 void RcsXn::loadConfig(const QString& filename) {
 	s.load(filename);
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
@@ -211,29 +235,8 @@ extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
 ///////////////////////////////////////////////////////////////////////////////
 // Start/stop
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Start() {
-	if (rx.started > RcsStartState::stopped)
-		return RCS_ALREADY_STARTED;
-	if (!rx.xn.connected())
-		return RCS_NOT_OPENED;
-	// TODO : wtf is RCS_SCANNING_NOT_FINISHED?
-
-	rx.events.call(rx.events.beforeStart);
-	rx.started = RcsStartState::scanning;
-	rx.events.call(rx.events.afterStart);
-	rx.first_scan();
-	return 0;
-}
-
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Stop() {
-	if (rx.started == RcsStartState::stopped)
-		return RCS_NOT_STARTED;
-
-	rx.events.call(rx.events.beforeStop);
-	rx.started = RcsStartState::stopped;
-	rx.events.call(rx.events.afterStop);
-	return 0;
-}
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Start() { return rx.start(); }
+extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Stop() { return rx.stop(); }
 
 extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Started() {
 	return (rx.started > RcsStartState::stopped);
