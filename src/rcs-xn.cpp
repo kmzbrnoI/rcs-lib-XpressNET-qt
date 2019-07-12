@@ -80,8 +80,9 @@ int RcsXn::close() {
 
 	if (this->started > RcsStartState::stopped)
 		return RCS_SCANNING_NOT_FINISHED;
-	
+
 	log("Disconnecting from XN...", RcsXnLogLevel::llInfo);
+	this->opening = false;
 	try {
 		xn.disconnect();
 	} catch (const Xn::QStrException& e) {
@@ -121,7 +122,18 @@ void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
 }
 
 void RcsXn::xnOnConnect() {
-	this->events.call(this->events.afterOpen);
+	this->opening = true;
+
+	try {
+		xn.getLIVersion(
+			[this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
+			std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
+		);
+	}
+	catch (const Xn::QStrException& e) {
+		error("Get LI Version: " + e.str(), RCS_NOT_OPENED);
+		this->close();
+	}
 }
 
 void RcsXn::xnOnDisconnect() {
@@ -146,6 +158,37 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	events.call(events.onInputChanged, port/2);
 }
 
+void RcsXn::xnOnLIVersionError(void*, void*) {
+	error("Get LI Version: no response!", RCS_NOT_OPENED);
+	this->close();
+}
+
+void RcsXn::xnOnCSStatusError(void*, void*) {
+	error("Get CS Status: no response!", RCS_NOT_OPENED);
+	this->close();
+}
+
+void RcsXn::xnOnCSStatusOk(void*, void*) {
+	// Device opened
+	this->opening = false;
+	this->events.call(this->events.afterOpen);
+}
+
+void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
+	log("Got LI version. HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
+	    RcsXnLogLevel::llInfo);
+	try {
+		xn.getCommandStationStatus(
+			std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
+			std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		);
+	}
+	catch (const Xn::QStrException& e) {
+		error("Get CS Status: " + e.str(), RCS_NOT_OPENED);
+		this->close();
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Open/close
 
@@ -162,7 +205,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() {
 }
 
 extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
-	return rx.xn.connected();
+	return (rx.xn.connected() && (!rx.opening));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

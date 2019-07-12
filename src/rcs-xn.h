@@ -114,6 +114,7 @@ public:
 	Settings s;
 	RcsXnLogLevel loglevel;
 	RcsStartState started = RcsStartState::stopped;
+	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs; // TODO: reset outputs at start?
 
@@ -144,6 +145,10 @@ private slots:
 signals:
 
 private:
+	void xnGotLIVersion(void*, unsigned hw, unsigned sw);
+	void xnOnLIVersionError(void*, void*);
+	void xnOnCSStatusError(void*, void*);
+	void xnOnCSStatusOk(void*, void*);
 
 };
 
