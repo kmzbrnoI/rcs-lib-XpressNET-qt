@@ -253,34 +253,34 @@ void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 ///////////////////////////////////////////////////////////////////////////////
 // Open/close
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Open() {
+int CALL_CONV Open() {
 	return rx.openDevice(rx.s["XN"]["port"].toString(), false);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t *device, bool persist) {
+int CALL_CONV OpenDevice(char16_t *device, bool persist) {
 	return rx.openDevice(QString::fromUtf16(device), persist);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Close() { return rx.close(); }
+int CALL_CONV Close() { return rx.close(); }
 
-extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Opened() {
+bool CALL_CONV Opened() {
 	return (rx.xn.connected() && (!rx.opening));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Start/stop
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Start() { return rx.start(); }
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV Stop() { return rx.stop(); }
+int CALL_CONV Start() { return rx.start(); }
+int CALL_CONV Stop() { return rx.stop(); }
 
-extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV Started() {
+bool CALL_CONV Started() {
 	return (rx.started > RcsStartState::stopped);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Config
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t *filename) {
+int CALL_CONV LoadConfig(char16_t *filename) {
 	if (rx.xn.connected())
 		return RCS_FILE_DEVICE_OPENED;
 	try {
@@ -291,7 +291,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t *filename) {
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t *filename) {
+int CALL_CONV SaveConfig(char16_t *filename) {
 	try {
 		rx.s.save(QString::fromUtf16(filename));
 	} catch (...) {
@@ -303,20 +303,20 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t *filename) {
 ///////////////////////////////////////////////////////////////////////////////
 // Loglevel
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel) {
+void CALL_CONV SetLogLevel(unsigned int loglevel) {
 	rx.loglevel = static_cast<RcsXnLogLevel>(loglevel);
 	rx.xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
 	rx.s["XN"]["loglevel"] = loglevel;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel() {
+unsigned int CALL_CONV GetLogLevel() {
 	return static_cast<unsigned int>(rx.loglevel);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RCS IO
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInput(unsigned int module, unsigned int port) {
+int CALL_CONV GetInput(unsigned int module, unsigned int port) {
 	if (rx.started != RcsStartState::started)
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
@@ -327,7 +327,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInput(unsigned int module, unsi
 	return rx.inputs[module*2 + port];
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutput(unsigned int module, unsigned int port) {
+int CALL_CONV GetOutput(unsigned int module, unsigned int port) {
 	if (rx.started != RcsStartState::started)
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
@@ -338,7 +338,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutput(unsigned int module, uns
 	return rx.outputs[module*2 + port];
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, unsigned int port,
+int CALL_CONV SetOutput(unsigned int module, unsigned int port,
                                                         int state) {
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
@@ -351,13 +351,13 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, uns
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetInputType(unsigned int module, unsigned int port) {
+int CALL_CONV GetInputType(unsigned int module, unsigned int port) {
 	(void)module;
 	(void)port;
 	return 0; // all inputs are plain inputs
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module,
+int CALL_CONV GetOutputType(unsigned int module,
                                                             unsigned int port) {
 	(void)module;
 	(void)port;
@@ -367,27 +367,27 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module,
 ///////////////////////////////////////////////////////////////////////////////
 // Config dialogs
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV ShowConfigDialog() {
+void CALL_CONV ShowConfigDialog() {
 	/* Nothing here intentionally */
 }
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog() {
+void CALL_CONV HideConfigDialog() {
 	/* Nothing here intentionally */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Module qustionaries
 
-extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModule(unsigned int module) {
+bool CALL_CONV IsModule(unsigned int module) {
 	(void)module;
 	return true; // XpressNET provides no info about module existence
 }
 
-extern "C" RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int module) {
+bool CALL_CONV IsModuleFailure(unsigned int module) {
 	(void)module;
 	return false; // XpressNET provides no info about module failure
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t *type,
+int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t *type,
                                                                unsigned int typeLen) {
 	(void)module;
 	const char16_t *type_utf16 = reinterpret_cast<const char16_t *>(QString("XN").utf16());
@@ -395,7 +395,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int modu
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module, char16_t *name,
+int CALL_CONV GetModuleName(unsigned int module, char16_t *name,
                                                             unsigned int nameLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
@@ -405,7 +405,7 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleName(unsigned int module,
 	return 0;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw,
+int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw,
                                                           unsigned int fwLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
@@ -417,12 +417,12 @@ extern "C" RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, c
 ///////////////////////////////////////////////////////////////////////////////
 // General library configuration
 
-extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleInputsCount(unsigned int module) {
+unsigned int CALL_CONV GetModuleInputsCount(unsigned int module) {
 	(void)module;
 	return IO_MODULE_PIN_COUNT;
 }
 
-extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module) {
+unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module) {
 	(void)module;
 	return IO_MODULE_PIN_COUNT;
 }
@@ -430,57 +430,57 @@ extern "C" RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(uns
 ///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void *data) {
+void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeOpen, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterOpen(StdNotifyEvent f, void *data) {
+void CALL_CONV BindAfterOpen(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterOpen, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeClose(StdNotifyEvent f, void *data) {
+void CALL_CONV BindBeforeClose(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeClose, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterClose(StdNotifyEvent f, void *data) {
+void CALL_CONV BindAfterClose(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterClose, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeStart(StdNotifyEvent f, void *data) {
+void CALL_CONV BindBeforeStart(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeStart, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterStart(StdNotifyEvent f, void *data) {
+void CALL_CONV BindAfterStart(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterStart, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindBeforeStop(StdNotifyEvent f, void *data) {
+void CALL_CONV BindBeforeStop(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeStop, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindAfterStop(StdNotifyEvent f, void *data) {
+void CALL_CONV BindAfterStop(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterStop, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnError(StdErrorEvent f, void *data) {
+void CALL_CONV BindOnError(StdErrorEvent f, void *data) {
 	rx.events.bind(rx.events.onError, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnLog(StdLogEvent f, void *data) {
+void CALL_CONV BindOnLog(StdLogEvent f, void *data) {
 	rx.events.bind(rx.events.onLog, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnInputChanged(StdModuleChangeEvent f,
+void CALL_CONV BindOnInputChanged(StdModuleChangeEvent f,
                                                                   void *data) {
 	rx.events.bind(rx.events.onInputChanged, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f,
+void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f,
                                                                    void *data) {
 	rx.events.bind(rx.events.onOutputChanged, f, data);
 }
 
-extern "C" RCS_XN_SHARED_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data) {
+void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.onScanned, f, data);
 }
 
