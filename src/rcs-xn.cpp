@@ -375,6 +375,20 @@ void CALL_CONV HideConfigDialog() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Devices
+
+int GetDeviceCount() {
+	return 1;
+}
+
+void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
+	(void)index;
+	const char16_t *name_utf16 =
+		reinterpret_cast<const char16_t *>(QString("COM port").utf16());
+	StrUtil::strcpy<char16_t>(name_utf16, serial, serialLen);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Module qustionaries
 
 bool CALL_CONV IsModule(unsigned int module) {

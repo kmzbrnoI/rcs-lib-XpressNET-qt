@@ -74,6 +74,7 @@ RCS_XN_SHARED_EXPORT int CALL_CONV SetOutput(unsigned int module, unsigned int p
 RCS_XN_SHARED_EXPORT int CALL_CONV GetInputType(unsigned int module, unsigned int port);
 RCS_XN_SHARED_EXPORT int CALL_CONV GetOutputType(unsigned int module, unsigned int port);
 
+RCS_XN_SHARED_EXPORT int CALL_CONV GetDeviceCount();
 RCS_XN_SHARED_EXPORT void CALL_CONV GetDeviceSerial(int index, char16_t *serial,
                                                     unsigned int serialLen);
 
