@@ -34,5 +34,7 @@
 # Vim swp file
 *.swp
 
-# build directory
-build*
+# build directories
+/build*
+/debug
+/release
