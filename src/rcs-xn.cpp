@@ -393,6 +393,10 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 ///////////////////////////////////////////////////////////////////////////////
 // Module questionaries
 
+unsigned int GetModuleCount() {
+	return IO_MODULES_COUNT;
+}
+
 bool IsModule(unsigned int module) {
 	(void)module;
 	return true; // XpressNET provides no info about module existence

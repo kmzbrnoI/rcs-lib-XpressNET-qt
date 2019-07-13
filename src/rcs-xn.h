@@ -78,6 +78,7 @@ RCS_XN_SHARED_EXPORT int CALL_CONV GetDeviceCount();
 RCS_XN_SHARED_EXPORT void CALL_CONV GetDeviceSerial(int index, char16_t *serial,
                                                     unsigned int serialLen);
 
+RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleCount();
 RCS_XN_SHARED_EXPORT bool CALL_CONV IsModule(unsigned int module);
 RCS_XN_SHARED_EXPORT bool CALL_CONV IsModuleFailure(unsigned int module);
 RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t *type,
