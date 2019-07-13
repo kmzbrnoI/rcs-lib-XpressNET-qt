@@ -253,29 +253,21 @@ void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 ///////////////////////////////////////////////////////////////////////////////
 // Open/close
 
-int Open() {
-	return rx.openDevice(rx.s["XN"]["port"].toString(), false);
-}
+int Open() { return rx.openDevice(rx.s["XN"]["port"].toString(), false); }
 
 int OpenDevice(char16_t *device, bool persist) {
 	return rx.openDevice(QString::fromUtf16(device), persist);
 }
 
 int Close() { return rx.close(); }
-
-bool Opened() {
-	return (rx.xn.connected() && (!rx.opening));
-}
+bool Opened() { return (rx.xn.connected() && (!rx.opening)); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Start/stop
 
 int Start() { return rx.start(); }
 int Stop() { return rx.stop(); }
-
-bool Started() {
-	return (rx.started > RcsStartState::stopped);
-}
+bool Started() { return (rx.started > RcsStartState::stopped); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Config
@@ -309,9 +301,7 @@ void SetLogLevel(unsigned int loglevel) {
 	rx.s["XN"]["loglevel"] = loglevel;
 }
 
-unsigned int GetLogLevel() {
-	return static_cast<unsigned int>(rx.loglevel);
-}
+unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RCS IO
@@ -338,8 +328,7 @@ int GetOutput(unsigned int module, unsigned int port) {
 	return rx.outputs[module*2 + port];
 }
 
-int SetOutput(unsigned int module, unsigned int port,
-                                                        int state) {
+int SetOutput(unsigned int module, unsigned int port, int state) {
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
 	rx.xn.accOpRequest(
@@ -357,8 +346,7 @@ int GetInputType(unsigned int module, unsigned int port) {
 	return 0; // all inputs are plain inputs
 }
 
-int GetOutputType(unsigned int module,
-                                                            unsigned int port) {
+int GetOutputType(unsigned int module, unsigned int port) {
 	(void)module;
 	(void)port;
 	return 0; // al output are plain outputs yet
@@ -367,12 +355,8 @@ int GetOutputType(unsigned int module,
 ///////////////////////////////////////////////////////////////////////////////
 // Config dialogs
 
-void ShowConfigDialog() {
-	/* Nothing here intentionally */
-}
-void HideConfigDialog() {
-	/* Nothing here intentionally */
-}
+void ShowConfigDialog() { /* Nothing here intentionally */ }
+void HideConfigDialog() { /* Nothing here intentionally */ }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Devices
@@ -392,9 +376,7 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 ///////////////////////////////////////////////////////////////////////////////
 // Module questionaries
 
-unsigned int GetModuleCount() {
-	return IO_MODULES_COUNT;
-}
+unsigned int GetModuleCount() { return IO_MODULES_COUNT; }
 
 bool IsModule(unsigned int module) {
 	(void)module;
@@ -435,14 +417,16 @@ int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
 unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
 	// TODO proper version
 	const QString sversion = "-";
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version, versionLen);
+	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
+	                          versionLen);
 	return 0;
 }
 
 unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
 	// TODO proper version
 	const QString sversion = "-";
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version, versionLen);
+	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
+	                          versionLen);
 	return 0;
 }
 
@@ -462,59 +446,21 @@ unsigned int GetModuleOutputsCount(unsigned int module) {
 ///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
-void BindBeforeOpen(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.beforeOpen, f, data);
-}
+void BindBeforeOpen(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeOpen, f, data); }
+void BindAfterOpen(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterOpen, f, data); }
+void BindBeforeClose(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeClose, f, data); }
+void BindAfterClose(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterClose, f, data); }
+void BindBeforeStart(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeStart, f, data); }
 
-void BindAfterOpen(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.afterOpen, f, data);
-}
+void BindAfterStart(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterStart, f, data); }
+void BindBeforeStop(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeStop, f, data); }
+void BindAfterStop(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterStop, f, data); }
+void BindOnError(StdErrorEvent f, void *data) { rx.events.bind(rx.events.onError, f, data); }
+void BindOnLog(StdLogEvent f, void *data) { rx.events.bind(rx.events.onLog, f, data); }
 
-void BindBeforeClose(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.beforeClose, f, data);
-}
-
-void BindAfterClose(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.afterClose, f, data);
-}
-
-void BindBeforeStart(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.beforeStart, f, data);
-}
-
-void BindAfterStart(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.afterStart, f, data);
-}
-
-void BindBeforeStop(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.beforeStop, f, data);
-}
-
-void BindAfterStop(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.afterStop, f, data);
-}
-
-void BindOnError(StdErrorEvent f, void *data) {
-	rx.events.bind(rx.events.onError, f, data);
-}
-
-void BindOnLog(StdLogEvent f, void *data) {
-	rx.events.bind(rx.events.onLog, f, data);
-}
-
-void BindOnInputChanged(StdModuleChangeEvent f,
-                                                                  void *data) {
-	rx.events.bind(rx.events.onInputChanged, f, data);
-}
-
-void BindOnOutputChanged(StdModuleChangeEvent f,
-                                                                   void *data) {
-	rx.events.bind(rx.events.onOutputChanged, f, data);
-}
-
-void BindOnScanned(StdNotifyEvent f, void *data) {
-	rx.events.bind(rx.events.onScanned, f, data);
-}
+void BindOnInputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onInputChanged, f, data); }
+void BindOnOutputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onOutputChanged, f, data); }
+void BindOnScanned(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.onScanned, f, data); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

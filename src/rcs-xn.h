@@ -7,8 +7,8 @@
 #define RCS_XN_VERSION_MINOR 0
 
 #include <QObject>
-#include <QtGlobal>
 #include <QtCore/QtGlobal>
+#include <QtGlobal>
 #include <array>
 
 #if defined(RCS_XN_SHARED_LIBRARY)
