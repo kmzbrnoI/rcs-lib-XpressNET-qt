@@ -253,34 +253,34 @@ void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 ///////////////////////////////////////////////////////////////////////////////
 // Open/close
 
-int CALL_CONV Open() {
+int Open() {
 	return rx.openDevice(rx.s["XN"]["port"].toString(), false);
 }
 
-int CALL_CONV OpenDevice(char16_t *device, bool persist) {
+int OpenDevice(char16_t *device, bool persist) {
 	return rx.openDevice(QString::fromUtf16(device), persist);
 }
 
-int CALL_CONV Close() { return rx.close(); }
+int Close() { return rx.close(); }
 
-bool CALL_CONV Opened() {
+bool Opened() {
 	return (rx.xn.connected() && (!rx.opening));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Start/stop
 
-int CALL_CONV Start() { return rx.start(); }
-int CALL_CONV Stop() { return rx.stop(); }
+int Start() { return rx.start(); }
+int Stop() { return rx.stop(); }
 
-bool CALL_CONV Started() {
+bool Started() {
 	return (rx.started > RcsStartState::stopped);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Config
 
-int CALL_CONV LoadConfig(char16_t *filename) {
+int LoadConfig(char16_t *filename) {
 	if (rx.xn.connected())
 		return RCS_FILE_DEVICE_OPENED;
 	try {
@@ -291,7 +291,7 @@ int CALL_CONV LoadConfig(char16_t *filename) {
 	return 0;
 }
 
-int CALL_CONV SaveConfig(char16_t *filename) {
+int SaveConfig(char16_t *filename) {
 	try {
 		rx.s.save(QString::fromUtf16(filename));
 	} catch (...) {
@@ -303,20 +303,20 @@ int CALL_CONV SaveConfig(char16_t *filename) {
 ///////////////////////////////////////////////////////////////////////////////
 // Loglevel
 
-void CALL_CONV SetLogLevel(unsigned int loglevel) {
+void SetLogLevel(unsigned int loglevel) {
 	rx.loglevel = static_cast<RcsXnLogLevel>(loglevel);
 	rx.xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
 	rx.s["XN"]["loglevel"] = loglevel;
 }
 
-unsigned int CALL_CONV GetLogLevel() {
+unsigned int GetLogLevel() {
 	return static_cast<unsigned int>(rx.loglevel);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RCS IO
 
-int CALL_CONV GetInput(unsigned int module, unsigned int port) {
+int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started != RcsStartState::started)
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
@@ -327,7 +327,7 @@ int CALL_CONV GetInput(unsigned int module, unsigned int port) {
 	return rx.inputs[module*2 + port];
 }
 
-int CALL_CONV GetOutput(unsigned int module, unsigned int port) {
+int GetOutput(unsigned int module, unsigned int port) {
 	if (rx.started != RcsStartState::started)
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
@@ -338,7 +338,7 @@ int CALL_CONV GetOutput(unsigned int module, unsigned int port) {
 	return rx.outputs[module*2 + port];
 }
 
-int CALL_CONV SetOutput(unsigned int module, unsigned int port,
+int SetOutput(unsigned int module, unsigned int port,
                                                         int state) {
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
@@ -351,13 +351,13 @@ int CALL_CONV SetOutput(unsigned int module, unsigned int port,
 	return 0;
 }
 
-int CALL_CONV GetInputType(unsigned int module, unsigned int port) {
+int GetInputType(unsigned int module, unsigned int port) {
 	(void)module;
 	(void)port;
 	return 0; // all inputs are plain inputs
 }
 
-int CALL_CONV GetOutputType(unsigned int module,
+int GetOutputType(unsigned int module,
                                                             unsigned int port) {
 	(void)module;
 	(void)port;
@@ -367,10 +367,10 @@ int CALL_CONV GetOutputType(unsigned int module,
 ///////////////////////////////////////////////////////////////////////////////
 // Config dialogs
 
-void CALL_CONV ShowConfigDialog() {
+void ShowConfigDialog() {
 	/* Nothing here intentionally */
 }
-void CALL_CONV HideConfigDialog() {
+void HideConfigDialog() {
 	/* Nothing here intentionally */
 }
 
@@ -391,17 +391,17 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 ///////////////////////////////////////////////////////////////////////////////
 // Module qustionaries
 
-bool CALL_CONV IsModule(unsigned int module) {
+bool IsModule(unsigned int module) {
 	(void)module;
 	return true; // XpressNET provides no info about module existence
 }
 
-bool CALL_CONV IsModuleFailure(unsigned int module) {
+bool IsModuleFailure(unsigned int module) {
 	(void)module;
 	return false; // XpressNET provides no info about module failure
 }
 
-int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t *type,
+int GetModuleTypeStr(unsigned int module, char16_t *type,
                                                                unsigned int typeLen) {
 	(void)module;
 	const char16_t *type_utf16 = reinterpret_cast<const char16_t *>(QString("XN").utf16());
@@ -409,7 +409,7 @@ int CALL_CONV GetModuleTypeStr(unsigned int module, char16_t *type,
 	return 0;
 }
 
-int CALL_CONV GetModuleName(unsigned int module, char16_t *name,
+int GetModuleName(unsigned int module, char16_t *name,
                                                             unsigned int nameLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
@@ -419,7 +419,7 @@ int CALL_CONV GetModuleName(unsigned int module, char16_t *name,
 	return 0;
 }
 
-int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw,
+int GetModuleFW(unsigned int module, char16_t *fw,
                                                           unsigned int fwLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
@@ -431,12 +431,12 @@ int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw,
 ///////////////////////////////////////////////////////////////////////////////
 // General library configuration
 
-unsigned int CALL_CONV GetModuleInputsCount(unsigned int module) {
+unsigned int GetModuleInputsCount(unsigned int module) {
 	(void)module;
 	return IO_MODULE_PIN_COUNT;
 }
 
-unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module) {
+unsigned int GetModuleOutputsCount(unsigned int module) {
 	(void)module;
 	return IO_MODULE_PIN_COUNT;
 }
@@ -444,57 +444,57 @@ unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module) {
 ///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
-void CALL_CONV BindBeforeOpen(StdNotifyEvent f, void *data) {
+void BindBeforeOpen(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeOpen, f, data);
 }
 
-void CALL_CONV BindAfterOpen(StdNotifyEvent f, void *data) {
+void BindAfterOpen(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterOpen, f, data);
 }
 
-void CALL_CONV BindBeforeClose(StdNotifyEvent f, void *data) {
+void BindBeforeClose(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeClose, f, data);
 }
 
-void CALL_CONV BindAfterClose(StdNotifyEvent f, void *data) {
+void BindAfterClose(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterClose, f, data);
 }
 
-void CALL_CONV BindBeforeStart(StdNotifyEvent f, void *data) {
+void BindBeforeStart(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeStart, f, data);
 }
 
-void CALL_CONV BindAfterStart(StdNotifyEvent f, void *data) {
+void BindAfterStart(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterStart, f, data);
 }
 
-void CALL_CONV BindBeforeStop(StdNotifyEvent f, void *data) {
+void BindBeforeStop(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.beforeStop, f, data);
 }
 
-void CALL_CONV BindAfterStop(StdNotifyEvent f, void *data) {
+void BindAfterStop(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.afterStop, f, data);
 }
 
-void CALL_CONV BindOnError(StdErrorEvent f, void *data) {
+void BindOnError(StdErrorEvent f, void *data) {
 	rx.events.bind(rx.events.onError, f, data);
 }
 
-void CALL_CONV BindOnLog(StdLogEvent f, void *data) {
+void BindOnLog(StdLogEvent f, void *data) {
 	rx.events.bind(rx.events.onLog, f, data);
 }
 
-void CALL_CONV BindOnInputChanged(StdModuleChangeEvent f,
+void BindOnInputChanged(StdModuleChangeEvent f,
                                                                   void *data) {
 	rx.events.bind(rx.events.onInputChanged, f, data);
 }
 
-void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f,
+void BindOnOutputChanged(StdModuleChangeEvent f,
                                                                    void *data) {
 	rx.events.bind(rx.events.onOutputChanged, f, data);
 }
 
-void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data) {
+void BindOnScanned(StdNotifyEvent f, void *data) {
 	rx.events.bind(rx.events.onScanned, f, data);
 }
 
