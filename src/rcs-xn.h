@@ -6,6 +6,11 @@
 #define RCS_XN_VERSION_MAJOR 1
 #define RCS_XN_VERSION_MINOR 0
 
+#include <QObject>
+#include <QtGlobal>
+#include <QtCore/QtGlobal>
+#include <array>
+
 #if defined(RCS_XN_SHARED_LIBRARY)
 #define RCS_XN_SHARED_EXPORT Q_DECL_EXPORT
 #else
@@ -17,10 +22,6 @@
 #else
 #define CALL_CONV
 #endif
-
-#include <QObject>
-#include <QtCore/QtGlobal>
-#include <array>
 
 #include "events.h"
 #include "lib/xn-lib-cpp-qt/xn.h"
