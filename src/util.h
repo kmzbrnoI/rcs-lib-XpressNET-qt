@@ -17,7 +17,7 @@ std::size_t strlen(const T *strarg) {
 template <typename T>
 void strcpy(const T *source, T *target, std::size_t maxLen) {
 	std::size_t size = std::min<std::size_t>(StrUtil::strlen(source), maxLen-1);
-	std::memcpy(target, source, size);
+	std::memcpy(target, source, size*sizeof(T));
 	target[size] = 0;
 }
 
