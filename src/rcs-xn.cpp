@@ -378,10 +378,12 @@ void HideConfigDialog() {
 // Devices
 
 int GetDeviceCount() {
+	// TODO
 	return 1;
 }
 
 void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
+	// TODO
 	(void)index;
 	const char16_t *name_utf16 =
 		reinterpret_cast<const char16_t *>(QString("COM port").utf16());
@@ -389,7 +391,7 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Module qustionaries
+// Module questionaries
 
 bool IsModule(unsigned int module) {
 	(void)module;
@@ -401,16 +403,14 @@ bool IsModuleFailure(unsigned int module) {
 	return false; // XpressNET provides no info about module failure
 }
 
-int GetModuleTypeStr(unsigned int module, char16_t *type,
-                                                               unsigned int typeLen) {
+int GetModuleTypeStr(unsigned int module, char16_t *type, unsigned int typeLen) {
 	(void)module;
 	const char16_t *type_utf16 = reinterpret_cast<const char16_t *>(QString("XN").utf16());
 	StrUtil::strcpy<char16_t>(type_utf16, type, typeLen);
 	return 0;
 }
 
-int GetModuleName(unsigned int module, char16_t *name,
-                                                            unsigned int nameLen) {
+int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
 	const char16_t *name_utf16 =
@@ -419,12 +419,28 @@ int GetModuleName(unsigned int module, char16_t *name,
 	return 0;
 }
 
-int GetModuleFW(unsigned int module, char16_t *fw,
-                                                          unsigned int fwLen) {
+int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
 	const char16_t *fw_utf16 = reinterpret_cast<const char16_t *>(QString("-").utf16());
 	StrUtil::strcpy<char16_t>(fw_utf16, fw, fwLen);
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Versions
+
+unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
+	// TODO proper version
+	const char16_t *version_utf16 = reinterpret_cast<const char16_t *>(QString("-").utf16());
+	StrUtil::strcpy<char16_t>(version_utf16, version, versionLen);
+	return 0;
+}
+
+unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
+	// TODO proper version
+	const char16_t *version_utf16 = reinterpret_cast<const char16_t *>(QString("-").utf16());
+	StrUtil::strcpy<char16_t>(version_utf16, version, versionLen);
 	return 0;
 }
 
