@@ -130,7 +130,7 @@ void RcsXn::first_scan() {
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
-	if (group == 0xFF && nibble) {
+	if (group == ((IO_MODULES_COUNT/4)-1) && nibble) {
 		this->initScanningDone();
 		return;
 	}
@@ -315,12 +315,14 @@ unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
 // RCS IO
 
 int GetInput(unsigned int module, unsigned int port) {
-	if (rx.started != RcsStartState::started)
+	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT)
 		return RCS_PORT_INVALID_NUMBER;
+	if (rx.started == RcsStartState::scanning)
+		return RCS_INPUT_NOT_YET_SCANNED;
 
 	return rx.inputs[module*2 + port];
 }
@@ -337,6 +339,13 @@ int GetOutput(unsigned int module, unsigned int port) {
 }
 
 int SetOutput(unsigned int module, unsigned int port, int state) {
+	if (rx.started == RcsStartState::stopped)
+		return RCS_NOT_STARTED;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	if (port >= IO_MODULE_PIN_COUNT)
+		return RCS_PORT_INVALID_NUMBER;
+
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
 	rx.xn.accOpRequest(
@@ -379,8 +388,7 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 unsigned int GetModuleCount() { return IO_MODULES_COUNT; }
 
 bool IsModule(unsigned int module) {
-	(void)module;
-	return true; // XpressNET provides no info about module existence
+	return (module < IO_MODULES_COUNT); // XpressNET provides no info about module existence
 }
 
 bool IsModuleFailure(unsigned int module) {
