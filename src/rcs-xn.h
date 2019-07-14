@@ -60,9 +60,6 @@ RCS_XN_SHARED_EXPORT void CALL_CONV SetConfigFileName(char16_t *filename);
 RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel);
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel();
 
-RCS_XN_SHARED_EXPORT void CALL_CONV ShowConfigDialog();
-RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog();
-
 RCS_XN_SHARED_EXPORT int CALL_CONV Open();
 RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t *device, bool persist);
 RCS_XN_SHARED_EXPORT int CALL_CONV Close();

@@ -359,12 +359,6 @@ int GetOutputType(unsigned int module, unsigned int port) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Config dialogs
-
-void ShowConfigDialog() { /* Nothing here intentionally */ }
-void HideConfigDialog() { /* Nothing here intentionally */ }
-
-///////////////////////////////////////////////////////////////////////////////
 // Devices
 
 int GetDeviceCount() {
