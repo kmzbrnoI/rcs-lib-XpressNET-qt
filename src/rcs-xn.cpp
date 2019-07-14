@@ -319,8 +319,13 @@ int GetInput(unsigned int module, unsigned int port) {
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_MODULE_PIN_COUNT)
+	if (port >= IO_MODULE_PIN_COUNT) {
+		#ifdef IGNORE_PIN_BOUNDS
+		return 0;
+		#else
 		return RCS_PORT_INVALID_NUMBER;
+		#endif
+	}
 	if (rx.started == RcsStartState::scanning)
 		return RCS_INPUT_NOT_YET_SCANNED;
 
@@ -332,8 +337,13 @@ int GetOutput(unsigned int module, unsigned int port) {
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_MODULE_PIN_COUNT)
+	if (port >= IO_MODULE_PIN_COUNT) {
+		#ifdef IGNORE_PIN_BOUNDS
+		return 0;
+		#else
 		return RCS_PORT_INVALID_NUMBER;
+		#endif
+	}
 
 	return rx.outputs[module*2 + port];
 }
@@ -343,8 +353,13 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_MODULE_PIN_COUNT)
+	if (port >= IO_MODULE_PIN_COUNT) {
+		#ifdef IGNORE_PIN_BOUNDS
+		return 0;
+		#else
 		return RCS_PORT_INVALID_NUMBER;
+		#endif
+	}
 
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
