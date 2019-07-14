@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+/* This file defined various helper functions. */
+
 #include <cstddef>
 
 namespace StrUtil {

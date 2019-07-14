@@ -4,7 +4,9 @@
 #include <QString>
 #include <cstdint>
 
-// TODO Add docstring
+/* This file provides storage & calling capabilities of callbacks from the
+ * library back to the hJOPserver.
+ */
 
 namespace RcsXn {
 

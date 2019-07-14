@@ -1,7 +1,9 @@
 #ifndef RCS_XN_H
 #define RCS_XN_H
 
-// TODO Add docstring
+/* This is the main file of RCS-XN library. It defined exported functions as
+ * well as RcsXn class which holds all the library's data.
+ */
 
 #include <QObject>
 #include <QtCore/QtGlobal>
