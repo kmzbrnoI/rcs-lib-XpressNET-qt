@@ -175,7 +175,6 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 void RcsXn::xnOnError(QString error) { this->error(error); }
 
 void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
-	// TODO: a little loglevel mismatch
 	this->log(message, static_cast<RcsXnLogLevel>(loglevel));
 }
 

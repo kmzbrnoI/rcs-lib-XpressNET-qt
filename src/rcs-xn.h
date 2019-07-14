@@ -42,8 +42,9 @@ enum class RcsXnLogLevel {
 	llError = 1,
 	llWarning = 2,
 	llInfo = 3,
-	llRawCommands = 4,
-	llDebug = 5,
+	llCommands = 4,
+	llRawCommands = 5,
+	llDebug = 6,
 };
 
 enum class RcsStartState {
