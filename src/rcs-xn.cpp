@@ -414,6 +414,19 @@ int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
 ///////////////////////////////////////////////////////////////////////////////
 // Versions
 
+bool ApiSupportsVersion(unsigned int version) {
+	return std::find(API_SUPPORTED_VERSIONS.begin(), API_SUPPORTED_VERSIONS.end(), version) !=
+	       API_SUPPORTED_VERSIONS.end();
+}
+
+int ApiSetVersion(unsigned int version) {
+	if (!ApiSupportsVersion(version))
+		return RCS_UNSUPPORTED_API_VERSION;
+
+	rx.api_version = version;
+	return 0;
+}
+
 unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
 	// TODO proper version
 	const QString sversion = "-";

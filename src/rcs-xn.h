@@ -34,6 +34,10 @@ constexpr size_t IO_COUNT = 2048;
 constexpr size_t IO_MODULES_COUNT = 1024;
 constexpr size_t IO_MODULE_PIN_COUNT = 2;
 
+constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
+	0x0301, // v1.3
+};
+
 enum class RcsXnLogLevel {
 	llNo = 0,
 	llError = 1,
@@ -90,6 +94,8 @@ RCS_XN_SHARED_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleInputsCount(unsigned int module);
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module);
 
+RCS_XN_SHARED_EXPORT bool CALL_CONV ApiSupportsVersion(unsigned int version);
+RCS_XN_SHARED_EXPORT int CALL_CONV ApiSetVersion(unsigned int version);
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetDeviceVersion(char16_t *version,
                                                              unsigned int versionLen);
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetDriverVersion(char16_t *version,
@@ -126,6 +132,7 @@ public:
 	std::array<bool, IO_COUNT> outputs; // TODO: reset outputs at start?
 	uint8_t scan_group;
 	bool scan_nibble;
+	unsigned int api_version = 0x0301;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
