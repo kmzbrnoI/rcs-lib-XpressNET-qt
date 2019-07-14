@@ -328,7 +328,7 @@ int GetInput(unsigned int module, unsigned int port) {
 }
 
 int GetOutput(unsigned int module, unsigned int port) {
-	if (rx.started != RcsStartState::started)
+	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
