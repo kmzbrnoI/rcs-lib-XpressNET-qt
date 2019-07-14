@@ -11,12 +11,13 @@ RcsXn rx;
 ///////////////////////////////////////////////////////////////////////////////
 
 RcsXn::RcsXn(QObject *parent) : QObject(parent), xn(this) {
-	QObject::connect(&xn, SIGNAL(onError()), this, SLOT(xnOnError()));
-	QObject::connect(&xn, SIGNAL(onLog()), this, SLOT(xnOnLog()));
+	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
+	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::XnLogLevel)), this, SLOT(xnOnLog(QString, Xn::XnLogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
-	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(xnOnTrkStatusChanged()));
-	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(xnOnAccInputChanged()));
+	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::XnTrkStatus)), this, SLOT(xnOnTrkStatusChanged(Xn::XnTrkStatus)));
+	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)),
+					 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
 
 	// No loading of configuration here (caller should call LoadConfig)
 }
