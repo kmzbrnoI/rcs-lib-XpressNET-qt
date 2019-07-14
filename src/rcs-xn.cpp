@@ -6,6 +6,7 @@
 
 namespace RcsXn {
 
+AppThread main_thread;
 RcsXn rx;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -340,7 +341,7 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 	rx.outputs[portAddr] = state;
 	rx.xn.accOpRequest(
 	    portAddr, state, nullptr,
-	    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+		std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 	                               reinterpret_cast<void *>(module))
 	);
 	rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
@@ -428,7 +429,7 @@ int ApiSetVersion(unsigned int version) {
 
 unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
 	const QString sversion = "LI HW: " + QString::number(rx.li_ver_hw) + ", LI SW: " +
-	                         QString::number(rx.li_ver_sw);
+							 QString::number(rx.li_ver_sw);
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
 	                          versionLen);
 	return 0;
