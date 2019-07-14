@@ -122,7 +122,7 @@ void RcsXn::first_scan() {
 	this->scan_group = 0;
 	this->scan_nibble = false;
 	xn.accInfoRequest(
-		0, false, nullptr,
+		0, false,
 		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
@@ -144,11 +144,9 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	this->scan_nibble = nibble;
 
 	xn.accInfoRequest(
-		group, nibble, nullptr,
+		group, nibble,
 		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
-
-	// TODO: what if CS will respond "OK", but not with status of module
 }
 
 void RcsXn::xnOnInitScanningError(void *, void *) {
@@ -370,12 +368,10 @@ void HideConfigDialog() { /* Nothing here intentionally */ }
 // Devices
 
 int GetDeviceCount() {
-	// TODO
 	return 1;
 }
 
 void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
-	// TODO
 	(void)index;
 	const QString sname = "COM port";
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sname.utf16()), serial, serialLen);
