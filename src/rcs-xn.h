@@ -3,9 +3,6 @@
 
 // TODO Add docstring
 
-#define RCS_XN_VERSION_MAJOR 1
-#define RCS_XN_VERSION_MINOR 0
-
 #include <QObject>
 #include <QtCore/QtGlobal>
 #include <QtGlobal>

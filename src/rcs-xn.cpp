@@ -441,8 +441,7 @@ unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
 }
 
 unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
-	// TODO proper version
-	const QString sversion = "-";
+	const QString sversion = VERSION;
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
 	                          versionLen);
 	return 0;
