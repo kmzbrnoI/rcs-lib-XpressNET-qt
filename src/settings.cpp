@@ -1,5 +1,16 @@
 #include "settings.h"
 
+Settings::Settings() {
+	this->loadDefaults();
+}
+
+void Settings::loadDefaults() {
+	for (const auto &gm : DEFAULTS)
+		for (const std::pair<const QString, QVariant> &k : gm.second)
+			if (data[gm.first].find(k.first) == data[gm.first].end())
+				data[gm.first][k.first] = k.second;
+}
+
 void Settings::load(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
 	data.clear();
@@ -11,11 +22,7 @@ void Settings::load(const QString &filename) {
 		s.endGroup();
 	}
 
-	// Load default for non-loaded data
-	for (const auto &gm : DEFAULTS)
-		for (const std::pair<const QString, QVariant> &k : gm.second)
-			if (data[gm.first].find(k.first) == data[gm.first].end())
-				data[gm.first][k.first] = k.second;
+	this->loadDefaults();
 }
 
 void Settings::save(const QString &filename) {

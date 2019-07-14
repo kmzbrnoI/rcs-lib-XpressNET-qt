@@ -20,6 +20,7 @@ const Config DEFAULTS {
 
 class Settings {
 public:
+	Settings();
 	Config data;
 
 	void load(const QString &filename);
@@ -36,6 +37,7 @@ public:
 	                         QString &target);
 
 private:
+	void loadDefaults();
 };
 
 #endif

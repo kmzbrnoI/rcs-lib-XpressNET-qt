@@ -29,7 +29,6 @@
 
 namespace RcsXn {
 
-constexpr char CONFIG_FN[] = "rcsXn.ini";
 constexpr size_t IO_COUNT = 2048;
 constexpr size_t IO_MODULES_COUNT = 1024;
 constexpr size_t IO_MODULE_PIN_COUNT = 2;
@@ -56,6 +55,7 @@ enum class RcsStartState {
 extern "C" {
 RCS_XN_SHARED_EXPORT int CALL_CONV LoadConfig(char16_t *filename);
 RCS_XN_SHARED_EXPORT int CALL_CONV SaveConfig(char16_t *filename);
+RCS_XN_SHARED_EXPORT void CALL_CONV SetConfigFileName(char16_t *filename);
 
 RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel);
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel();
@@ -133,6 +133,7 @@ public:
 	uint8_t scan_group;
 	bool scan_nibble;
 	unsigned int api_version = 0x0301;
+	QString config_filename = "";
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();

@@ -18,14 +18,15 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), xn(this) {
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged()), this, SLOT(xnOnTrkStatusChanged()));
 	QObject::connect(&xn, SIGNAL(onAccInputChanged()), this, SLOT(xnOnAccInputChanged()));
 
-	this->loadConfig(CONFIG_FN);
+	// No loading of configuration here (caller should call LoadConfig)
 }
 
 RcsXn::~RcsXn() {
 	try {
 		if (xn.connected())
 			close();
-		s.save(CONFIG_FN); // optional
+		if (this->config_filename != "")
+			s.save(this->config_filename);
 	} catch (...) {
 		// No exceptions in destructor!
 	}
@@ -276,6 +277,7 @@ int LoadConfig(char16_t *filename) {
 	if (rx.xn.connected())
 		return RCS_FILE_DEVICE_OPENED;
 	try {
+		rx.config_filename = QString::fromUtf16(filename);
 		rx.loadConfig(QString::fromUtf16(filename));
 	} catch (...) {
 		return RCS_FILE_CANNOT_ACCESS;
@@ -290,6 +292,10 @@ int SaveConfig(char16_t *filename) {
 		return RCS_FILE_CANNOT_ACCESS;
 	}
 	return 0;
+}
+
+void SetConfigFileName(char16_t *filename) {
+	rx.config_filename = QString::fromUtf16(filename);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
