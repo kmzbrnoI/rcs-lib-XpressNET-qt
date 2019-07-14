@@ -17,7 +17,13 @@ HEADERS += \
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -enable-stdcall-fixup
-QMAKE_LFLAGS += -Wl,--kill-at
+
+win32 {
+	QMAKE_LFLAGS += -Wl,--kill-at
+}
+win64 {
+	QMAKE_LFLAGS += -Wl,--kill-at
+}
 
 QT += serialport
 
