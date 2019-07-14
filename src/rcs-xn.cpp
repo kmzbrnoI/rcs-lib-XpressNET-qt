@@ -238,6 +238,9 @@ void RcsXn::xnOnCSStatusOk(void *, void *) {
 void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 	log("Got LI version. HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
 	    RcsXnLogLevel::llInfo);
+	this->li_ver_hw = hw;
+	this->li_ver_sw = sw;
+
 	try {
 		xn.getCommandStationStatus(
 		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
@@ -433,8 +436,8 @@ int ApiSetVersion(unsigned int version) {
 }
 
 unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
-	// TODO proper version
-	const QString sversion = "-";
+	const QString sversion = "LI HW: " + QString::number(rx.li_ver_hw) + ", LI SW: " +
+	                         QString::number(rx.li_ver_sw);
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
 	                          versionLen);
 	return 0;
