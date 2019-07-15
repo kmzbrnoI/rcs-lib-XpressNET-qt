@@ -449,6 +449,10 @@ bool IsModule(unsigned int module) {
 	return ((module < IO_MODULES_COUNT) && (rx.active[module]));
 }
 
+unsigned int GetMaxModuleAddr() {
+	return IO_MODULES_COUNT-1;
+}
+
 bool IsModuleFailure(unsigned int module) {
 	(void)module;
 	return false; // XpressNET provides no info about module failure
