@@ -132,23 +132,22 @@ void RcsXn::first_scan() {
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
-	if (group == ((IO_MODULES_COUNT/4)-1) && nibble) {
+	// Pick next address
+	unsigned next_module = (group*4) + (nibble*2); // LSB always 0!
+	while ((next_module < IO_MODULES_COUNT) && (!this->active[next_module]) &&
+	       (!this->active[next_module+1]))
+		next_module += 2;
+
+	if (next_module >= IO_MODULES_COUNT) {
 		this->initScanningDone();
 		return;
 	}
 
-	if (!nibble) {
-		nibble = true;
-	} else {
-		group++;
-		nibble = false;
-	}
-
-	this->scan_group = group;
-	this->scan_nibble = nibble;
+	this->scan_group = next_module/4;
+	this->scan_nibble = (next_module%4) >> 1;
 
 	xn.accInfoRequest(
-		group, nibble,
+		this->scan_group, this->scan_nibble,
 		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
