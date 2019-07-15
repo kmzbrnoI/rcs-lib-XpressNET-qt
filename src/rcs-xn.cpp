@@ -19,7 +19,7 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), xn(this) {
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::XnTrkStatus)), this, SLOT(xnOnTrkStatusChanged(Xn::XnTrkStatus)));
 	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)),
-					 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
+	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
 
 	// No loading of configuration here (caller should call LoadConfig)
 }
@@ -245,11 +245,21 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	this->inputs[port+2] = state.sep.i2;
 	this->inputs[port+3] = state.sep.i3;
 
+	if (!this->active[port/2]) {
+		this->active[port/2] = true;
+		this->modules_count++;
+	}
+	if (!this->active[(port/2)+1]) {
+		this->active[(port/2)+1] = true;
+		this->modules_count++;
+	}
+
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group) &&
 	    (nibble == this->scan_nibble)) {
 		this->initModuleScanned(groupAddr, nibble);
 	} else {
 		events.call(events.onInputChanged, port/2);
+		events.call(events.onInputChanged, (port/2)+1);
 	}
 }
 
