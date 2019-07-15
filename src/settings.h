@@ -16,6 +16,9 @@ const Config DEFAULTS {
 		{"flowcontrol", 1},
 		{"loglevel", 1},
 	}},
+	{"modules", {
+		{"active", "1-32,64-92"},
+	}}
 };
 
 class Settings {

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstring>
 
 #include "errors.h"
@@ -118,6 +119,7 @@ void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename);
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
+	this->parseActiveModules(s["modules"]["active"].toString());
 }
 
 void RcsXn::first_scan() {
@@ -167,6 +169,32 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 	unsigned int module = reinterpret_cast<intptr_t>(data);
 	error("Command Station did not respond to SetOutput command!", RCS_MODULE_NOT_ANSWERED_CMD,
 	      module);
+}
+
+void RcsXn::parseActiveModules(const QString &active) {
+	std::fill(this->active.begin(), this->active.end(), false);
+	const QStringList ranges = active.split(',');
+	for (const QString& range : ranges) {
+		const QStringList bounds = range.split('-');
+		bool okl, okr = false;
+		if (bounds.size() == 2) {
+			unsigned int addr = bounds[0].toUInt(&okl);
+			if (okl)
+				this->active[addr] = true;
+			else
+				log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
+		} else if (bounds.size() == 1) {
+			unsigned int left = bounds[0].toUInt(&okl);
+			unsigned int right = bounds[1].toUInt(&okr);
+			if (okl & okr) {
+				for (size_t i = left; i <= right; i++)
+					this->active[i] = true;
+			} else
+				log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+		} else {
+			log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
