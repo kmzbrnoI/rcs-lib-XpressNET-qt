@@ -173,6 +173,7 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 
 void RcsXn::parseActiveModules(const QString &active) {
 	std::fill(this->active.begin(), this->active.end(), false);
+
 	const QStringList ranges = active.split(',');
 	for (const QString& range : ranges) {
 		const QStringList bounds = range.split('-');
@@ -195,6 +196,11 @@ void RcsXn::parseActiveModules(const QString &active) {
 			log("Invalid range: " + range, RcsXnLogLevel::llWarning);
 		}
 	}
+
+	this->modules_count = 0;
+	for (const bool &act : this->active)
+		if (act)
+			this->modules_count++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -345,7 +351,7 @@ unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
 int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if (module >= IO_MODULES_COUNT)
+	if ((module >= IO_MODULES_COUNT) || (!rx.active[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
 		#ifdef IGNORE_PIN_BOUNDS
@@ -363,7 +369,7 @@ int GetInput(unsigned int module, unsigned int port) {
 int GetOutput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if (module >= IO_MODULES_COUNT)
+	if ((module >= IO_MODULES_COUNT) || (!rx.active[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
 		#ifdef IGNORE_PIN_BOUNDS
@@ -379,7 +385,7 @@ int GetOutput(unsigned int module, unsigned int port) {
 int SetOutput(unsigned int module, unsigned int port, int state) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if (module >= IO_MODULES_COUNT)
+	if ((module >= IO_MODULES_COUNT) || (!rx.active[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
 		#ifdef IGNORE_PIN_BOUNDS
@@ -428,10 +434,10 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 ///////////////////////////////////////////////////////////////////////////////
 // Module questionaries
 
-unsigned int GetModuleCount() { return IO_MODULES_COUNT; }
+unsigned int GetModuleCount() { return rx.modules_count; }
 
 bool IsModule(unsigned int module) {
-	return (module < IO_MODULES_COUNT); // XpressNET provides no info about module existence
+	return ((module < IO_MODULES_COUNT) && (rx.active[module]));
 }
 
 bool IsModuleFailure(unsigned int module) {
@@ -480,7 +486,7 @@ int ApiSetVersion(unsigned int version) {
 
 unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
 	const QString sversion = "LI HW: " + QString::number(rx.li_ver_hw) + ", LI SW: " +
-							 QString::number(rx.li_ver_sw);
+	                          QString::number(rx.li_ver_sw);
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
 	                          versionLen);
 	return 0;

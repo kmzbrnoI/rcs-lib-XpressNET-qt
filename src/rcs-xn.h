@@ -135,6 +135,7 @@ public:
 	unsigned int api_version = 0x0301;
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
+	unsigned int modules_count = 0;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
