@@ -133,7 +133,7 @@ void RcsXn::first_scan() {
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	// Pick next address
-	unsigned next_module = (group*4) + (nibble*2); // LSB always 0!
+	unsigned next_module = (group*4) + (nibble*2) + 2; // LSB always 0!
 	while ((next_module < IO_MODULES_COUNT) && (!this->active[next_module]) &&
 	       (!this->active[next_module+1]))
 		next_module += 2;
@@ -177,13 +177,13 @@ void RcsXn::parseActiveModules(const QString &active) {
 	for (const QString& range : ranges) {
 		const QStringList bounds = range.split('-');
 		bool okl, okr = false;
-		if (bounds.size() == 2) {
+		if (bounds.size() == 1) {
 			unsigned int addr = bounds[0].toUInt(&okl);
 			if (okl)
 				this->active[addr] = true;
 			else
 				log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
-		} else if (bounds.size() == 1) {
+		} else if (bounds.size() == 2) {
 			unsigned int left = bounds[0].toUInt(&okl);
 			unsigned int right = bounds[1].toUInt(&okr);
 			if (okl & okr) {
