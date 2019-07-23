@@ -130,7 +130,8 @@ public:
 	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs; // TODO: reset outputs at start?
-	std::array<bool, IO_MODULES_COUNT> active;
+	std::array<bool, IO_MODULES_COUNT> active_in;
+	std::array<bool, IO_MODULES_COUNT> active_out;
 	uint8_t scan_group;
 	bool scan_nibble;
 	unsigned int api_version = 0x0301;
@@ -174,7 +175,9 @@ private:
 	void xnOnInitScanningError(void *, void *);
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
-	void parseActiveModules(const QString &active);
+
+	template <typename T>
+	void parseActiveModules(const QString &active, T &result);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -119,7 +119,13 @@ void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename);
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
-	this->parseActiveModules(s["modules"]["active"].toString());
+	this->parseActiveModules(s["modules"]["active-in"].toString(), this->active_in);
+	this->parseActiveModules(s["modules"]["active-out"].toString(), this->active_out);
+
+	this->modules_count = 0;
+	for (size_t i = 0; i < IO_MODULES_COUNT; i++)
+		if (this->active_in[i] || this->active_out[i])
+			this->modules_count++;
 }
 
 void RcsXn::first_scan() {
@@ -134,8 +140,8 @@ void RcsXn::first_scan() {
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	// Pick next address
 	unsigned next_module = (group*4) + (nibble*2) + 2; // LSB always 0!
-	while ((next_module < IO_MODULES_COUNT) && (!this->active[next_module]) &&
-	       (!this->active[next_module+1]))
+	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module]) &&
+	       (!this->active_in[next_module+1]))
 		next_module += 2;
 
 	if (next_module >= IO_MODULES_COUNT) {
@@ -170,8 +176,9 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 	      module);
 }
 
-void RcsXn::parseActiveModules(const QString &active) {
-	std::fill(this->active.begin(), this->active.end(), false);
+template <typename T>
+void RcsXn::parseActiveModules(const QString &active, T &result) {
+	std::fill(result.begin(), result.end(), false);
 
 	const QStringList ranges = active.split(',');
 	for (const QString& range : ranges) {
@@ -180,7 +187,7 @@ void RcsXn::parseActiveModules(const QString &active) {
 		if (bounds.size() == 1) {
 			unsigned int addr = bounds[0].toUInt(&okl);
 			if (okl)
-				this->active[addr] = true;
+				result[addr] = true;
 			else
 				log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
 		} else if (bounds.size() == 2) {
@@ -188,18 +195,13 @@ void RcsXn::parseActiveModules(const QString &active) {
 			unsigned int right = bounds[1].toUInt(&okr);
 			if (okl & okr) {
 				for (size_t i = left; i <= right; i++)
-					this->active[i] = true;
+					result[i] = true;
 			} else
 				log("Invalid range: " + range, RcsXnLogLevel::llWarning);
 		} else {
 			log("Invalid range: " + range, RcsXnLogLevel::llWarning);
 		}
 	}
-
-	this->modules_count = 0;
-	for (const bool &act : this->active)
-		if (act)
-			this->modules_count++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -244,12 +246,12 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	this->inputs[port+2] = state.sep.i2;
 	this->inputs[port+3] = state.sep.i3;
 
-	if (!this->active[port/2]) {
-		this->active[port/2] = true;
+	if (!this->active_in[port/2]) {
+		this->active_in[port/2] = true;
 		this->modules_count++;
 	}
-	if (!this->active[(port/2)+1]) {
-		this->active[(port/2)+1] = true;
+	if (!this->active_in[(port/2)+1]) {
+		this->active_in[(port/2)+1] = true;
 		this->modules_count++;
 	}
 
@@ -360,7 +362,7 @@ unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
 int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_MODULES_COUNT) || (!rx.active[module]))
+	if ((module >= IO_MODULES_COUNT) || (!rx.active_in[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
 		#ifdef IGNORE_PIN_BOUNDS
@@ -378,7 +380,7 @@ int GetInput(unsigned int module, unsigned int port) {
 int GetOutput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_MODULES_COUNT) || (!rx.active[module]))
+	if ((module >= IO_MODULES_COUNT) || (!rx.active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
 		#ifdef IGNORE_PIN_BOUNDS
@@ -394,7 +396,7 @@ int GetOutput(unsigned int module, unsigned int port) {
 int SetOutput(unsigned int module, unsigned int port, int state) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_MODULES_COUNT) || (!rx.active[module]))
+	if ((module >= IO_MODULES_COUNT) || (!rx.active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
 		#ifdef IGNORE_PIN_BOUNDS
@@ -407,7 +409,7 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
 	rx.outputs[portAddr] = state;
 	rx.xn.accOpRequest(
-	    portAddr, state, nullptr,
+		portAddr, state, nullptr,
 		std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 	                               reinterpret_cast<void *>(module))
 	);
@@ -446,7 +448,7 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 unsigned int GetModuleCount() { return rx.modules_count; }
 
 bool IsModule(unsigned int module) {
-	return ((module < IO_MODULES_COUNT) && (rx.active[module]));
+	return ((module < IO_MODULES_COUNT) && ((rx.active_in[module]) || (rx.active_out[module])));
 }
 
 unsigned int GetMaxModuleAddr() {
@@ -516,13 +518,15 @@ unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
 // General library configuration
 
 unsigned int GetModuleInputsCount(unsigned int module) {
-	(void)module;
-	return IO_MODULE_PIN_COUNT;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	return rx.active_in[module] ? IO_MODULE_PIN_COUNT : 0;
 }
 
 unsigned int GetModuleOutputsCount(unsigned int module) {
-	(void)module;
-	return IO_MODULE_PIN_COUNT;
+	if (module >= IO_MODULES_COUNT)
+		return RCS_MODULE_INVALID_ADDR;
+	return rx.active_out[module] ? IO_MODULE_PIN_COUNT : 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
