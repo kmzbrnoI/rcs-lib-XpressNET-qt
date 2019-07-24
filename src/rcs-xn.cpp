@@ -420,9 +420,9 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		rx.setSignal(portAddr, state);
 	} else {
 		// Plain output
-		rx.outputs[portAddr] = state;
+		rx.outputs[portAddr] = static_cast<bool>(state);
 		rx.xn.accOpRequest(
-			portAddr, state, nullptr,
+			portAddr, static_cast<bool>(state), nullptr,
 			std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 			                           reinterpret_cast<void *>(module))
 		);
