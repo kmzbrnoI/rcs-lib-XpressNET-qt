@@ -32,18 +32,21 @@ void XnSignalTemplate::saveData(QSettings &s) const {
 
 XnSignal::XnSignal() {}
 
-XnSignal::XnSignal(QSettings &s) {
+XnSignal::XnSignal(QSettings &s, unsigned int hJOPaddr) : hJOPaddr(hJOPaddr) {
 	this->loadData(s);
 }
 
 void XnSignal::loadData(QSettings &s) {
 	tmpl.loadData(s);
-	this->startAddr = s.value("startAddr", 0).toUInt();
+	this->startAddr = s.value("startAddr", this->hJOPaddr).toUInt();
 }
 
 void XnSignal::saveData(QSettings &s) const {
 	tmpl.saveData(s);
-	s.setValue("startAddr", this->startAddr);
+	if (this->startAddr != this->hJOPaddr)
+		s.setValue("startAddr", this->startAddr);
+	else
+		s.remove("startAddr");
 }
 
 } // namespace RcsXn

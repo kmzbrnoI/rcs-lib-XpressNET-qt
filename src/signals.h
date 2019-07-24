@@ -20,9 +20,10 @@ struct XnSignalTemplate {
 struct XnSignal {
 	unsigned int startAddr;
 	XnSignalTemplate tmpl;
+	unsigned int hJOPaddr;
 
 	XnSignal();
-	XnSignal(QSettings &);
+	XnSignal(QSettings &, unsigned int hJOPaddr);
 	void loadData(QSettings &);
 	void saveData(QSettings &) const;
 };
