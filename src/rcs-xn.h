@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 #include <QtGlobal>
 #include <array>
+#include <map>
 
 #if defined(RCS_XN_SHARED_LIBRARY)
 #define RCS_XN_SHARED_EXPORT Q_DECL_EXPORT
@@ -27,6 +28,7 @@
 #include "events.h"
 #include "lib/xn-lib-cpp-qt/xn.h"
 #include "settings.h"
+#include "signals.h"
 
 namespace RcsXn {
 
@@ -138,6 +140,10 @@ public:
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 	unsigned int modules_count = 0;
+
+	// signals
+	std::map<QString, XnSignalTemplate> sigTemplates;
+	std::map<unsigned int, XnSignal> sig; // hJOP output -> signal mapping
 
 	explicit RcsXn(QObject *parent = nullptr);
 	virtual ~RcsXn();
