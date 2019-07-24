@@ -27,7 +27,7 @@ public:
 	Settings();
 	Config data;
 
-	void load(const QString &filename);
+	void load(const QString &filename, bool loadNonDefaults = true);
 	void save(const QString &filename);
 
 	std::map<QString, QVariant> &at(const QString &g);

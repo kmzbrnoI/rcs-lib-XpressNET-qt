@@ -11,15 +11,21 @@ void Settings::loadDefaults() {
 				data[gm.first][k.first] = k.second;
 }
 
-void Settings::load(const QString &filename) {
+void Settings::load(const QString &filename, bool loadNonDefaults) {
 	QSettings s(filename, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
 	data.clear();
 
 	for (const auto &g : s.childGroups()) {
+		if ((!loadNonDefaults) && (DEFAULTS.find(g) == DEFAULTS.end()))
+			continue;
+
 		s.beginGroup(g);
-		for (const auto &k : s.childKeys())
+		for (const auto &k : s.childKeys()) {
+			if ((!loadNonDefaults) && (DEFAULTS.at(g).find(k) == DEFAULTS.at(g).end()))
+				continue;
 			data[g][k] = s.value(k, "");
+		}
 		s.endGroup();
 	}
 

@@ -117,7 +117,7 @@ int RcsXn::stop() {
 }
 
 void RcsXn::loadConfig(const QString &filename) {
-	s.load(filename);
+	s.load(filename, false); // do not load & store nonDefaults
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->parseActiveModules(s["modules"]["active-in"].toString(), this->active_in);
