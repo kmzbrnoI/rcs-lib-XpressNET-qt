@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstring>
+#include <QSettings>
 
 #include "errors.h"
 #include "rcs-xn.h"
@@ -121,6 +122,7 @@ void RcsXn::loadConfig(const QString &filename) {
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->parseActiveModules(s["modules"]["active-in"].toString(), this->active_in);
 	this->parseActiveModules(s["modules"]["active-out"].toString(), this->active_out);
+	this->loadSignals(filename);
 
 	this->modules_count = 0;
 	for (size_t i = 0; i < IO_MODULES_COUNT; i++)
@@ -135,6 +137,11 @@ void RcsXn::first_scan() {
 		0, false,
 		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
+}
+
+void RcsXn::saveConfig(const QString &filename) {
+	s.save(filename);
+	this->saveSignals(filename);
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
@@ -334,7 +341,7 @@ int LoadConfig(char16_t *filename) {
 
 int SaveConfig(char16_t *filename) {
 	try {
-		rx.s.save(QString::fromUtf16(filename));
+		rx.saveConfig(QString::fromUtf16(filename));
 	} catch (...) {
 		return RCS_FILE_CANNOT_ACCESS;
 	}
@@ -547,6 +554,65 @@ void BindOnLog(StdLogEvent f, void *data) { rx.events.bind(rx.events.onLog, f, d
 void BindOnInputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onInputChanged, f, data); }
 void BindOnOutputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onOutputChanged, f, data); }
 void BindOnScanned(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.onScanned, f, data); }
+
+///////////////////////////////////////////////////////////////////////////////
+// Signals
+
+void RcsXn::loadSignals(const QString &filename) {
+	QSettings s(filename, QSettings::IniFormat);
+
+	// signals
+	for (const auto &g : s.childGroups()) {
+		if (not g.startsWith("Signal"))
+			continue;
+
+		try {
+			QStringList name = g.split(':');
+			unsigned int hJOPoutput = name[1].toInt();
+
+			s.beginGroup(g);
+			this->sig.emplace(hJOPoutput, XnSignal(s));
+			s.endGroup();
+		} catch (...) {
+			log("Invalid signal: " + g, RcsXnLogLevel::llWarning);
+		}
+	}
+
+	// signal templates
+	for (const auto &g : s.childGroups()) {
+		if (not g.startsWith("SigTemplate"))
+			continue;
+
+		try {
+			QStringList name = g.split(':');
+			const QString sigName = name[1];
+
+			s.beginGroup(g);
+			this->sigTemplates.emplace(sigName, XnSignalTemplate(s));
+			s.endGroup();
+		} catch (...) {
+			log("Invalid signal template: " + g, RcsXnLogLevel::llWarning);
+		}
+	}
+}
+
+void RcsXn::saveSignals(const QString &filename) {
+	QSettings s(filename, QSettings::IniFormat);
+
+	// signals
+	for (const auto &pair : this->sig) {
+		s.beginGroup("Signal:" + QString::number(pair.first));
+		pair.second.saveData(s);
+		s.endGroup();
+	}
+
+	// signal templates
+	for (const auto &pair : this->sigTemplates) {
+		s.beginGroup("SigTemplate:" + pair.first);
+		pair.second.saveData(s);
+		s.endGroup();
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

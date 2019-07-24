@@ -7,18 +7,24 @@
 
 namespace RcsXn {
 
-class XnSignalTemplate {
+struct XnSignalTemplate {
 	std::size_t outputsCount;
 	std::map<unsigned int, uint16_t> outputs; // scom code -> outputs state
 
+	XnSignalTemplate();
 	XnSignalTemplate(QSettings &);
 	void loadData(QSettings &);
-	void saveData(QSettings &);
+	void saveData(QSettings &) const;
 };
 
-class XnSignal {
+struct XnSignal {
 	unsigned int startAddr;
-	XnSignalTemplate tmlp;
+	XnSignalTemplate tmpl;
+
+	XnSignal();
+	XnSignal(QSettings &);
+	void loadData(QSettings &);
+	void saveData(QSettings &) const;
 };
 
 } // namespace RcsXn

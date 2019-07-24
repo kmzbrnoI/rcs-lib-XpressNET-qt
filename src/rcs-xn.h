@@ -157,6 +157,7 @@ public:
 	int openDevice(const QString &device, bool persist);
 	int close();
 	void loadConfig(const QString &filename);
+	void saveConfig(const QString &filename);
 	int start();
 	int stop();
 
@@ -184,6 +185,9 @@ private:
 
 	template <typename T>
 	void parseActiveModules(const QString &active, T &result);
+
+	void loadSignals(const QString &filename);
+	void saveSignals(const QString &filename);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
