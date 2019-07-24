@@ -220,7 +220,7 @@ void RcsXn::xnOnError(QString error) {
 	// Xn error is considered fatal -> close device
 	this->error(error);
 
-	if (this->started != RcsSrartState::stopped)
+	if (this->started != RcsStartState::stopped)
 		this->stop();
 	if (xn.connected())
 		this->close();
