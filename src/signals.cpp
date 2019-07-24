@@ -2,7 +2,7 @@
 
 namespace RcsXn {
 
-XnSignalTemplate::XnSignalTemplate() {}
+XnSignalTemplate::XnSignalTemplate() = default;
 
 XnSignalTemplate::XnSignalTemplate(QSettings &s) { this->loadData(s); }
 
@@ -29,7 +29,7 @@ void XnSignalTemplate::saveData(QSettings &s) const {
 		           QString("%1").arg(output.second, this->outputsCount, 2, QLatin1Char('0')));
 }
 
-XnSignal::XnSignal() {}
+XnSignal::XnSignal() = default;
 
 XnSignal::XnSignal(QSettings &s, unsigned int hJOPaddr) : hJOPaddr(hJOPaddr) { this->loadData(s); }
 
