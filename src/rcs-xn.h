@@ -163,6 +163,9 @@ public:
 
 	void xnSetOutputError(void *sender, void *data);
 
+	bool isSignal(unsigned int portAddr) const; // 0-2047
+	void setSignal(unsigned int portAddr, int code);
+
 private slots:
 	void xnOnError(QString error);
 	void xnOnLog(QString message, Xn::XnLogLevel loglevel);

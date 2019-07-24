@@ -413,14 +413,21 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		#endif
 	}
 
-	unsigned int portAddr = (module<<1) + (port&1); // 0-2048
-	rx.outputs[portAddr] = state;
-	rx.xn.accOpRequest(
-		portAddr, state, nullptr,
-		std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-	                               reinterpret_cast<void *>(module))
-	);
-	rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
+	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
+
+	if (rx.isSignal(portAddr)) {
+		// Signal output
+		rx.setSignal(portAddr, state);
+	} else {
+		// Plain output
+		rx.outputs[portAddr] = state;
+		rx.xn.accOpRequest(
+			portAddr, state, nullptr,
+			std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+			                           reinterpret_cast<void *>(module))
+		);
+		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
+	}
 	return 0;
 }
 
@@ -433,7 +440,7 @@ int GetInputType(unsigned int module, unsigned int port) {
 int GetOutputType(unsigned int module, unsigned int port) {
 	(void)module;
 	(void)port;
-	return 0; // al output are plain outputs yet
+	return 0; // all output are plain outputs yet
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -611,6 +618,33 @@ void RcsXn::saveSignals(const QString &filename) {
 		s.beginGroup("SigTemplate:" + pair.first);
 		pair.second.saveData(s);
 		s.endGroup();
+	}
+}
+
+bool RcsXn::isSignal(unsigned int portAddr) const {
+	return (this->sig.find(portAddr) != this->sig.end());
+}
+
+void RcsXn::setSignal(unsigned int portAddr, int code) {
+	const XnSignal &sig = this->sig.at(portAddr);
+	if (sig.tmpl.outputs.find(code) == sig.tmpl.outputs.end())
+		return; // no ports assignment for this signal code
+	uint16_t outputs = sig.tmpl.outputs.at(code);
+
+	for (size_t i = 0; i < sig.tmpl.outputsCount; ++i) {
+		const unsigned int port = sig.startAddr + i;
+		const unsigned int module = port/2;
+		const bool state = outputs&1;
+
+		rx.outputs[port] = state;
+		rx.xn.accOpRequest(
+			port, state, nullptr,
+			std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+			                           reinterpret_cast<void *>(module))
+		);
+		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
+
+		outputs >>= 1;
 	}
 }
 
