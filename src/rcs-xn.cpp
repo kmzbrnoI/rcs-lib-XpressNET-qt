@@ -218,7 +218,7 @@ void RcsXn::parseActiveModules(const QString &active, T &result) {
 
 void RcsXn::xnOnError(QString error) {
 	// Xn error is considered fatal -> close device
-	this->error(error);
+	this->error(error, RCS_FT_EXCEPTION);
 
 	if (this->started != RcsStartState::stopped)
 		this->stop();
