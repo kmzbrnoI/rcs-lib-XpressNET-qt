@@ -30,7 +30,7 @@ RcsXn::~RcsXn() {
 		if (xn.connected())
 			close();
 		if (this->config_filename != "")
-			s.save(this->config_filename);
+			this->saveConfig(this->config_filename);
 	} catch (...) {
 		// No exceptions in destructor!
 	}
@@ -566,6 +566,7 @@ void BindOnScanned(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.onSc
 
 void RcsXn::loadSignals(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
+	s.setIniCodec("UTF-8");
 
 	// signals
 	for (const auto &g : s.childGroups()) {
@@ -573,11 +574,16 @@ void RcsXn::loadSignals(const QString &filename) {
 			continue;
 
 		try {
-			QStringList name = g.split(':');
+			QStringList name = g.split('-');
+			if (name.size() < 2) {
+				log("Invalid signal: " + g, RcsXnLogLevel::llWarning);
+				continue;
+			}
+
 			unsigned int hJOPoutput = name[1].toInt();
 
 			s.beginGroup(g);
-			this->sig.emplace(hJOPoutput, XnSignal(s));
+			this->sig.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
 			s.endGroup();
 		} catch (...) {
 			log("Invalid signal: " + g, RcsXnLogLevel::llWarning);
@@ -590,7 +596,12 @@ void RcsXn::loadSignals(const QString &filename) {
 			continue;
 
 		try {
-			QStringList name = g.split(':');
+			QStringList name = g.split('-');
+			if (name.size() < 2) {
+				log("Invalid signal template: " + g, RcsXnLogLevel::llWarning);
+				continue;
+			}
+
 			const QString sigName = name[1];
 
 			s.beginGroup(g);
@@ -604,17 +615,19 @@ void RcsXn::loadSignals(const QString &filename) {
 
 void RcsXn::saveSignals(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
+	s.setIniCodec("UTF-8");
 
 	// signals
 	for (const auto &pair : this->sig) {
-		s.beginGroup("Signal:" + QString::number(pair.first));
+		QString group = "Signal-" + QString::number(pair.first);
+		s.beginGroup(group);
 		pair.second.saveData(s);
 		s.endGroup();
 	}
 
 	// signal templates
 	for (const auto &pair : this->sigTemplates) {
-		s.beginGroup("SigTemplate:" + pair.first);
+		s.beginGroup("SigTemplate-" + pair.first);
 		pair.second.saveData(s);
 		s.endGroup();
 	}
