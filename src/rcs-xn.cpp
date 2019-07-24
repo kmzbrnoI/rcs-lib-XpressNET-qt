@@ -438,9 +438,8 @@ int GetInputType(unsigned int module, unsigned int port) {
 }
 
 int GetOutputType(unsigned int module, unsigned int port) {
-	(void)module;
-	(void)port;
-	return 0; // all output are plain outputs yet
+	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
+	return rx.isSignal(portAddr) ? 1 : 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
