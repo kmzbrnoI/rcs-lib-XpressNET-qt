@@ -216,7 +216,15 @@ void RcsXn::parseActiveModules(const QString &active, T &result) {
 ///////////////////////////////////////////////////////////////////////////////
 // Xn events
 
-void RcsXn::xnOnError(QString error) { this->error(error); }
+void RcsXn::xnOnError(QString error) {
+	// Xn error is considered fatal -> close device
+	this->error(error);
+
+	if (this->started != RcsSrartState::stopped)
+		this->stop();
+	if (xn.connected())
+		this->close();
+}
 
 void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
 	this->log(message, static_cast<RcsXnLogLevel>(loglevel));
