@@ -1,8 +1,6 @@
 #include "settings.h"
 
-Settings::Settings() {
-	this->loadDefaults();
-}
+Settings::Settings() { this->loadDefaults(); }
 
 void Settings::loadDefaults() {
 	for (const auto &gm : DEFAULTS)

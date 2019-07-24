@@ -15,10 +15,12 @@ RcsXn rx;
 
 RcsXn::RcsXn(QObject *parent) : QObject(parent), xn(this) {
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
-	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::XnLogLevel)), this, SLOT(xnOnLog(QString, Xn::XnLogLevel)));
+	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::XnLogLevel)), this,
+	                 SLOT(xnOnLog(QString, Xn::XnLogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
-	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::XnTrkStatus)), this, SLOT(xnOnTrkStatusChanged(Xn::XnTrkStatus)));
+	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::XnTrkStatus)), this,
+	                 SLOT(xnOnTrkStatusChanged(Xn::XnTrkStatus)));
 	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)),
 	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
 
@@ -160,8 +162,8 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	this->scan_nibble = (next_module%4) >> 1;
 
 	xn.accInfoRequest(
-		this->scan_group, this->scan_nibble,
-		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+	    this->scan_group, this->scan_nibble,
+	    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
 
@@ -228,8 +230,7 @@ void RcsXn::xnOnConnect() {
 		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
 		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
 		);
-	}
-	catch (const Xn::QStrException& e) {
+	} catch (const Xn::QStrException& e) {
 		error("Get LI Version: " + e.str(), RCS_NOT_OPENED);
 		this->close();
 	}
@@ -298,8 +299,7 @@ void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
 		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
-	}
-	catch (const Xn::QStrException& e) {
+	} catch (const Xn::QStrException& e) {
 		error("Get CS Status: " + e.str(), RCS_NOT_OPENED);
 		this->close();
 	}
@@ -333,24 +333,18 @@ int LoadConfig(char16_t *filename) {
 	try {
 		rx.config_filename = QString::fromUtf16(filename);
 		rx.loadConfig(QString::fromUtf16(filename));
-	} catch (...) {
-		return RCS_FILE_CANNOT_ACCESS;
-	}
+	} catch (...) { return RCS_FILE_CANNOT_ACCESS; }
 	return 0;
 }
 
 int SaveConfig(char16_t *filename) {
 	try {
 		rx.saveConfig(QString::fromUtf16(filename));
-	} catch (...) {
-		return RCS_FILE_CANNOT_ACCESS;
-	}
+	} catch (...) { return RCS_FILE_CANNOT_ACCESS; }
 	return 0;
 }
 
-void SetConfigFileName(char16_t *filename) {
-	rx.config_filename = QString::fromUtf16(filename);
-}
+void SetConfigFileName(char16_t *filename) { rx.config_filename = QString::fromUtf16(filename); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Loglevel
@@ -372,11 +366,11 @@ int GetInput(unsigned int module, unsigned int port) {
 	if ((module >= IO_MODULES_COUNT) || (!rx.active_in[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
-		#ifdef IGNORE_PIN_BOUNDS
+#ifdef IGNORE_PIN_BOUNDS
 		return 0;
-		#else
+#else
 		return RCS_PORT_INVALID_NUMBER;
-		#endif
+#endif
 	}
 	if (rx.started == RcsStartState::scanning)
 		return RCS_INPUT_NOT_YET_SCANNED;
@@ -390,11 +384,11 @@ int GetOutput(unsigned int module, unsigned int port) {
 	if ((module >= IO_MODULES_COUNT) || (!rx.active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
-		#ifdef IGNORE_PIN_BOUNDS
+#ifdef IGNORE_PIN_BOUNDS
 		return 0;
-		#else
+#else
 		return RCS_PORT_INVALID_NUMBER;
-		#endif
+#endif
 	}
 
 	return rx.outputs[module*2 + port];
@@ -406,11 +400,11 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 	if ((module >= IO_MODULES_COUNT) || (!rx.active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_MODULE_PIN_COUNT) {
-		#ifdef IGNORE_PIN_BOUNDS
+#ifdef IGNORE_PIN_BOUNDS
 		return 0;
-		#else
+#else
 		return RCS_PORT_INVALID_NUMBER;
-		#endif
+#endif
 	}
 
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
@@ -422,9 +416,9 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		// Plain output
 		rx.outputs[portAddr] = static_cast<bool>(state);
 		rx.xn.accOpRequest(
-			portAddr, static_cast<bool>(state), nullptr,
-			std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-			                           reinterpret_cast<void *>(module))
+		    portAddr, static_cast<bool>(state), nullptr,
+		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+		                               reinterpret_cast<void *>(module))
 		);
 		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
 	}
@@ -445,9 +439,7 @@ int GetOutputType(unsigned int module, unsigned int port) {
 ///////////////////////////////////////////////////////////////////////////////
 // Devices
 
-int GetDeviceCount() {
-	return 1;
-}
+int GetDeviceCount() { return 1; }
 
 void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 	(void)index;
@@ -464,9 +456,7 @@ bool IsModule(unsigned int module) {
 	return ((module < IO_MODULES_COUNT) && ((rx.active_in[module]) || (rx.active_out[module])));
 }
 
-unsigned int GetMaxModuleAddr() {
-	return IO_MODULES_COUNT-1;
-}
+unsigned int GetMaxModuleAddr() { return IO_MODULES_COUNT-1; }
 
 bool IsModuleFailure(unsigned int module) {
 	(void)module;
@@ -650,9 +640,9 @@ void RcsXn::setSignal(unsigned int portAddr, int code) {
 
 		rx.outputs[port] = state;
 		rx.xn.accOpRequest(
-			port, state, nullptr,
-			std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-			                           reinterpret_cast<void *>(module))
+		    port, state, nullptr,
+		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+		                               reinterpret_cast<void *>(module))
 		);
 		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
 

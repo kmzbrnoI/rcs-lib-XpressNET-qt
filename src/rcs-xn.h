@@ -5,10 +5,10 @@
  * well as RcsXn class which holds all the library's data.
  */
 
+#include <QCoreApplication>
 #include <QObject>
 #include <QThread>
 #include <QtCore/QtGlobal>
-#include <QCoreApplication>
 #include <QtGlobal>
 #include <array>
 #include <map>
@@ -34,10 +34,10 @@ namespace RcsXn {
 
 constexpr size_t IO_COUNT = 2048;
 constexpr size_t IO_MODULE_PIN_COUNT = 2;
-constexpr size_t IO_MODULES_COUNT = IO_COUNT/IO_MODULE_PIN_COUNT;
+constexpr size_t IO_MODULES_COUNT = IO_COUNT / IO_MODULE_PIN_COUNT;
 
-constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
-	0x0301, // v1.3
+constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS{
+    0x0301, // v1.3
 };
 
 enum class RcsXnLogLevel {
@@ -200,6 +200,7 @@ private:
 class AppThread {
 	std::unique_ptr<QCoreApplication> app;
 	int argc{0};
+
 public:
 	AppThread() {
 		app.reset(new QCoreApplication(argc, nullptr));

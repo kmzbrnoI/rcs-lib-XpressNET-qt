@@ -4,9 +4,7 @@ namespace RcsXn {
 
 XnSignalTemplate::XnSignalTemplate() {}
 
-XnSignalTemplate::XnSignalTemplate(QSettings &s) {
-	this->loadData(s);
-}
+XnSignalTemplate::XnSignalTemplate(QSettings &s) { this->loadData(s); }
 
 void XnSignalTemplate::loadData(QSettings &s) {
 	// expects already beginned group
@@ -26,16 +24,14 @@ void XnSignalTemplate::loadData(QSettings &s) {
 }
 
 void XnSignalTemplate::saveData(QSettings &s) const {
-	for (const std::pair<unsigned int, uint16_t> &output : this->outputs)		
+	for (const std::pair<unsigned int, uint16_t> &output : this->outputs)
 		s.setValue(QString::number(output.first),
-				   QString("%1").arg(output.second, this->outputsCount, 2, QLatin1Char('0')));
+		           QString("%1").arg(output.second, this->outputsCount, 2, QLatin1Char('0')));
 }
 
 XnSignal::XnSignal() {}
 
-XnSignal::XnSignal(QSettings &s, unsigned int hJOPaddr) : hJOPaddr(hJOPaddr) {
-	this->loadData(s);
-}
+XnSignal::XnSignal(QSettings &s, unsigned int hJOPaddr) : hJOPaddr(hJOPaddr) { this->loadData(s); }
 
 void XnSignal::loadData(QSettings &s) {
 	tmpl.loadData(s);
