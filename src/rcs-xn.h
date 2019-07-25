@@ -220,12 +220,12 @@ private:
 // Dirty magic for Qt's event loop
 // This class should be created first
 class AppThread {
-	std::unique_ptr<QCoreApplication> app;
+	std::unique_ptr<QApplication> app;
 	int argc{0};
 
 public:
 	AppThread() {
-		app.reset(new QCoreApplication(argc, nullptr));
+		app.reset(new QApplication(argc, nullptr));
 		QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
 		app->exec();
 	}
