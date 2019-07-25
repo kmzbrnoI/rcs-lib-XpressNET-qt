@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstring>
+#include <QSerialPortInfo>
 #include <QSettings>
 
 #include "errors.h"
