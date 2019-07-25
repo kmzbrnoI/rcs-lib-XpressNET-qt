@@ -40,8 +40,38 @@ RcsXn::~RcsXn() {
 }
 
 void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
-	if (loglevel <= this->loglevel)
-		this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
+	if (loglevel > this->loglevel)
+		return;
+
+	// UI
+	if (form.ui.tw_xn_log->topLevelItemCount() > 300)
+		form.ui.tw_xn_log->clear();
+
+	auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
+	item->setText(0, QTime::currentTime().toString("hh:mm:ss"));
+
+	if (loglevel == RcsXnLogLevel::llNo)
+		item->setText(1, "None");
+	else if (loglevel == RcsXnLogLevel::llError) {
+		item->setText(1, "Error");
+		for(size_t i = 0; i < 3; i++)
+			item->setBackground(i, LOGC_ERROR);
+	} else if (loglevel == RcsXnLogLevel::llWarning) {
+		item->setText(1, "Warning");
+		for(size_t i = 0; i < 3; i++)
+			item->setBackground(i, LOGC_WARN);
+	} else if (loglevel == RcsXnLogLevel::llInfo)
+		item->setText(1, "Info");
+	else if (loglevel == RcsXnLogLevel::llCommands)
+		item->setText(1, "Data");
+	else if (loglevel == RcsXnLogLevel::llDebug)
+		item->setText(1, "Debug");
+
+	item->setText(2, msg);
+	form.ui.tw_xn_log->addTopLevelItem(item);
+
+	// event
+	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
 }
 
 void RcsXn::error(const QString &message, uint16_t code, unsigned int module) {
