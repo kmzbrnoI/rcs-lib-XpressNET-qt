@@ -175,6 +175,7 @@ public:
 	void error(const QString &message, uint16_t code);
 	void error(const QString &message);
 	void first_scan();
+	void setLogLevel(RcsXnLogLevel);
 
 	int openDevice(const QString &device, bool persist);
 	int close();
@@ -196,6 +197,9 @@ private slots:
 	void xnOnTrkStatusChanged(Xn::XnTrkStatus);
 	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	                         Xn::XnFeedbackType inputType, Xn::XnAccInputsState state);
+
+	// GUI
+	void cb_ll_index_changed(int);
 
 signals:
 

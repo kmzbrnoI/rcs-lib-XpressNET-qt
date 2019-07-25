@@ -40,7 +40,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -75,25 +75,30 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="cb_xn_loglevel">
+            <widget class="QComboBox" name="cb_loglevel">
              <item>
               <property name="text">
-               <string>None</string>
+               <string>Nic</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Error</string>
+               <string>Chyby</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Warning</string>
+               <string>Varování</string>
               </property>
              </item>
              <item>
               <property name="text">
                <string>Info</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Příkazy</string>
               </property>
              </item>
              <item>
@@ -244,7 +249,7 @@
  </widget>
  <tabstops>
   <tabstop>tw_main</tabstop>
-  <tabstop>cb_xn_loglevel</tabstop>
+  <tabstop>cb_loglevel</tabstop>
   <tabstop>tw_xn_log</tabstop>
  </tabstops>
  <resources/>

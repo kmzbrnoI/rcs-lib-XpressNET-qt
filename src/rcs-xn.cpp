@@ -25,6 +25,10 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)),
 	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
 
+	// GUI
+	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
+	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_ll_index_changed(int)));
+
 	// No loading of configuration here (caller should call LoadConfig)
 }
 
@@ -74,6 +78,12 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 
 	// event
 	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
+}
+
+void RcsXn::setLogLevel(RcsXnLogLevel) {
+	this->loglevel = loglevel;
+	xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
+	s["XN"]["loglevel"] = static_cast<int>(loglevel);
 }
 
 void RcsXn::error(const QString &message, uint16_t code, unsigned int module) {
@@ -163,6 +173,9 @@ void RcsXn::loadConfig(const QString &filename) {
 	for (size_t i = 0; i < IO_MODULES_COUNT; i++)
 		if (this->active_in[i] || this->active_out[i])
 			this->modules_count++;
+
+	// GUI
+	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 }
 
 void RcsXn::first_scan() {
@@ -391,9 +404,7 @@ void SetConfigFileName(char16_t *filename) { rx.config_filename = QString::fromU
 // Loglevel
 
 void SetLogLevel(unsigned int loglevel) {
-	rx.loglevel = static_cast<RcsXnLogLevel>(loglevel);
-	rx.xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
-	rx.s["XN"]["loglevel"] = loglevel;
+	rx.setLogLevel(static_cast<RcsXnLogLevel>(loglevel));
 }
 
 unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
@@ -697,6 +708,11 @@ void RcsXn::setSignal(unsigned int portAddr, int code) {
 		outputs >>= 1;
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// UI slots
+
+void RcsXn::cb_ll_index_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
