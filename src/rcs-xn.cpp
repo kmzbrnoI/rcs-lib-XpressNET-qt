@@ -13,7 +13,8 @@ RcsXn rx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RcsXn::RcsXn(QObject *parent) : QObject(parent), xn(this) {
+RcsXn::RcsXn(QObject *parent) : QObject(parent) {
+	// XN events
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
 	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::XnLogLevel)), this,
 	                 SLOT(xnOnLog(QString, Xn::XnLogLevel)));
@@ -364,6 +365,13 @@ void SetLogLevel(unsigned int loglevel) {
 }
 
 unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
+
+///////////////////////////////////////////////////////////////////////////////
+// UI
+
+void ShowConfigDialog() { rx.form.show(); }
+
+void HideConfigDialog() { rx.form.close(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RCS IO

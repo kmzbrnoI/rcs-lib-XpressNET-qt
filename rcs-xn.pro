@@ -15,6 +15,9 @@ HEADERS += \
 	src/util.h \
 	src/signals.h
 
+FORMS += \
+	form/main-window.ui \
+
 SOURCES += \
 	lib/xn-lib-cpp-qt/xn.cpp
 HEADERS += \
@@ -34,7 +37,8 @@ win64 {
 	QMAKE_LFLAGS += -Wl,--kill-at
 }
 
-QT += serialport
+QT += core gui serialport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 VERSION_MAJOR = 1
 VERSION_MINOR = 0

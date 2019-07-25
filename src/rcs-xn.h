@@ -6,7 +6,7 @@
  */
 
 #include <QCoreApplication>
-#include <QObject>
+#include <QMainWindow>
 #include <QThread>
 #include <QtCore/QtGlobal>
 #include <QtGlobal>
@@ -29,6 +29,7 @@
 #include "lib/xn-lib-cpp-qt/xn.h"
 #include "settings.h"
 #include "signals.h"
+#include "ui_main-window.h"
 
 namespace RcsXn {
 
@@ -63,6 +64,9 @@ RCS_XN_SHARED_EXPORT void CALL_CONV SetConfigFileName(char16_t *filename);
 
 RCS_XN_SHARED_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel);
 RCS_XN_SHARED_EXPORT unsigned int CALL_CONV GetLogLevel();
+
+RCS_XN_SHARED_EXPORT void CALL_CONV ShowConfigDialog();
+RCS_XN_SHARED_EXPORT void CALL_CONV HideConfigDialog();
 
 RCS_XN_SHARED_EXPORT int CALL_CONV Open();
 RCS_XN_SHARED_EXPORT int CALL_CONV OpenDevice(char16_t *device, bool persist);
@@ -120,6 +124,17 @@ RCS_XN_SHARED_EXPORT void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f, 
 RCS_XN_SHARED_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+class MainWindow : public QMainWindow {
+	Q_OBJECT
+public:
+	Ui::MainWindow ui;
+	MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) { ui.setupUi(this); }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class RcsXn : public QObject {
 	Q_OBJECT
 
@@ -140,6 +155,9 @@ public:
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 	unsigned int modules_count = 0;
+
+	// UI
+	MainWindow form;
 
 	// signals
 	std::map<QString, XnSignalTemplate> sigTemplates;

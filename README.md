@@ -32,6 +32,7 @@ And then build:
 ```
 $ mkdir build
 $ cd build
+$ uic ../form/main-window.ui -o ui_main-window.h
 $ qmake ..
 $ make
 ```
