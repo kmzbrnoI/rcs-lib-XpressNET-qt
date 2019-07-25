@@ -63,7 +63,9 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	} else if (loglevel == RcsXnLogLevel::llInfo)
 		item->setText(1, "Info");
 	else if (loglevel == RcsXnLogLevel::llCommands)
-		item->setText(1, "Data");
+		item->setText(1, "Command");
+	else if (loglevel == RcsXnLogLevel::llRawCommands)
+		item->setText(1, "Raw Data");
 	else if (loglevel == RcsXnLogLevel::llDebug)
 		item->setText(1, "Debug");
 
