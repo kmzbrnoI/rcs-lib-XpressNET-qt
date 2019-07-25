@@ -55,21 +55,21 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	item->setText(0, QTime::currentTime().toString("hh:mm:ss"));
 
 	if (loglevel == RcsXnLogLevel::llNo)
-		item->setText(1, "None");
+		item->setText(1, "Nic");
 	else if (loglevel == RcsXnLogLevel::llError) {
-		item->setText(1, "Error");
+		item->setText(1, "Chyba");
 		for(size_t i = 0; i < 3; i++)
 			item->setBackground(i, LOGC_ERROR);
 	} else if (loglevel == RcsXnLogLevel::llWarning) {
-		item->setText(1, "Warning");
+		item->setText(1, "Varování");
 		for(size_t i = 0; i < 3; i++)
 			item->setBackground(i, LOGC_WARN);
 	} else if (loglevel == RcsXnLogLevel::llInfo)
 		item->setText(1, "Info");
 	else if (loglevel == RcsXnLogLevel::llCommands)
-		item->setText(1, "Command");
+		item->setText(1, "Příkaz");
 	else if (loglevel == RcsXnLogLevel::llRawCommands)
-		item->setText(1, "Raw Data");
+		item->setText(1, "Data");
 	else if (loglevel == RcsXnLogLevel::llDebug)
 		item->setText(1, "Debug");
 
