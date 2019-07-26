@@ -162,6 +162,7 @@ public:
 
 	// UI
 	MainWindow form;
+	bool gui_connection_changing = false;
 
 	// signals
 	std::map<QString, XnSignalTemplate> sigTemplates;
