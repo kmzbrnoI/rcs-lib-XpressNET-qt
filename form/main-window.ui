@@ -17,11 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Automatic Calibration</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icon/app-icon.svg</normaloff>:/icon/app-icon.svg</iconset>
+   <string>Nastavení RCS XpressNET knihovny</string>
   </property>
   <property name="locale">
    <locale language="Czech" country="CzechRepublic"/>

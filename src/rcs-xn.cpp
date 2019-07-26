@@ -36,6 +36,11 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
+
+	QString text;
+	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
+	form.setWindowTitle(text);
+	form.setFixedSize(form.size());
 }
 
 RcsXn::~RcsXn() {
