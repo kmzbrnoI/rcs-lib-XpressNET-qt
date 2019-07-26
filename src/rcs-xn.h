@@ -199,7 +199,9 @@ private slots:
 	                         Xn::XnFeedbackType inputType, Xn::XnAccInputsState state);
 
 	// GUI
-	void cb_ll_index_changed(int);
+	void cb_loglevel_changed(int);
+	void cb_connections_changed(int);
+	void b_serial_refresh_handle();
 
 signals:
 
@@ -217,6 +219,12 @@ private:
 
 	void loadSignals(const QString &filename);
 	void saveSignals(const QString &filename);
+
+	// GUI:
+	void fillConnectionsCbs();
+	void fillPortCb();
+	void guiOnOpen();
+	void guiOnClose();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

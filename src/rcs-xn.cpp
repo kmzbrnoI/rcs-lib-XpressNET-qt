@@ -26,11 +26,16 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)),
 	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
 
+	// No loading of configuration here (caller should call LoadConfig)
+
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
-	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_ll_index_changed(int)));
+	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_loglevel_changed(int)));
+	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 
-	// No loading of configuration here (caller should call LoadConfig)
+	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
 }
 
 RcsXn::~RcsXn() {
@@ -95,12 +100,12 @@ void RcsXn::error(const QString &message, uint16_t code) { this->error(message, 
 void RcsXn::error(const QString &message) { this->error(message, RCS_GENERAL_EXCEPTION, 0); }
 
 int RcsXn::openDevice(const QString &device, bool persist) {
-	events.call(rx.events.beforeOpen);
-
 	if (xn.connected())
 		return RCS_ALREADY_OPENNED;
 
 	log("Connecting to XN...", RcsXnLogLevel::llInfo);
+	events.call(rx.events.beforeOpen);
+	this->guiOnOpen();
 
 	try {
 		xn.connect(device, s["XN"]["baudrate"].toInt(),
@@ -108,6 +113,8 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 	} catch (const Xn::QStrException &e) {
 		error("XN connect error while opening serial port '" +
 		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
+		events.call(rx.events.afterClose);
+		this->guiOnClose();
 		return RCS_CANNOT_OPEN_PORT;
 	}
 
@@ -291,7 +298,10 @@ void RcsXn::xnOnConnect() {
 	}
 }
 
-void RcsXn::xnOnDisconnect() { this->events.call(this->events.afterClose); }
+void RcsXn::xnOnDisconnect() {
+	this->events.call(this->events.afterClose);
+	this->guiOnClose();
+}
 
 void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus s) {
 	(void)s;
@@ -713,7 +723,50 @@ void RcsXn::setSignal(unsigned int portAddr, int code) {
 ///////////////////////////////////////////////////////////////////////////////
 // UI slots
 
-void RcsXn::cb_ll_index_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
+void RcsXn::cb_loglevel_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
+
+void RcsXn::cb_connections_changed(int) {
+	s["XN"]["port"] = form.ui.cb_serial_port->currentText();
+	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
+	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
+}
+
+void RcsXn::fillConnectionsCbs() {
+	// Port
+	this->fillPortCb();
+
+	// Speed
+	form.ui.cb_serial_speed->clear();
+	for (const qint32 &br : QSerialPortInfo::standardBaudRates())
+		form.ui.cb_serial_port->addItem(QString::number(br));
+	form.ui.cb_serial_port->setCurrentText(s["XN"]["baudrate"].toString());
+
+	// Flow control
+	form.ui.cb_serial_flowcontrol->setCurrentIndex(s["XN"]["flowcontrol"].toInt());
+}
+
+void RcsXn::fillPortCb() {
+	form.ui.cb_serial_port->clear();
+	for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts())
+		form.ui.cb_serial_port->addItem(port.portName());
+	form.ui.cb_serial_port->setCurrentText(s["XN"]["port"].toString());
+}
+
+void RcsXn::b_serial_refresh_handle() { this->fillPortCb(); }
+
+void RcsXn::guiOnOpen() {
+	form.ui.cb_serial_port->setEnabled(false);
+	form.ui.cb_serial_speed->setEnabled(false);
+	form.ui.cb_serial_flowcontrol->setEnabled(false);
+	form.ui.b_serial_refresh->setEnabled(false);
+}
+
+void RcsXn::guiOnClose() {
+	form.ui.cb_serial_port->setEnabled(true);
+	form.ui.cb_serial_speed->setEnabled(true);
+	form.ui.cb_serial_flowcontrol->setEnabled(true);
+	form.ui.b_serial_refresh->setEnabled(true);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

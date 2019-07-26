@@ -56,7 +56,7 @@
       </property>
       <widget class="QWidget" name="t_main">
        <attribute name="title">
-        <string>Hlavní</string>
+        <string>Připojení</string>
        </attribute>
        <widget class="QComboBox" name="cb_serial_port">
         <property name="geometry">
@@ -126,6 +126,21 @@
           <height>22</height>
          </rect>
         </property>
+        <item>
+         <property name="text">
+          <string>Žádná</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hardware</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Software</string>
+         </property>
+        </item>
        </widget>
        <widget class="QPushButton" name="b_serial_refresh">
         <property name="geometry">
@@ -143,7 +158,7 @@
       </widget>
       <widget class="QWidget" name="t_xn_log">
        <attribute name="title">
-        <string>XpressNET log</string>
+        <string>Log</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="1" column="0">
