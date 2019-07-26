@@ -41,6 +41,8 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 	form.setWindowTitle(text);
 	form.setFixedSize(form.size());
+
+	this->fillConnectionsCbs();
 }
 
 RcsXn::~RcsXn() {
@@ -91,7 +93,7 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
 }
 
-void RcsXn::setLogLevel(RcsXnLogLevel) {
+void RcsXn::setLogLevel(RcsXnLogLevel loglevel) {
 	this->loglevel = loglevel;
 	xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
 	s["XN"]["loglevel"] = static_cast<int>(loglevel);
@@ -189,6 +191,7 @@ void RcsXn::loadConfig(const QString &filename) {
 
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
+	this->fillConnectionsCbs();
 }
 
 void RcsXn::first_scan() {
@@ -731,30 +734,55 @@ void RcsXn::setSignal(unsigned int portAddr, int code) {
 void RcsXn::cb_loglevel_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
 
 void RcsXn::cb_connections_changed(int) {
+	if (this->gui_connection_changing)
+		return;
+
 	s["XN"]["port"] = form.ui.cb_serial_port->currentText();
 	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
 }
 
-void RcsXn::fillConnectionsCbs() {
+void RcsXn::fillConnectionsCbs() {	
 	// Port
 	this->fillPortCb();
 
+	this->gui_connection_changing = true;
+
 	// Speed
 	form.ui.cb_serial_speed->clear();
-	for (const qint32 &br : QSerialPortInfo::standardBaudRates())
-		form.ui.cb_serial_port->addItem(QString::number(br));
-	form.ui.cb_serial_port->setCurrentText(s["XN"]["baudrate"].toString());
+	bool is_item = false;
+	for (const qint32 &br : QSerialPortInfo::standardBaudRates()) {
+		form.ui.cb_serial_speed->addItem(QString::number(br));
+		if (br == s["XN"]["baudrate"].toInt())
+			is_item = true;
+	}
+	if (is_item)
+		form.ui.cb_serial_speed->setCurrentText(s["XN"]["baudrate"].toString());
+	else
+		form.ui.cb_serial_speed->setCurrentIndex(-1);
 
 	// Flow control
 	form.ui.cb_serial_flowcontrol->setCurrentIndex(s["XN"]["flowcontrol"].toInt());
+
+	this->gui_connection_changing = false;
 }
 
 void RcsXn::fillPortCb() {
+	this->gui_connection_changing = true;
+
 	form.ui.cb_serial_port->clear();
-	for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts())
+	bool is_item = false;
+	for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts()) {
 		form.ui.cb_serial_port->addItem(port.portName());
-	form.ui.cb_serial_port->setCurrentText(s["XN"]["port"].toString());
+		if (port.portName() == s["XN"]["port"].toString())
+			is_item = true;
+	}
+	if (is_item)
+		form.ui.cb_serial_port->setCurrentText(s["XN"]["port"].toString());
+	else
+		form.ui.cb_serial_port->setCurrentIndex(-1);
+
+	this->gui_connection_changing = false;
 }
 
 void RcsXn::b_serial_refresh_handle() { this->fillPortCb(); }
