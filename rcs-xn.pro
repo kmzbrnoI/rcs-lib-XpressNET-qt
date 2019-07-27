@@ -17,6 +17,7 @@ HEADERS += \
 
 FORMS += \
 	form/main-window.ui \
+	form/signal-edit.ui
 
 SOURCES += \
 	lib/xn-lib-cpp-qt/xn.cpp

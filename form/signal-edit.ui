@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>431</width>
+    <height>551</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QGroupBox" name="gb_mapping">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>100</y>
+     <width>411</width>
+     <height>411</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Mapování výstupů</string>
+   </property>
+   <widget class="QGroupBox" name="gb_temp_load">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>391</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Načíst ze šablony</string>
+    </property>
+    <widget class="QComboBox" name="cb_temp_load">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>311</width>
+       <height>23</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="b_temp_load">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>30</y>
+       <width>51</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Načíst</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Počet výstupů:</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="se_output_count">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>100</y>
+      <width>71</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTreeWidget" name="tv_outputs">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>251</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <attribute name="headerDefaultSectionSize">
+     <number>120</number>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>Návěst</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Stav výstupů</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QGroupBox" name="gb_add_signal">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>160</y>
+      <width>131</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Přidat novou návěst</string>
+    </property>
+    <widget class="QComboBox" name="cb_add_sig">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>111</width>
+       <height>23</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="b_add_signal">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>90</y>
+       <width>51</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Přidat</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="sb_add_bits">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>111</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="value">
+      <number>15</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>2</number>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="b_delete_signal">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>130</y>
+      <width>131</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Smazat návěst</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="gb_temp_save">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>340</y>
+      <width>391</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Uložit jako šablonu</string>
+    </property>
+    <widget class="QLineEdit" name="gb_temp_save_name">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>311</width>
+       <height>23</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="b_temp_save">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>30</y>
+       <width>51</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Uložit</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>111</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>hJOP RCS adresa:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>hJOP RCS port:</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="sb_hjop_rcs_addr">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>10</y>
+     <width>111</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="sb_hjop_rcs_port">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>40</y>
+     <width>111</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="sb_output_addr">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>70</y>
+     <width>111</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>161</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Počátek výstupních adres:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="b_apply">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>520</y>
+     <width>80</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Použít</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="b_storno">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>520</y>
+     <width>80</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Storno</string>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>sb_hjop_rcs_addr</tabstop>
+  <tabstop>sb_hjop_rcs_port</tabstop>
+  <tabstop>sb_output_addr</tabstop>
+  <tabstop>cb_temp_load</tabstop>
+  <tabstop>b_temp_load</tabstop>
+  <tabstop>se_output_count</tabstop>
+  <tabstop>tv_outputs</tabstop>
+  <tabstop>b_delete_signal</tabstop>
+  <tabstop>cb_add_sig</tabstop>
+  <tabstop>b_add_signal</tabstop>
+  <tabstop>gb_temp_save_name</tabstop>
+  <tabstop>b_temp_save</tabstop>
+  <tabstop>b_apply</tabstop>
+  <tabstop>b_storno</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
