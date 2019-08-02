@@ -151,7 +151,7 @@ public:
 	RcsEvents events;
 	Xn::XpressNet xn;
 	Settings s;
-	RcsXnLogLevel loglevel;
+	RcsXnLogLevel loglevel = RcsXnLogLevel::llInfo;
 	RcsStartState started = RcsStartState::stopped;
 	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
@@ -193,7 +193,7 @@ public:
 	void xnSetOutputError(void *sender, void *data);
 
 	bool isSignal(unsigned int portAddr) const; // 0-2047
-	void setSignal(unsigned int portAddr, int code);
+	void setSignal(unsigned int portAddr, unsigned int code);
 
 private slots:
 	void xnOnError(QString error);
@@ -210,6 +210,7 @@ private slots:
 	void b_serial_refresh_handle();
 	void b_active_load_handle();
 	void b_active_save_handle();
+	void tw_log_double_clicked(QTreeWidgetItem *item, int column);
 
 signals:
 

@@ -40,6 +40,8 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
 	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
 
+	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_log_double_clicked(QTreeWidgetItem*, int)));
+
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 	form.setWindowTitle(text);
@@ -92,8 +94,12 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	else if (loglevel == RcsXnLogLevel::llDebug)
 		item->setText(1, "Debug");
 
-	item->setText(2, msg);
-	form.ui.tw_xn_log->addTopLevelItem(item);
+	QLabel *label = new QLabel();
+	label->setWordWrap(true);
+	label->setText(msg);
+
+	form.ui.tw_xn_log->insertTopLevelItem(0, item);
+	form.ui.tw_xn_log->setItemWidget(item, 2, label);
 
 	// event
 	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
@@ -116,7 +122,6 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 	if (xn.connected())
 		return RCS_ALREADY_OPENNED;
 
-	log("Connecting to XN...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeOpen);
 	this->guiOnOpen();
 
@@ -146,7 +151,6 @@ int RcsXn::close() {
 	if (this->started > RcsStartState::stopped)
 		return RCS_SCANNING_NOT_FINISHED;
 
-	log("Disconnecting from XN...", RcsXnLogLevel::llInfo);
 	this->opening = false;
 	try {
 		xn.disconnect();
@@ -879,6 +883,12 @@ void RcsXn::b_active_save_handle() {
 void RcsXn::fillActiveIO() {
 	form.ui.te_active_inputs->setText(getActiveStr(this->active_in, ",\n"));
 	form.ui.te_active_outputs->setText(getActiveStr(this->active_out, ",\n"));
+}
+
+void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {
+	(void)item;
+	(void)column;
+	this->form.ui.tw_xn_log->clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
