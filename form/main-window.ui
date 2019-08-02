@@ -178,6 +178,12 @@
           <height>361</height>
          </rect>
         </property>
+        <property name="documentTitle">
+         <string/>
+        </property>
+        <property name="acceptRichText">
+         <bool>false</bool>
+        </property>
        </widget>
        <widget class="QLabel" name="label_5">
         <property name="geometry">
@@ -200,6 +206,9 @@
           <width>181</width>
           <height>361</height>
          </rect>
+        </property>
+        <property name="acceptRichText">
+         <bool>false</bool>
         </property>
        </widget>
        <widget class="QPushButton" name="b_active_save">

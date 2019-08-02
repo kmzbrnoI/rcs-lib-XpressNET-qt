@@ -829,6 +829,11 @@ void RcsXn::guiOnOpen() {
 	form.ui.cb_serial_speed->setEnabled(false);
 	form.ui.cb_serial_flowcontrol->setEnabled(false);
 	form.ui.b_serial_refresh->setEnabled(false);
+
+	form.ui.b_active_save->setEnabled(false);
+	form.ui.te_active_inputs->setEnabled(false);
+	form.ui.te_active_outputs->setEnabled(false);
+	this->fillActiveIO();
 }
 
 void RcsXn::guiOnClose() {
@@ -836,6 +841,10 @@ void RcsXn::guiOnClose() {
 	form.ui.cb_serial_speed->setEnabled(true);
 	form.ui.cb_serial_flowcontrol->setEnabled(true);
 	form.ui.b_serial_refresh->setEnabled(true);
+
+	form.ui.b_active_save->setEnabled(true);
+	form.ui.te_active_inputs->setEnabled(true);
+	form.ui.te_active_outputs->setEnabled(true);
 }
 
 void RcsXn::b_active_load_handle() {
