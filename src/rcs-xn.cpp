@@ -2,6 +2,7 @@
 #include <cstring>
 #include <QSerialPortInfo>
 #include <QSettings>
+#include <QMessageBox>
 
 #include "errors.h"
 #include "rcs-xn.h"
@@ -36,6 +37,8 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
+	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
+	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
 
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
@@ -180,14 +183,8 @@ void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename, false); // do not load & store nonDefaults
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
-	this->parseActiveModules(s["modules"]["active-in"].toString(), this->active_in);
-	this->parseActiveModules(s["modules"]["active-out"].toString(), this->active_out);
 	this->loadSignals(filename);
-
-	this->modules_count = 0;
-	for (size_t i = 0; i < IO_MODULES_COUNT; i++)
-		if (this->active_in[i] || this->active_out[i])
-			this->modules_count++;
+	this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(), false);
 
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
@@ -206,6 +203,18 @@ void RcsXn::first_scan() {
 void RcsXn::saveConfig(const QString &filename) {
 	s.save(filename);
 	this->saveSignals(filename);
+}
+
+void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
+	this->parseActiveModules(inputs, this->active_in, except);
+	this->parseActiveModules(outputs, this->active_out, except);
+
+	this->modules_count = 0;
+	for (size_t i = 0; i < IO_MODULES_COUNT; i++)
+		if (this->active_in[i] || this->active_out[i])
+			this->modules_count++;
+
+	this->fillActiveIO();
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
@@ -247,8 +256,8 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 	      module);
 }
 
-template <typename T>
-void RcsXn::parseActiveModules(const QString &active, T &result) {
+template <std::size_t ArraySize>
+void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except) {
 	std::fill(result.begin(), result.end(), false);
 
 	const QStringList ranges = active.split(',');
@@ -257,22 +266,50 @@ void RcsXn::parseActiveModules(const QString &active, T &result) {
 		bool okl, okr = false;
 		if (bounds.size() == 1) {
 			unsigned int addr = bounds[0].toUInt(&okl);
-			if (okl)
+			if (okl) {
 				result[addr] = true;
-			else
-				log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
+			} else {
+				if (except)
+					throw EInvalidRange("Invalid range: " + bounds[0]);
+				else
+					log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
+			}
 		} else if (bounds.size() == 2) {
 			unsigned int left = bounds[0].toUInt(&okl);
 			unsigned int right = bounds[1].toUInt(&okr);
 			if (okl & okr) {
 				for (size_t i = left; i <= right; i++)
 					result[i] = true;
-			} else
-				log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+			} else {
+				if (except)
+					throw EInvalidRange("Invalid range: " + range);
+				else
+					log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+			}
 		} else {
-			log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+			if (except)
+				throw EInvalidRange("Invalid range: " + range);
+			else
+				log("Invalid range: " + range, RcsXnLogLevel::llWarning);
 		}
 	}
+}
+
+template <std::size_t ArraySize>
+QString RcsXn::getActiveStr(const std::array<bool,ArraySize> &source, const QString &separator) {
+	QString output;
+	for (size_t start = 0; start < source.size(); ++start) {
+		if (source[start]) {
+			size_t end = start;
+			while (source[end] && end < source.size())
+				++end;
+			if (end == start+1)
+				output += QString::number(start)+separator;
+			else
+				output += QString::number(start)+"-"+QString::number(end-1)+separator;
+		}
+	}
+	return output;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -799,6 +836,27 @@ void RcsXn::guiOnClose() {
 	form.ui.cb_serial_speed->setEnabled(true);
 	form.ui.cb_serial_flowcontrol->setEnabled(true);
 	form.ui.b_serial_refresh->setEnabled(true);
+}
+
+void RcsXn::b_active_load_handle() {
+	this->fillActiveIO();
+}
+
+void RcsXn::b_active_save_handle() {
+	try {
+		this->loadActiveIO(form.ui.te_active_inputs->toPlainText(), form.ui.te_active_outputs->toPlainText());
+	} catch (const EInvalidRange &e) {
+		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(), QMessageBox::Ok);
+	} catch (const QStrException &e) {
+		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
+	} catch (...) {
+		QMessageBox::warning(&(this->form), "Chyba!", "Neznámá chyba.", QMessageBox::Ok);
+	}
+}
+
+void RcsXn::fillActiveIO() {
+	form.ui.te_active_inputs->setText(getActiveStr(this->active_in, ",\n"));
+	form.ui.te_active_outputs->setText(getActiveStr(this->active_out, ",\n"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -30,6 +30,7 @@
 #include "settings.h"
 #include "signals.h"
 #include "ui_main-window.h"
+#include "lib/q-str-exception.h"
 
 namespace RcsXn {
 
@@ -59,6 +60,10 @@ enum class RcsStartState {
 	stopped = 0,
 	scanning = 1,
 	started = 2,
+};
+
+struct EInvalidRange : public QStrException {
+	EInvalidRange(const QString &str) : QStrException(str) {}
 };
 
 extern "C" {
@@ -203,6 +208,8 @@ private slots:
 	void cb_loglevel_changed(int);
 	void cb_connections_changed(int);
 	void b_serial_refresh_handle();
+	void b_active_load_handle();
+	void b_active_save_handle();
 
 signals:
 
@@ -215,8 +222,13 @@ private:
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
 
-	template <typename T>
-	void parseActiveModules(const QString &active, T &result);
+	template <std::size_t ArraySize>
+	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except = true);
+
+	template <std::size_t ArraySize>
+	QString getActiveStr(const std::array<bool,ArraySize> &source, const QString &separator);
+
+	void loadActiveIO(const QString &inputs, const QString &outputs, bool except = true);
 
 	void loadSignals(const QString &filename);
 	void saveSignals(const QString &filename);
@@ -226,6 +238,7 @@ private:
 	void fillPortCb();
 	void guiOnOpen();
 	void guiOnClose();
+	void fillActiveIO();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

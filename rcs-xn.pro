@@ -26,7 +26,8 @@ HEADERS += \
 	lib/xn-lib-cpp-qt/xn.h \
 	lib/xn-lib-cpp-qt/xn-typedefs.h \
 	lib/xn-lib-cpp-qt/xn-commands.h \
-	lib/xn-lib-cpp-qt/xn-loco-addr.h
+	lib/xn-lib-cpp-qt/xn-loco-addr.h \
+	lib/q-str-exception.h
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -enable-stdcall-fixup
