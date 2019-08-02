@@ -260,13 +260,13 @@ template <std::size_t ArraySize>
 void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except) {
 	std::fill(result.begin(), result.end(), false);
 
-	const QStringList ranges = active.split(',');
+	const QStringList ranges = active.split(',', QString::SkipEmptyParts);
 	for (const QString& range : ranges) {
 		const QStringList bounds = range.split('-');
 		bool okl, okr = false;
 		if (bounds.size() == 1) {
 			unsigned int addr = bounds[0].toUInt(&okl);
-			if (okl) {
+			if ((okl) && (addr < result.size())) {
 				result[addr] = true;
 			} else {
 				if (except)
@@ -277,7 +277,7 @@ void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize
 		} else if (bounds.size() == 2) {
 			unsigned int left = bounds[0].toUInt(&okl);
 			unsigned int right = bounds[1].toUInt(&okr);
-			if (okl & okr) {
+			if ((okl) & (okr) && (left < result.size()) && (right < result.size())) {
 				for (size_t i = left; i <= right; i++)
 					result[i] = true;
 			} else {
@@ -307,6 +307,7 @@ QString RcsXn::getActiveStr(const std::array<bool,ArraySize> &source, const QStr
 				output += QString::number(start)+separator;
 			else
 				output += QString::number(start)+"-"+QString::number(end-1)+separator;
+			start = end;
 		}
 	}
 	return output;
@@ -849,11 +850,16 @@ void RcsXn::guiOnClose() {
 
 void RcsXn::b_active_load_handle() {
 	this->fillActiveIO();
+	QMessageBox::information(&(this->form), "Ok", "Načteno.", QMessageBox::Ok);
 }
 
 void RcsXn::b_active_save_handle() {
 	try {
-		this->loadActiveIO(form.ui.te_active_inputs->toPlainText(), form.ui.te_active_outputs->toPlainText());
+		this->loadActiveIO(
+			form.ui.te_active_inputs->toPlainText().replace("\n", ","),
+			form.ui.te_active_outputs->toPlainText().replace("\n", ",")
+		);
+		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
 	} catch (const EInvalidRange &e) {
 		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(), QMessageBox::Ok);
 	} catch (const QStrException &e) {
