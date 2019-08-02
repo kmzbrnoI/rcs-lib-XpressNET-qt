@@ -201,6 +201,9 @@ void RcsXn::first_scan() {
 }
 
 void RcsXn::saveConfig(const QString &filename) {
+	s["modules"]["active-in"] = getActiveStr(this->active_in, ",");
+	s["modules"]["active-out"] = getActiveStr(this->active_out, ",");
+
 	s.save(filename);
 	this->saveSignals(filename);
 }
@@ -859,6 +862,7 @@ void RcsXn::b_active_save_handle() {
 			form.ui.te_active_inputs->toPlainText().replace("\n", ","),
 			form.ui.te_active_outputs->toPlainText().replace("\n", ",")
 		);
+		this->saveConfig(this->config_filename);
 		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
 	} catch (const EInvalidRange &e) {
 		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(), QMessageBox::Ok);
