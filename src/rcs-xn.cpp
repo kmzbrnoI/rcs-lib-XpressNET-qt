@@ -46,6 +46,9 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	form.setFixedSize(form.size());
 
 	this->fillConnectionsCbs();
+
+	log("Library loaded.", RcsXnLogLevel::llInfo);
+	this->form.ui.tw_xn_log->resizeColumnToContents(0);
 }
 
 RcsXn::~RcsXn() {
