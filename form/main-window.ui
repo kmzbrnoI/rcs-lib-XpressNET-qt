@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -149,6 +149,83 @@
         </property>
         <property name="text">
          <string>Obnovit</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="t_activeModules">
+       <attribute name="title">
+        <string>Aktivní porty</string>
+       </attribute>
+       <widget class="QLabel" name="label_4">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>131</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Aktivní vstupní porty:</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="te_active_inputs">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>181</width>
+          <height>361</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_5">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>10</y>
+          <width>141</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Aktivní výstupní porty:</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="te_active_outputs">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>30</y>
+          <width>181</width>
+          <height>361</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="b_active_save">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>400</y>
+          <width>80</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Uložit</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="b_active_reload">
+        <property name="geometry">
+         <rect>
+          <x>189</x>
+          <y>400</y>
+          <width>101</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Načíst původní</string>
         </property>
        </widget>
       </widget>
