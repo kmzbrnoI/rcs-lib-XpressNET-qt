@@ -48,7 +48,7 @@ std::map<QString, QVariant> &Settings::operator[](const QString &g) { return at(
 void Settings::cfgToUnsigned(std::map<QString, QVariant> &cfg, const QString &section,
                              unsigned &target) {
 	if (cfg.find(section) != cfg.end())
-		target = cfg[section].toInt();
+		target = cfg[section].toUInt();
 	else
 		cfg[section] = target;
 }

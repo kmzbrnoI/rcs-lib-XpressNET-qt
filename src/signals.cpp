@@ -12,10 +12,10 @@ void XnSignalTemplate::loadData(QSettings &s) {
 		try {
 			const QString bits = s.value(k, "00").toString();
 			bool isNum = false;
-			unsigned int scomCode = k.toInt(&isNum);
+			unsigned int scomCode = k.toUInt(&isNum);
 			if (isNum) {
-				this->outputs[scomCode] = bits.toInt(nullptr, 2);
-				this->outputsCount = bits.size();
+				this->outputs[scomCode] = bits.toUShort(nullptr, 2);
+				this->outputsCount = static_cast<std::size_t>(bits.size());
 			}
 		} catch (...) {
 			// TODO
@@ -24,9 +24,9 @@ void XnSignalTemplate::loadData(QSettings &s) {
 }
 
 void XnSignalTemplate::saveData(QSettings &s) const {
-	for (const std::pair<unsigned int, uint16_t> &output : this->outputs)
+	for (const std::pair<const unsigned int, uint16_t> &output : this->outputs)
 		s.setValue(QString::number(output.first),
-		           QString("%1").arg(output.second, this->outputsCount, 2, QLatin1Char('0')));
+				   QString("%1").arg(output.second, static_cast<int>(this->outputsCount), 2, QLatin1Char('0')));
 }
 
 XnSignal::XnSignal() = default;

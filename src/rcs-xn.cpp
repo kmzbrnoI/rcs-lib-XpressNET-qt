@@ -74,11 +74,11 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 		item->setText(1, "Nic");
 	else if (loglevel == RcsXnLogLevel::llError) {
 		item->setText(1, "Chyba");
-		for(size_t i = 0; i < 3; i++)
+		for(int i = 0; i < 3; i++)
 			item->setBackground(i, LOGC_ERROR);
 	} else if (loglevel == RcsXnLogLevel::llWarning) {
 		item->setText(1, "Varování");
-		for(size_t i = 0; i < 3; i++)
+		for(int i = 0; i < 3; i++)
 			item->setBackground(i, LOGC_WARN);
 	} else if (loglevel == RcsXnLogLevel::llInfo)
 		item->setText(1, "Info");
@@ -118,7 +118,7 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 	this->guiOnOpen();
 
 	try {
-		xn.connect(device, s["XN"]["baudrate"].toInt(),
+		xn.connect(device, s["XN"]["baudrate"].toUInt(),
 		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()));
 	} catch (const Xn::QStrException &e) {
 		error("XN connect error while opening serial port '" +
@@ -232,7 +232,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 		return;
 	}
 
-	this->scan_group = next_module/4;
+	this->scan_group = static_cast<uint8_t>(next_module/4);
 	this->scan_nibble = (next_module%4) >> 1;
 
 	xn.accInfoRequest(
@@ -254,7 +254,7 @@ void RcsXn::initScanningDone() {
 void RcsXn::xnSetOutputError(void *sender, void *data) {
 	(void)sender;
 	// TODO: mark module as failed?
-	unsigned int module = reinterpret_cast<intptr_t>(data);
+	unsigned int module = reinterpret_cast<uintptr_t>(data);
 	error("Command Station did not respond to SetOutput command!", RCS_MODULE_NOT_ANSWERED_CMD,
 	      module);
 }
@@ -530,12 +530,12 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 
 	if (rx.isSignal(portAddr)) {
 		// Signal output
-		rx.setSignal(portAddr, state);
+		rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 	} else {
 		// Plain output
 		rx.outputs[portAddr] = static_cast<bool>(state);
 		rx.xn.accOpRequest(
-		    portAddr, static_cast<bool>(state), nullptr,
+			static_cast<uint16_t>(portAddr), static_cast<bool>(state), nullptr,
 		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                               reinterpret_cast<void *>(module))
 		);
@@ -689,7 +689,7 @@ void RcsXn::loadSignals(const QString &filename) {
 				continue;
 			}
 
-			unsigned int hJOPoutput = name[1].toInt() * IO_MODULE_PIN_COUNT; // signal always at nibble 0
+			unsigned int hJOPoutput = name[1].toUInt() * IO_MODULE_PIN_COUNT; // signal always at nibble 0
 
 			s.beginGroup(g);
 			this->sig.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
@@ -746,7 +746,7 @@ bool RcsXn::isSignal(unsigned int portAddr) const {
 	return (this->sig.find(portAddr) != this->sig.end());
 }
 
-void RcsXn::setSignal(unsigned int portAddr, int code) {
+void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 	const XnSignal &sig = this->sig.at(portAddr);
 	if (sig.tmpl.outputs.find(code) == sig.tmpl.outputs.end())
 		return; // no ports assignment for this signal code
@@ -759,7 +759,7 @@ void RcsXn::setSignal(unsigned int portAddr, int code) {
 
 		rx.outputs[port] = state;
 		rx.xn.accOpRequest(
-		    port, state, nullptr,
+			static_cast<uint16_t>(port), state, nullptr,
 		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                               reinterpret_cast<void *>(module))
 		);
