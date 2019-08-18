@@ -28,6 +28,25 @@ struct XnSignal {
 	void saveData(QSettings &) const;
 };
 
+const std::array<QString, 16> XnSignalCodes {
+	"Stůj/posun zakázán",
+	"Volno",
+	"Výstraha",
+	"Očekávejte 40 km/h",
+	"40 km/h a volno",
+	"Svítí vše (rezerva)",
+	"40 km/h a výstraha",
+	"40 km/h a očekávejte 40 km/h",
+	"Přivolávascí návěst",
+	"Dovolen zajištěný posun",
+	"Dovolen nezajištěný posun",
+	"Opakování návěsti volno",
+	"Opakování návěsti výstraha",
+	"Návěstidlo zhaslé",
+	"Opak. návěsti očekávejte 40 km/h",
+	"Opak. návěsti výstraha a 40 km/h",
+};
+
 } // namespace RcsXn
 
 #endif

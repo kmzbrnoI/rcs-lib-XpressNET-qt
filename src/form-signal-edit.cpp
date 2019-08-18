@@ -6,6 +6,9 @@ FormSignalEdit::FormSignalEdit(QWidget *parent)
 	: QDialog(parent) {
 	ui.setupUi(this);
 
+	for (size_t i = 0; i < RcsXn::XnSignalCodes.size(); ++i)
+		ui.cb_add_sig->addItem(QString::number(i) + ": " + RcsXn::XnSignalCodes[i]);
+
 	QObject::connect(ui.b_apply, SIGNAL(released()), this, SLOT(b_apply_handle()));
 	QObject::connect(ui.b_storno, SIGNAL(released()), this, SLOT(b_storno_handle()));
 	QObject::connect(ui.b_temp_load, SIGNAL(released()), this, SLOT(b_temp_load_handle()));
@@ -20,12 +23,42 @@ void FormSignalEdit::open(EditCallback callback) {
 
 void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback) {
 	this->callback = callback;
+
+	ui.sb_hjop_rcs_addr->setValue(signal.hJOPaddr);
+	ui.sb_output_addr->setValue(signal.startAddr);
+	ui.sb_output_count->setValue(signal.tmpl.outputsCount);
+
+	ui.tv_outputs->clear();
+	for (const auto &output : signal.tmpl.outputs) {
+		auto *item = new QTreeWidgetItem(ui.tv_outputs);
+		item->setText(1, QString::number(output.first));
+		if (output.first < RcsXn::XnSignalCodes.size())
+			item->setText(1, RcsXn::XnSignalCodes[output.first]);
+		else
+			item->setText(1, "?");
+		item->setText(2, QString::number(output.second, 2));
+		ui.tv_outputs->addTopLevelItem(item);
+	}
+
+	ui.sb_add_bits->setValue(0);
+
+	this->show();
 }
 
 void FormSignalEdit::b_apply_handle() {
+	RcsXn::XnSignal result;
+
+	// TODO
+
+	if (this->callback != nullptr)
+		this->callback(result);
+	this->callback = nullptr;
+	this->close();
 }
 
 void FormSignalEdit::b_storno_handle() {
+	this->callback = nullptr;
+	this->close();
 }
 
 void FormSignalEdit::b_temp_load_handle() {

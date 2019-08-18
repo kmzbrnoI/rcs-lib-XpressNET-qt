@@ -74,7 +74,7 @@
      <string>Počet výstupů:</string>
     </property>
    </widget>
-   <widget class="QSpinBox" name="se_output_count">
+   <widget class="QSpinBox" name="sb_output_count">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -96,6 +96,11 @@
     <attribute name="headerDefaultSectionSize">
      <number>120</number>
     </attribute>
+    <column>
+     <property name="text">
+      <string>Kód návěsti</string>
+     </property>
+    </column>
     <column>
      <property name="text">
       <string>Návěst</string>
@@ -317,7 +322,7 @@
   <tabstop>sb_output_addr</tabstop>
   <tabstop>cb_temp_load</tabstop>
   <tabstop>b_temp_load</tabstop>
-  <tabstop>se_output_count</tabstop>
+  <tabstop>sb_output_count</tabstop>
   <tabstop>tv_outputs</tabstop>
   <tabstop>b_delete_signal</tabstop>
   <tabstop>cb_add_sig</tabstop>
