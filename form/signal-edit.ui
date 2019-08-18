@@ -301,6 +301,9 @@
    <property name="text">
     <string>Použít</string>
    </property>
+   <property name="default">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="b_storno">
    <property name="geometry">

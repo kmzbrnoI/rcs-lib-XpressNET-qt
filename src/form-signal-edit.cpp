@@ -48,7 +48,14 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback) {
 void FormSignalEdit::b_apply_handle() {
 	RcsXn::XnSignal result;
 
-	// TODO
+	result.hJOPaddr = ui.sb_hjop_rcs_addr->value();
+	result.startAddr = ui.sb_output_addr->value();
+	result.tmpl.outputsCount = ui.sb_output_count->value();
+
+	for (int i = 0; i < ui.tv_outputs->topLevelItemCount(); ++i) {
+		const QTreeWidgetItem *item = ui.tv_outputs->topLevelItem(i);
+		result.tmpl.outputs.emplace(item->text(0).toUInt(), item->text(2).toUInt(nullptr, 2));
+	}
 
 	if (this->callback != nullptr)
 		this->callback(result);
