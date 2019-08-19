@@ -74,7 +74,7 @@ void FormSignalEdit::b_temp_load_handle() {
 void FormSignalEdit::b_delete_signal_handle() {
 }
 
-void FormSignalEditb_add_signal_handle() {
+void FormSignalEdit::b_add_signal_handle() {
 }
 
 void FormSignalEdit::b_temp_save_handle() {
