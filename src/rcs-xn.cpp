@@ -739,6 +739,15 @@ void RcsXn::saveSignals(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
 
+	// delete sections
+	for (const auto &g : s.childGroups()) {
+		if (g.startsWith("Signal") || g.startsWith("SigTemplate")) {
+			s.beginGroup(g);
+			s.remove("");
+			s.endGroup();
+		}
+	}
+
 	// signals
 	for (const auto &pair : this->sig) {
 		QString group = "Signal-" + QString::number(pair.first);
@@ -908,6 +917,8 @@ void RcsXn::b_signal_remove_handle() {
 	if (reply != QMessageBox::Yes)
 		return;
 
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
 	for (const QTreeWidgetItem *item : form.ui.tw_signals->selectedItems()) {
 		unsigned int hJOPaddr = item->text(0).toUInt();
 		this->sig.erase(hJOPaddr);
@@ -917,6 +928,9 @@ void RcsXn::b_signal_remove_handle() {
 			if (form.ui.tw_signals->topLevelItem(i) == item)
 				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
+	this->saveSignals(this->config_filename);
+
+	QApplication::restoreOverrideCursor();
 }
 
 void RcsXn::fillSignals() {
