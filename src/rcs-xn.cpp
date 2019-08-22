@@ -702,7 +702,7 @@ void RcsXn::loadSignals(const QString &filename) {
 				continue;
 			}
 
-			unsigned int hJOPoutput = name[1].toUInt() * IO_MODULE_PIN_COUNT; // signal always at nibble 0
+			unsigned int hJOPoutput = name[1].toUInt(); // signal always at nibble 0
 
 			s.beginGroup(g);
 			this->sig.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
@@ -741,7 +741,7 @@ void RcsXn::saveSignals(const QString &filename) {
 
 	// signals
 	for (const auto &pair : this->sig) {
-		QString group = "Signal-" + QString::number(pair.first/IO_MODULE_PIN_COUNT);
+		QString group = "Signal-" + QString::number(pair.first);
 		s.beginGroup(group);
 		pair.second.saveData(s);
 		s.endGroup();
@@ -756,7 +756,7 @@ void RcsXn::saveSignals(const QString &filename) {
 }
 
 bool RcsXn::isSignal(unsigned int portAddr) const {
-	return (this->sig.find(portAddr) != this->sig.end());
+	return (this->sig.find(portAddr >> 1) != this->sig.end());
 }
 
 void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
