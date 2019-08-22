@@ -148,6 +148,11 @@ void FormSignalEdit::b_add_signal_handle() {
 void FormSignalEdit::b_temp_save_handle() {
 	const QString name = ui.le_temp_save_name->text();
 
+	if (name == "") {
+		QMessageBox::warning(this, "Chyba", "Je třeba vybrat pojmenování šablony!", QMessageBox::Ok);
+		return;
+	}
+
 	if (this->templates.find(name) != this->templates.end()) {
 		QMessageBox::StandardButton reply = QMessageBox::question(
 			this, "Přepsat?", "Přepsat uloženou šablonu " + name + "?",
