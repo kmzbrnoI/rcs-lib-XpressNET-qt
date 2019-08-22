@@ -925,6 +925,7 @@ void RcsXn::newSignal(XnSignal signal) {
 		throw QStrException("Návěstidlo s touto hJOP adresou je již definováno!");
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->guiAddSignal(signal);
+	this->saveSignals(this->config_filename);
 }
 
 void RcsXn::editedSignal(XnSignal signal) {
@@ -939,6 +940,7 @@ void RcsXn::editedSignal(XnSignal signal) {
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->newSignal(signal); // TODO: will sort automatically?
+	this->saveSignals(this->config_filename);
 }
 
 void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
