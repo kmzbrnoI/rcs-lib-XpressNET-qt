@@ -40,6 +40,9 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
 	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
 
+	QObject::connect(form.ui.b_signal_add, SIGNAL(released()), this, SLOT(b_signal_add()));
+	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this, SLOT(b_signal_remove()));
+
 	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_log_double_clicked(QTreeWidgetItem*, int)));
 
 	QString text;
@@ -196,6 +199,7 @@ void RcsXn::loadConfig(const QString &filename) {
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 	this->fillConnectionsCbs();
+	this->fillSignals();
 }
 
 void RcsXn::first_scan() {
@@ -790,7 +794,7 @@ void RcsXn::cb_connections_changed(int) {
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
 }
 
-void RcsXn::fillConnectionsCbs() {	
+void RcsXn::fillConnectionsCbs() {
 	// Port
 	this->fillPortCb();
 
@@ -889,6 +893,27 @@ void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {
 	(void)item;
 	(void)column;
 	this->form.ui.tw_xn_log->clear();
+}
+
+void RcsXn::b_signal_add_handle() {
+}
+
+void RcsXn::b_signal_remove_handle() {
+}
+
+void RcsXn::fillSignals() {
+	form.ui.tw_signals->clear();
+
+	for (const auto &signal_tuple : this->sig) {
+		const unsigned int hjop_addr = signal_tuple.first;
+		const XnSignal &signal = signal_tuple.second;
+
+		auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
+		item->setText(0, QString::number(hjop_addr));
+		item->setText(1, signal.outputRange());
+		item->setText(2, signal.name);
+		form.ui.tw_signals->addTopLevelItem(item);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

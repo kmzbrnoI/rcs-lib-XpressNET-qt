@@ -211,8 +211,8 @@ private slots:
 	void b_active_load_handle();
 	void b_active_save_handle();
 	void tw_log_double_clicked(QTreeWidgetItem *item, int column);
-
-signals:
+	void b_signal_add_handle();
+	void b_signal_remove_handle();
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
@@ -240,6 +240,7 @@ private:
 	void guiOnOpen();
 	void guiOnClose();
 	void fillActiveIO();
+	void fillSignals();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

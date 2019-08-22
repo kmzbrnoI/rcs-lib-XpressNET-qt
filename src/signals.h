@@ -28,6 +28,7 @@ struct XnSignal {
 	XnSignal(QSettings &, unsigned int hJOPaddr);
 	void loadData(QSettings &);
 	void saveData(QSettings &) const;
+	QString outputRange() const;
 };
 
 const std::array<QString, 16> XnSignalCodes {
