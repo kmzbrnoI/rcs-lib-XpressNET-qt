@@ -192,7 +192,7 @@
     <property name="title">
      <string>Uložit jako šablonu</string>
     </property>
-    <widget class="QLineEdit" name="gb_temp_save_name">
+    <widget class="QLineEdit" name="le_temp_save_name">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -355,7 +355,7 @@
   <tabstop>cb_add_sig</tabstop>
   <tabstop>sb_add_bits</tabstop>
   <tabstop>b_add_signal</tabstop>
-  <tabstop>gb_temp_save_name</tabstop>
+  <tabstop>le_temp_save_name</tabstop>
   <tabstop>b_temp_save</tabstop>
   <tabstop>b_apply</tabstop>
   <tabstop>b_storno</tabstop>

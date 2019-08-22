@@ -17,11 +17,14 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	QObject::connect(ui.b_delete_signal, SIGNAL(released()), this, SLOT(b_delete_signal_handle()));
 	QObject::connect(ui.b_add_signal, SIGNAL(released()), this, SLOT(b_add_signal_handle()));
 	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save	_handle()));
+
+	this->fillTemplates(templates);
 }
 
 void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
 	this->callback = callback;
 	this->templates = templates;
+	this->fillTemplates(templates);
 }
 
 void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplStorage &templates) {
@@ -33,8 +36,17 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 	ui.sb_output_addr->setValue(signal.startAddr);
 	ui.sb_output_count->setValue(signal.tmpl.outputsCount);
 
+	this->fillTemplate(signal.tmpl);
+
+	ui.sb_add_bits->setValue(0);
+
+	this->fillTemplates(templates);
+	this->show();
+}
+
+void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 	ui.tv_outputs->clear();
-	for (const auto &output : signal.tmpl.outputs) {
+	for (const auto &output : tmpl.outputs) {
 		auto *item = new QTreeWidgetItem(ui.tv_outputs);
 		item->setText(1, QString::number(output.first));
 		if (output.first < RcsXn::XnSignalCodes.size())
@@ -44,10 +56,16 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 		item->setText(2, QString::number(output.second, 2));
 		ui.tv_outputs->addTopLevelItem(item);
 	}
+}
 
-	ui.sb_add_bits->setValue(0);
-
-	this->show();
+RcsXn::XnSignalTemplate FormSignalEdit::getTemplate() const {
+	RcsXn::XnSignalTemplate result;
+	result.outputsCount = ui.sb_output_count->value();
+	for (int i = 0; i < ui.tv_outputs->topLevelItemCount(); ++i) {
+		const QTreeWidgetItem *item = ui.tv_outputs->topLevelItem(i);
+		result.outputs.emplace(item->text(0).toUInt(), item->text(2).toUInt(nullptr, 2));
+	}
+	return result;
 }
 
 void FormSignalEdit::b_apply_handle() {
@@ -59,12 +77,7 @@ void FormSignalEdit::b_apply_handle() {
 	result.name = ui.le_name->text();
 	result.hJOPaddr = ui.sb_hjop_rcs_addr->value();
 	result.startAddr = ui.sb_output_addr->value();
-	result.tmpl.outputsCount = ui.sb_output_count->value();
-
-	for (int i = 0; i < ui.tv_outputs->topLevelItemCount(); ++i) {
-		const QTreeWidgetItem *item = ui.tv_outputs->topLevelItem(i);
-		result.tmpl.outputs.emplace(item->text(0).toUInt(), item->text(2).toUInt(nullptr, 2));
-	}
+	result.tmpl = this->getTemplate();
 
 	try {
 		if (this->callback != nullptr)
@@ -84,6 +97,14 @@ void FormSignalEdit::b_storno_handle() {
 }
 
 void FormSignalEdit::b_temp_load_handle() {
+	if (ui.cb_temp_load->currentIndex() < 0) {
+		QMessageBox::warning(this, "Chyba", "Je třeba vybrat šablonu!", QMessageBox::Ok);
+		return;
+	}
+
+	this->fillTemplate(this->templates.at(ui.cb_temp_load->currentText()));
+	ui.le_temp_save_name->setText(ui.cb_temp_load->currentText());
+	QMessageBox::information(this, "Ok", "Šablona načtena.", QMessageBox::Ok);
 }
 
 void FormSignalEdit::b_delete_signal_handle() {
@@ -93,6 +114,28 @@ void FormSignalEdit::b_add_signal_handle() {
 }
 
 void FormSignalEdit::b_temp_save_handle() {
+	const QString name = ui.le_temp_save_name->text();
+
+	if (this->templates.find(name) != this->templates.end()) {
+		QMessageBox::StandardButton reply = QMessageBox::question(
+			this, "Přepsat?", "Přepsat uloženou šablonu " + name + "?",
+			QMessageBox::Yes|QMessageBox::No
+		);
+		if (reply != QMessageBox::Yes)
+			return;
+		this->templates.erase(name);
+	}
+
+	this->templates.emplace(name, this->getTemplate());
+	this->fillTemplates();
+
+	QMessageBox::information(this, "Ok", "Šablona " + name + " uložena.", QMessageBox::Ok);
+}
+
+void FormSignalEdit::fillTemplates(const TmplStorage &) {
+	ui.cb_temp_load->clear();
+	for (const std::pair<QString, RcsXn::XnSignalTemplate> &item : this->templates)
+		ui.cb_temp_load->addItem(item.first);
 }
 
 } // namespace SignalEdit

@@ -31,6 +31,10 @@ private:
 	Ui::f_signal_edit ui;
 	EditCallback callback;
 	TmplStorage &templates;
+
+	void fillTemplates(const TmplStorage &);
+	void fillTemplate(const RcsXn::XnSignalTemplate &);
+	RcsXn::XnSignalTemplate getTemplate() const;
 };
 
 } // namespace SignalEdit
