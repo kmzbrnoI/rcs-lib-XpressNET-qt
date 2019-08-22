@@ -44,6 +44,7 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this, SLOT(b_signal_remove()));
 
 	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_log_double_clicked(QTreeWidgetItem*, int)));
+	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_signals_dbl_click(QTreeWidgetItem*, int)));
 
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
@@ -926,7 +927,26 @@ void RcsXn::newSignal(XnSignal signal) {
 	this->guiAddSignal(signal);
 }
 
-void RcsXn::editedSignal(XnSignal) {
+void RcsXn::editedSignal(XnSignal signal) {
+	if ((signal.hJOPaddr != this->current_editing_signal) &&
+	    (this->sig.find(signal.hJOPaddr) != this->sig.end()))
+		throw QStrException("Návěstidlo s touto hJOP adresou je již definováno!");
+	if (this->sig.find(this->current_editing_signal) != this->sig.end()) {
+		this->sig.erase(this->current_editing_signal);
+		for (int i = 0; i < form.ui.tw_signals->topLevelItemCount(); ++i)
+			if (form.ui.tw_signals->topLevelItem(i)->text(0).toUInt() == this->current_editing_signal)
+				form.ui.tw_signals->takeTopLevelItem(i);
+	}
+	this->sig.emplace(signal.hJOPaddr, signal);
+	this->newSignal(signal); // TODO: will sort automatically?
+}
+
+void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
+	(void)column;
+	this->current_editing_signal = item->text(0).toUInt();
+	f_signal_edit.open(this->sig[this->current_editing_signal],
+	                   [this](XnSignal signal) { this->editedSignal(signal); });
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////

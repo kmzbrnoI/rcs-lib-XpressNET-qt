@@ -215,6 +215,7 @@ private slots:
 	void tw_log_double_clicked(QTreeWidgetItem *item, int column);
 	void b_signal_add_handle();
 	void b_signal_remove_handle();
+	void tw_signals_dbl_click(QTreeWidgetItem *, int);
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
