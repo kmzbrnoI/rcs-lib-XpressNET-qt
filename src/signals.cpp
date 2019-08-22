@@ -36,7 +36,7 @@ XnSignal::XnSignal(QSettings &s, unsigned int hJOPaddr) : hJOPaddr(hJOPaddr) { t
 void XnSignal::loadData(QSettings &s) {
 	tmpl.loadData(s);
 	this->startAddr = s.value("startAddr", this->hJOPaddr).toUInt();
-	this->name = s.value("name", this->hJOPaddr).toString();
+	this->name = s.value("name", QString::number(this->hJOPaddr)).toString();
 }
 
 void XnSignal::saveData(QSettings &s) const {

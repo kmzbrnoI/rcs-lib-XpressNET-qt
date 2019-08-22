@@ -40,8 +40,8 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
 	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
 
-	QObject::connect(form.ui.b_signal_add, SIGNAL(released()), this, SLOT(b_signal_add()));
-	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this, SLOT(b_signal_remove()));
+	QObject::connect(form.ui.b_signal_add, SIGNAL(released()), this, SLOT(b_signal_add_handle()));
+	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this, SLOT(b_signal_remove_handle()));
 
 	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_log_double_clicked(QTreeWidgetItem*, int)));
 	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_signals_dbl_click(QTreeWidgetItem*, int)));
@@ -929,7 +929,7 @@ void RcsXn::fillSignals() {
 }
 
 void RcsXn::guiAddSignal(const XnSignal &signal) {
-	auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
+	auto *item = new QTreeWidgetItem(form.ui.tw_signals);
 	item->setText(0, QString::number(signal.hJOPaddr));
 	item->setText(1, signal.outputRange());
 	item->setText(2, signal.name);
@@ -955,7 +955,7 @@ void RcsXn::editedSignal(XnSignal signal) {
 				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
-	this->newSignal(signal); // TODO: will sort automatically?
+	this->guiAddSignal(signal); // TODO: will sort automatically?
 	this->saveSignals(this->config_filename);
 }
 

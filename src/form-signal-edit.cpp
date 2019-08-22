@@ -8,6 +8,7 @@ namespace SignalEdit {
 FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	: QDialog(parent), templates(templates) {
 	ui.setupUi(this);
+	this->setFixedSize(this->size());
 
 	for (size_t i = 0; i < RcsXn::XnSignalCodes.size(); ++i)
 		ui.cb_add_sig->addItem(QString::number(i) + ": " + RcsXn::XnSignalCodes[i]);
@@ -17,18 +18,26 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	QObject::connect(ui.b_temp_load, SIGNAL(released()), this, SLOT(b_temp_load_handle()));
 	QObject::connect(ui.b_delete_signal, SIGNAL(released()), this, SLOT(b_delete_signal_handle()));
 	QObject::connect(ui.b_add_signal, SIGNAL(released()), this, SLOT(b_add_signal_handle()));
-	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save	_handle()));
+	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save_handle()));
 	QObject::connect(ui.tw_outputs, SIGNAL(itemSelectionChanged()), this, SLOT(tw_outputs_selection_changed()));
 	QObject::connect(ui.sb_output_count, SIGNAL(valueChanged(int)), this, SLOT(sb_output_count_changed(int)));
-
-	this->fillTemplates(templates);
 }
 
 void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
 	this->callback = callback;
 	this->templates = templates;
 	ui.b_delete_signal->setEnabled(false);
+
+	ui.le_name->setText("");
+	ui.sb_hjop_rcs_addr->setValue(0);
+	ui.sb_output_addr->setValue(0);
+	ui.sb_output_count->setValue(4);
+	ui.tw_outputs->clear();
+	ui.sb_add_bits->setValue(0);
+
 	this->fillTemplates(templates);
+	this->setWindowTitle("Přidat nové návěstidlo");
+	this->show();
 }
 
 void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplStorage &templates) {
@@ -46,6 +55,7 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 	ui.sb_add_bits->setValue(0);
 
 	this->fillTemplates(templates);
+	this->setWindowTitle("Upravit návěstidlo " + signal.name);
 	this->show();
 }
 
@@ -54,7 +64,7 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 	ui.tw_outputs->clear();
 	for (const auto &output : tmpl.outputs) {
 		auto *item = new QTreeWidgetItem(ui.tw_outputs);
-		item->setText(1, QString::number(output.first));
+		item->setText(0, QString::number(output.first));
 		if (output.first < RcsXn::XnSignalCodes.size())
 			item->setText(1, RcsXn::XnSignalCodes[output.first]);
 		else
@@ -137,7 +147,7 @@ void FormSignalEdit::b_add_signal_handle() {
 	}
 
 	auto *item = new QTreeWidgetItem(ui.tw_outputs);
-	item->setText(1, QString::number(ui.cb_add_sig->currentIndex()));
+	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
 	item->setText(2, QString::number(ui.sb_add_bits->value(), 2));
 	ui.tw_outputs->addTopLevelItem(item); // TODO: will this sort automatically?
@@ -169,9 +179,13 @@ void FormSignalEdit::b_temp_save_handle() {
 	QMessageBox::information(this, "Ok", "Šablona " + name + " uložena.", QMessageBox::Ok);
 }
 
-void FormSignalEdit::fillTemplates(const TmplStorage &) {
+void FormSignalEdit::fillTemplates(const TmplStorage &templates) {
 	ui.cb_temp_load->clear();
-	for (const std::pair<QString, RcsXn::XnSignalTemplate> &item : this->templates)
+	ui.cb_temp_load->setEnabled(!templates.empty());
+	ui.b_temp_load->setEnabled(!templates.empty());
+	if (templates.empty())
+		ui.cb_temp_load->addItem("Zatím žádné šablony.");
+	for (const auto &item : templates)
 		ui.cb_temp_load->addItem(item.first);
 }
 

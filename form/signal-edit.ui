@@ -94,7 +94,10 @@
      </rect>
     </property>
     <property name="selectionMode">
-     <enum>QAbstractItemView::MultiSelection</enum>
+     <enum>QAbstractItemView::ExtendedSelection</enum>
+    </property>
+    <property name="rootIsDecorated">
+     <bool>false</bool>
     </property>
     <property name="sortingEnabled">
      <bool>true</bool>
@@ -103,7 +106,7 @@
      <bool>false</bool>
     </property>
     <attribute name="headerDefaultSectionSize">
-     <number>120</number>
+     <number>70</number>
     </attribute>
     <column>
      <property name="text">
@@ -264,6 +267,9 @@
      <height>24</height>
     </rect>
    </property>
+   <property name="maximum">
+    <number>1023</number>
+   </property>
   </widget>
   <widget class="QSpinBox" name="sb_hjop_rcs_port">
    <property name="enabled">
@@ -277,6 +283,9 @@
      <height>24</height>
     </rect>
    </property>
+   <property name="maximum">
+    <number>1</number>
+   </property>
   </widget>
   <widget class="QSpinBox" name="sb_output_addr">
    <property name="geometry">
@@ -286,6 +295,9 @@
      <width>111</width>
      <height>24</height>
     </rect>
+   </property>
+   <property name="maximum">
+    <number>1023</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
