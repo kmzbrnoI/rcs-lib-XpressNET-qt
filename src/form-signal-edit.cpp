@@ -129,6 +129,18 @@ void FormSignalEdit::b_delete_signal_handle() {
 }
 
 void FormSignalEdit::b_add_signal_handle() {
+	if (ui.cb_add_sig->currentIndex() < 0) {
+		QMessageBox::warning(this, "Chyba", "Je třeba vybrat návěst!", QMessageBox::Ok);
+		return;
+	}
+
+	auto *item = new QTreeWidgetItem(ui.tw_outputs);
+	item->setText(1, QString::number(ui.cb_add_sig->currentIndex()));
+	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
+	item->setText(2, QString::number(ui.sb_add_bits->value(), 2));
+	ui.tw_outputs->addTopLevelItem(item); // TODO: will this sort automatically?
+
+	ui.cb_add_sig->setCurrentIndex(-1);
 }
 
 void FormSignalEdit::b_temp_save_handle() {
