@@ -17,6 +17,7 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	QObject::connect(ui.b_delete_signal, SIGNAL(released()), this, SLOT(b_delete_signal_handle()));
 	QObject::connect(ui.b_add_signal, SIGNAL(released()), this, SLOT(b_add_signal_handle()));
 	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save	_handle()));
+	QObject::connect(ui.tw_outputs, SIGNAL(itemSelectionChanged()), this, SLOT(tw_outputs_selection_changed()));
 
 	this->fillTemplates(templates);
 }
@@ -24,12 +25,14 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
 	this->callback = callback;
 	this->templates = templates;
+	ui.b_delete_signal->setEnabled(false);
 	this->fillTemplates(templates);
 }
 
 void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplStorage &templates) {
 	this->callback = callback;
 	this->templates = templates;
+	ui.b_delete_signal->setEnabled(false);
 
 	ui.le_name->setText(signal.name);
 	ui.sb_hjop_rcs_addr->setValue(signal.hJOPaddr);
@@ -45,24 +48,24 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 }
 
 void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
-	ui.tv_outputs->clear();
+	ui.tw_outputs->clear();
 	for (const auto &output : tmpl.outputs) {
-		auto *item = new QTreeWidgetItem(ui.tv_outputs);
+		auto *item = new QTreeWidgetItem(ui.tw_outputs);
 		item->setText(1, QString::number(output.first));
 		if (output.first < RcsXn::XnSignalCodes.size())
 			item->setText(1, RcsXn::XnSignalCodes[output.first]);
 		else
 			item->setText(1, "?");
 		item->setText(2, QString::number(output.second, 2));
-		ui.tv_outputs->addTopLevelItem(item);
+		ui.tw_outputs->addTopLevelItem(item);
 	}
 }
 
 RcsXn::XnSignalTemplate FormSignalEdit::getTemplate() const {
 	RcsXn::XnSignalTemplate result;
 	result.outputsCount = ui.sb_output_count->value();
-	for (int i = 0; i < ui.tv_outputs->topLevelItemCount(); ++i) {
-		const QTreeWidgetItem *item = ui.tv_outputs->topLevelItem(i);
+	for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i) {
+		const QTreeWidgetItem *item = ui.tw_outputs->topLevelItem(i);
 		result.outputs.emplace(item->text(0).toUInt(), item->text(2).toUInt(nullptr, 2));
 	}
 	return result;
@@ -108,6 +111,18 @@ void FormSignalEdit::b_temp_load_handle() {
 }
 
 void FormSignalEdit::b_delete_signal_handle() {
+	QMessageBox::StandardButton reply = QMessageBox::question(
+		this, "Smazat?", "Skutečné smazat vybrané návěsti?", QMessageBox::Yes|QMessageBox::No
+	);
+	if (reply != QMessageBox::Yes)
+		return;
+
+	for (const QTreeWidgetItem *item : ui.tw_outputs->selectedItems()) {
+		// this is slow, but I found no other way :(
+		for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i)
+			if (ui.tw_outputs->topLevelItem(i) == item)
+				delete ui.tw_outputs->takeTopLevelItem(i);
+	}
 }
 
 void FormSignalEdit::b_add_signal_handle() {
@@ -127,7 +142,7 @@ void FormSignalEdit::b_temp_save_handle() {
 	}
 
 	this->templates.emplace(name, this->getTemplate());
-	this->fillTemplates();
+	this->fillTemplates(this->templates);
 
 	QMessageBox::information(this, "Ok", "Šablona " + name + " uložena.", QMessageBox::Ok);
 }
@@ -136,6 +151,10 @@ void FormSignalEdit::fillTemplates(const TmplStorage &) {
 	ui.cb_temp_load->clear();
 	for (const std::pair<QString, RcsXn::XnSignalTemplate> &item : this->templates)
 		ui.cb_temp_load->addItem(item.first);
+}
+
+void FormSignalEdit::tw_outputs_selection_changed() {
+	ui.b_delete_signal->setEnabled(!ui.tw_outputs->selectedItems().empty());
 }
 
 } // namespace SignalEdit

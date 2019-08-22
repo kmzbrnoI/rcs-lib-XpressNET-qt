@@ -26,6 +26,7 @@ private slots:
 	void b_delete_signal_handle();
 	void b_add_signal_handle();
 	void b_temp_save_handle();
+	void tw_outputs_selection_changed();
 
 private:
 	Ui::f_signal_edit ui;

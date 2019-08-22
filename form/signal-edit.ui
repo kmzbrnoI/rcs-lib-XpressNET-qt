@@ -84,7 +84,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTreeWidget" name="tv_outputs">
+   <widget class="QTreeWidget" name="tw_outputs">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -92,6 +92,12 @@
       <width>251</width>
       <height>201</height>
      </rect>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::MultiSelection</enum>
+    </property>
+    <property name="expandsOnDoubleClick">
+     <bool>false</bool>
     </property>
     <attribute name="headerDefaultSectionSize">
      <number>120</number>
@@ -168,6 +174,9 @@
     </widget>
    </widget>
    <widget class="QPushButton" name="b_delete_signal">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -350,7 +359,7 @@
   <tabstop>cb_temp_load</tabstop>
   <tabstop>b_temp_load</tabstop>
   <tabstop>sb_output_count</tabstop>
-  <tabstop>tv_outputs</tabstop>
+  <tabstop>tw_outputs</tabstop>
   <tabstop>b_delete_signal</tabstop>
   <tabstop>cb_add_sig</tabstop>
   <tabstop>sb_add_bits</tabstop>
