@@ -1,3 +1,4 @@
+#include <cmath>
 #include <QMessageBox>
 #include "form-signal-edit.h"
 #include "lib/q-str-exception.h"
@@ -18,6 +19,7 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	QObject::connect(ui.b_add_signal, SIGNAL(released()), this, SLOT(b_add_signal_handle()));
 	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save	_handle()));
 	QObject::connect(ui.tw_outputs, SIGNAL(itemSelectionChanged()), this, SLOT(tw_outputs_selection_changed()));
+	QObject::connect(ui.sb_output_count, SIGNAL(valueChanged(int)), this, SLOT(sb_output_count_changed(int)));
 
 	this->fillTemplates(templates);
 }
@@ -170,6 +172,10 @@ void FormSignalEdit::fillTemplates(const TmplStorage &) {
 
 void FormSignalEdit::tw_outputs_selection_changed() {
 	ui.b_delete_signal->setEnabled(!ui.tw_outputs->selectedItems().empty());
+}
+
+void FormSignalEdit::sb_output_count_changed(int value) {
+	ui.sb_add_bits->setMaximum(pow(2, value)-1);
 }
 
 } // namespace SignalEdit
