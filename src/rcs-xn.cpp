@@ -925,7 +925,7 @@ void RcsXn::fillSignals() {
 	for (const auto &signal_tuple : this->sig)
 		this->guiAddSignal(signal_tuple.second);
 	form.ui.tw_signals->setSortingEnabled(true);
-	form.ui.tw_signals->sortByColumn(0);
+	form.ui.tw_signals->sortByColumn(0, Qt::SortOrder::AscendingOrder);
 }
 
 void RcsXn::guiAddSignal(const XnSignal &signal) {

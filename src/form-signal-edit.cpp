@@ -63,7 +63,7 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 		ui.tw_outputs->addTopLevelItem(item);
 	}
 	ui.tw_outputs->setSortingEnabled(true);
-	ui.tw_outputs->sortByColumn(0);
+	ui.tw_outputs->sortByColumn(0, Qt::SortOrder::AscendingOrder);
 }
 
 RcsXn::XnSignalTemplate FormSignalEdit::getTemplate() const {
