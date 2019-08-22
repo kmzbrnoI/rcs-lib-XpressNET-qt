@@ -4,8 +4,8 @@
 
 namespace SignalEdit {
 
-FormSignalEdit::FormSignalEdit(QWidget *parent)
-	: QDialog(parent) {
+FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
+	: QDialog(parent), templates(templates) {
 	ui.setupUi(this);
 
 	for (size_t i = 0; i < RcsXn::XnSignalCodes.size(); ++i)
@@ -19,12 +19,14 @@ FormSignalEdit::FormSignalEdit(QWidget *parent)
 	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save	_handle()));
 }
 
-void FormSignalEdit::open(EditCallback callback) {
+void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
 	this->callback = callback;
+	this->templates = templates;
 }
 
-void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback) {
+void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplStorage &templates) {
 	this->callback = callback;
+	this->templates = templates;
 
 	ui.le_name->setText(signal.name);
 	ui.sb_hjop_rcs_addr->setValue(signal.hJOPaddr);

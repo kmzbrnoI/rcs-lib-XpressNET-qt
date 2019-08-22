@@ -9,14 +9,15 @@
 namespace SignalEdit {
 
 using EditCallback = std::function<void(RcsXn::XnSignal signal)>;
+using TmplStorage = std::map<QString, RcsXn::XnSignalTemplate>;
 
 class FormSignalEdit : public QDialog {
 	Q_OBJECT
 
 public:
-	FormSignalEdit(QWidget *parent = nullptr);
-	void open(EditCallback callback);
-	void open(RcsXn::XnSignal signal, EditCallback callback);
+	FormSignalEdit(TmplStorage &templates, QWidget *parent = nullptr);
+	void open(EditCallback callback, TmplStorage &templates);
+	void open(RcsXn::XnSignal signal, EditCallback callback, TmplStorage &templates);
 
 private slots:
 	void b_apply_handle();
@@ -29,6 +30,7 @@ private slots:
 private:
 	Ui::f_signal_edit ui;
 	EditCallback callback;
+	TmplStorage &templates;
 };
 
 } // namespace SignalEdit

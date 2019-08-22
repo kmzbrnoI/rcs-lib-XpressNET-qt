@@ -15,7 +15,7 @@ RcsXn rx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RcsXn::RcsXn(QObject *parent) : QObject(parent) {
+RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	// XN events
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
 	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::XnLogLevel)), this,
@@ -898,7 +898,7 @@ void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {
 }
 
 void RcsXn::b_signal_add_handle() {
-	f_signal_edit.open([this](XnSignal signal) { this->newSignal(signal); });
+	f_signal_edit.open([this](XnSignal signal) { this->newSignal(signal); }, this->sigTemplates);
 }
 
 void RcsXn::b_signal_remove_handle() {
@@ -963,7 +963,8 @@ void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
 	(void)column;
 	this->current_editing_signal = item->text(0).toUInt();
 	f_signal_edit.open(this->sig[this->current_editing_signal],
-	                   [this](XnSignal signal) { this->editedSignal(signal); });
+	                   [this](XnSignal signal) { this->editedSignal(signal); },
+	                   this->sigTemplates);
 	
 }
 
