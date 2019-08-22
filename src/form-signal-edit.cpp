@@ -122,7 +122,7 @@ void FormSignalEdit::b_temp_load_handle() {
 
 	this->fillTemplate(this->templates.at(ui.cb_temp_load->currentText()));
 	ui.le_temp_save_name->setText(ui.cb_temp_load->currentText());
-	QMessageBox::information(this, "Ok", "Šablona načtena.", QMessageBox::Ok);
+	QMessageBox::information(this, "Ok", "Šablona " + ui.cb_temp_load->currentText() + " načtena.", QMessageBox::Ok);
 }
 
 void FormSignalEdit::b_delete_signal_handle() {
@@ -183,10 +183,13 @@ void FormSignalEdit::fillTemplates(const TmplStorage &templates) {
 	ui.cb_temp_load->clear();
 	ui.cb_temp_load->setEnabled(!templates.empty());
 	ui.b_temp_load->setEnabled(!templates.empty());
-	if (templates.empty())
-		ui.cb_temp_load->addItem("Zatím žádné šablony.");
 	for (const auto &item : templates)
 		ui.cb_temp_load->addItem(item.first);
+	if (templates.empty())
+		ui.cb_temp_load->addItem("Zatím žádné šablony.");
+	else {
+		ui.cb_temp_load->setCurrentIndex(-1);
+	}
 }
 
 void FormSignalEdit::tw_outputs_selection_changed() {
