@@ -48,6 +48,7 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 }
 
 void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
+	ui.tw_outputs->setSortingEnabled(false);
 	ui.tw_outputs->clear();
 	for (const auto &output : tmpl.outputs) {
 		auto *item = new QTreeWidgetItem(ui.tw_outputs);
@@ -59,6 +60,8 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 		item->setText(2, QString::number(output.second, 2));
 		ui.tw_outputs->addTopLevelItem(item);
 	}
+	ui.tw_outputs->setSortingEnabled(true);
+	ui.tw_outputs->sortByColumn(0);
 }
 
 RcsXn::XnSignalTemplate FormSignalEdit::getTemplate() const {
