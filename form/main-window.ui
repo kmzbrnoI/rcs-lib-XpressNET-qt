@@ -280,6 +280,9 @@
           <height>381</height>
          </rect>
         </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
         <column>
          <property name="text">
           <string>hJOP modul</string>

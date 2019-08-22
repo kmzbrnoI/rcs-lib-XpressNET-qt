@@ -30,6 +30,7 @@
 #include "settings.h"
 #include "signals.h"
 #include "ui_main-window.h"
+#include "form-signal-edit.h"
 #include "lib/q-str-exception.h"
 
 namespace RcsXn {
@@ -167,6 +168,7 @@ public:
 
 	// UI
 	MainWindow form;
+	SignalEdit::FormSignalEdit f_signal_edit;
 	bool gui_connection_changing = false;
 
 	// signals
@@ -234,6 +236,10 @@ private:
 	void loadSignals(const QString &filename);
 	void saveSignals(const QString &filename);
 
+	unsigned int current_editing_signal;
+	void newSignal(XnSignal);
+	void editedSignal(XnSignal);
+
 	// GUI:
 	void fillConnectionsCbs();
 	void fillPortCb();
@@ -241,6 +247,7 @@ private:
 	void guiOnClose();
 	void fillActiveIO();
 	void fillSignals();
+	void guiAddSignal(const XnSignal &);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

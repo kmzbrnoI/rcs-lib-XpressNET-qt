@@ -896,24 +896,37 @@ void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {
 }
 
 void RcsXn::b_signal_add_handle() {
+	f_signal_edit.open([this](XnSignal signal) { this->newSignal(signal); });
 }
 
 void RcsXn::b_signal_remove_handle() {
 }
 
 void RcsXn::fillSignals() {
+	form.ui.tw_signals->setSortingEnabled(false);
 	form.ui.tw_signals->clear();
+	for (const auto &signal_tuple : this->sig)
+		this->guiAddSignal(signal_tuple.second);
+	form.ui.tw_signals->setSortingEnabled(true);
+	form.ui.tw_signals->sortByColumn(0);
+}
 
-	for (const auto &signal_tuple : this->sig) {
-		const unsigned int hjop_addr = signal_tuple.first;
-		const XnSignal &signal = signal_tuple.second;
+void RcsXn::guiAddSignal(const XnSignal &signal) {
+	auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
+	item->setText(0, QString::number(signal.hJOPaddr));
+	item->setText(1, signal.outputRange());
+	item->setText(2, signal.name);
+	form.ui.tw_signals->addTopLevelItem(item);
+}
 
-		auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
-		item->setText(0, QString::number(hjop_addr));
-		item->setText(1, signal.outputRange());
-		item->setText(2, signal.name);
-		form.ui.tw_signals->addTopLevelItem(item);
-	}
+void RcsXn::newSignal(XnSignal signal) {
+	if (this->sig.find(signal.hJOPaddr) != this->sig.end())
+		throw QStrException("Návěstidlo s touto hJOP adresou je již definováno!");
+	this->sig.emplace(signal.hJOPaddr, signal);
+	this->guiAddSignal(signal);
+}
+
+void RcsXn::editedSignal(XnSignal) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////

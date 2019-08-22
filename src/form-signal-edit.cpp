@@ -1,4 +1,6 @@
+#include <QMessageBox>
 #include "form-signal-edit.h"
+#include "lib/q-str-exception.h"
 
 namespace SignalEdit {
 
@@ -59,10 +61,14 @@ void FormSignalEdit::b_apply_handle() {
 		result.tmpl.outputs.emplace(item->text(0).toUInt(), item->text(2).toUInt(nullptr, 2));
 	}
 
-	if (this->callback != nullptr)
-		this->callback(result);
-	this->callback = nullptr;
-	this->close();
+	try {
+		if (this->callback != nullptr)
+			this->callback(result);
+		this->callback = nullptr;
+		this->close();
+	} catch (const RcsXn::QStrException &e) {
+		QMessageBox::warning(this, "Chyba", e.str(), QMessageBox::Ok);
+	}
 }
 
 void FormSignalEdit::b_storno_handle() {

@@ -1,13 +1,14 @@
 #ifndef FORMSIGNALEDIT_H
 #define FORMSIGNALEDIT_H
 
+#include <functional>
 #include <QMainWindow>
 #include "ui_signal-edit.h"
 #include "signals.h"
 
 namespace SignalEdit {
 
-using EditCallback = void (*)(RcsXn::XnSignal signal);
+using EditCallback = std::function<void(RcsXn::XnSignal signal)>;
 
 class FormSignalEdit : public QDialog {
 	Q_OBJECT
