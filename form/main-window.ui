@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -238,6 +238,65 @@
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="t_signals">
+       <attribute name="title">
+        <string>Návěstidla</string>
+       </attribute>
+       <widget class="QPushButton" name="b_signal_add">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>80</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Přidat</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="b_signal_delete">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>10</y>
+          <width>80</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Odstranit</string>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="tw_signals">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>371</width>
+          <height>381</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>hJOP modul</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Výstupy</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Název</string>
+         </property>
+        </column>
+       </widget>
+      </widget>
       <widget class="QWidget" name="t_xn_log">
        <attribute name="title">
         <string>Log</string>
@@ -313,7 +372,7 @@
            <bool>true</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="headerCascadingSectionResizes">
            <bool>false</bool>
