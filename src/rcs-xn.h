@@ -216,6 +216,7 @@ private slots:
 	void b_signal_add_handle();
 	void b_signal_remove_handle();
 	void tw_signals_dbl_click(QTreeWidgetItem *, int);
+	void tw_signals_selection_changed();
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);

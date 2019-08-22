@@ -45,6 +45,7 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent) {
 
 	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_log_double_clicked(QTreeWidgetItem*, int)));
 	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_signals_dbl_click(QTreeWidgetItem*, int)));
+	QObject::connect(form.ui.tw_signals, SIGNAL(itemSelectionChanged()), this, SLOT(tw_signals_selection_changed()));
 
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
@@ -901,6 +902,21 @@ void RcsXn::b_signal_add_handle() {
 }
 
 void RcsXn::b_signal_remove_handle() {
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::question(&(this->form), "Smazat?", "Skutečně smazat vybraná návěstidla?",
+                                  QMessageBox::Yes|QMessageBox::No);
+	if (reply != QMessageBox::Yes)
+		return;
+
+	for (const QTreeWidgetItem *item : form.ui.tw_signals->selectedItems()) {
+		unsigned int hJOPaddr = item->text(0).toUInt();
+		this->sig.erase(hJOPaddr);
+
+		// this is slow, but I found no other way :(
+		for (int i = 0; i < form.ui.tw_signals->topLevelItemCount(); ++i)
+			if (form.ui.tw_signals->topLevelItem(i) == item)
+				delete form.ui.tw_signals->takeTopLevelItem(i);
+	}
 }
 
 void RcsXn::fillSignals() {
@@ -936,7 +952,7 @@ void RcsXn::editedSignal(XnSignal signal) {
 		this->sig.erase(this->current_editing_signal);
 		for (int i = 0; i < form.ui.tw_signals->topLevelItemCount(); ++i)
 			if (form.ui.tw_signals->topLevelItem(i)->text(0).toUInt() == this->current_editing_signal)
-				form.ui.tw_signals->takeTopLevelItem(i);
+				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->newSignal(signal); // TODO: will sort automatically?
@@ -949,6 +965,10 @@ void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
 	f_signal_edit.open(this->sig[this->current_editing_signal],
 	                   [this](XnSignal signal) { this->editedSignal(signal); });
 	
+}
+
+void RcsXn::tw_signals_selection_changed() {
+	form.ui.b_signal_remove->setEnabled(!form.ui.tw_signals->selectedItems().empty());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
