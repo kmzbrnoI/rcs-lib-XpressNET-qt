@@ -49,6 +49,9 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback) {
 }
 
 void FormSignalEdit::b_apply_handle() {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	QApplication::processEvents();
+
 	RcsXn::XnSignal result;
 
 	result.name = ui.le_name->text();
@@ -65,8 +68,10 @@ void FormSignalEdit::b_apply_handle() {
 		if (this->callback != nullptr)
 			this->callback(result);
 		this->callback = nullptr;
+		QApplication::restoreOverrideCursor();
 		this->close();
 	} catch (const RcsXn::QStrException &e) {
+		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(this, "Chyba", e.str(), QMessageBox::Ok);
 	}
 }
