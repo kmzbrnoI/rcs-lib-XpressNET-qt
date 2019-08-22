@@ -2,6 +2,7 @@
 #define SIGNALS_H
 
 #include <QSettings>
+#include <QString>
 #include <cstddef>
 #include <map>
 
@@ -18,6 +19,7 @@ struct XnSignalTemplate {
 };
 
 struct XnSignal {
+	QString name;
 	unsigned int startAddr;
 	XnSignalTemplate tmpl;
 	unsigned int hJOPaddr;
