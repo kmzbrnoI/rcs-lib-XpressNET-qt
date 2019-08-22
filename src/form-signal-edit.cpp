@@ -24,6 +24,7 @@ void FormSignalEdit::open(EditCallback callback) {
 void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback) {
 	this->callback = callback;
 
+	ui.le_name->setText(signal.name);
 	ui.sb_hjop_rcs_addr->setValue(signal.hJOPaddr);
 	ui.sb_output_addr->setValue(signal.startAddr);
 	ui.sb_output_count->setValue(signal.tmpl.outputsCount);
@@ -48,6 +49,7 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback) {
 void FormSignalEdit::b_apply_handle() {
 	RcsXn::XnSignal result;
 
+	result.name = ui.le_name->text();
 	result.hJOPaddr = ui.sb_hjop_rcs_addr->value();
 	result.startAddr = ui.sb_output_addr->value();
 	result.tmpl.outputsCount = ui.sb_output_count->value();
