@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>431</width>
-    <height>551</height>
+    <height>581</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>100</y>
+     <y>130</y>
      <width>411</width>
      <height>411</height>
     </rect>
@@ -221,20 +221,20 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>111</width>
+     <y>40</y>
+     <width>101</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>hJOP RCS adresa:</string>
+    <string>hJOP RCS modul:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>40</y>
+     <y>70</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -247,7 +247,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>10</y>
+     <y>40</y>
      <width>111</width>
      <height>24</height>
     </rect>
@@ -260,7 +260,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>40</y>
+     <y>70</y>
      <width>111</width>
      <height>24</height>
     </rect>
@@ -270,7 +270,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>70</y>
+     <y>100</y>
      <width>111</width>
      <height>24</height>
     </rect>
@@ -280,7 +280,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>100</y>
      <width>161</width>
      <height>16</height>
     </rect>
@@ -293,7 +293,7 @@
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>520</y>
+     <y>550</y>
      <width>80</width>
      <height>23</height>
     </rect>
@@ -309,7 +309,7 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>520</y>
+     <y>550</y>
      <width>80</width>
      <height>23</height>
     </rect>
@@ -318,8 +318,32 @@
     <string>Storno</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>111</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Název návěstidla:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="le_name">
+   <property name="geometry">
+    <rect>
+     <x>142</x>
+     <y>10</y>
+     <width>281</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <tabstops>
+  <tabstop>le_name</tabstop>
   <tabstop>sb_hjop_rcs_addr</tabstop>
   <tabstop>sb_hjop_rcs_port</tabstop>
   <tabstop>sb_output_addr</tabstop>
@@ -329,6 +353,7 @@
   <tabstop>tv_outputs</tabstop>
   <tabstop>b_delete_signal</tabstop>
   <tabstop>cb_add_sig</tabstop>
+  <tabstop>sb_add_bits</tabstop>
   <tabstop>b_add_signal</tabstop>
   <tabstop>gb_temp_save_name</tabstop>
   <tabstop>b_temp_save</tabstop>
