@@ -69,7 +69,7 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 			item->setText(1, RcsXn::XnSignalCodes[output.first]);
 		else
 			item->setText(1, "?");
-		item->setText(2, QString::number(output.second, 2));
+		item->setText(2, QString::number(output.second, 2).rightJustified(tmpl.outputsCount, '0'));
 		ui.tw_outputs->addTopLevelItem(item);
 	}
 	ui.tw_outputs->setSortingEnabled(true);
@@ -151,7 +151,7 @@ void FormSignalEdit::b_add_signal_handle() {
 	auto *item = new QTreeWidgetItem(ui.tw_outputs);
 	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
-	item->setText(2, QString::number(ui.sb_add_bits->value(), 2));
+	item->setText(2, QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0'));
 	ui.tw_outputs->addTopLevelItem(item); // TODO: will this sort automatically?
 
 	ui.cb_add_sig->setCurrentIndex(-1);
@@ -200,6 +200,11 @@ void FormSignalEdit::tw_outputs_selection_changed() {
 
 void FormSignalEdit::sb_output_count_changed(int value) {
 	ui.sb_add_bits->setMaximum(pow(2, value)-1);
+
+	for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i) {
+		QTreeWidgetItem &item = *(ui.tw_outputs->topLevelItem(i));
+		item.setText(2, item.text(2).right(value).rightJustified(value, '0'));
+	}
 }
 
 } // namespace SignalEdit
