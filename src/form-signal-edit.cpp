@@ -37,6 +37,7 @@ void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
 
 	this->fillTemplates(templates);
 	this->setWindowTitle("Přidat nové návěstidlo");
+	ui.le_name->setFocus();
 	this->show();
 }
 
@@ -56,6 +57,7 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 
 	this->fillTemplates(templates);
 	this->setWindowTitle("Upravit návěstidlo " + signal.name);
+	ui.le_name->setFocus();
 	this->show();
 }
 
@@ -199,9 +201,8 @@ void FormSignalEdit::fillTemplates(const TmplStorage &templates) {
 		ui.cb_temp_load->addItem(item.first);
 	if (templates.empty())
 		ui.cb_temp_load->addItem("Zatím žádné šablony.");
-	else {
+	else
 		ui.cb_temp_load->setCurrentIndex(-1);
-	}
 }
 
 void FormSignalEdit::tw_outputs_selection_changed() {
