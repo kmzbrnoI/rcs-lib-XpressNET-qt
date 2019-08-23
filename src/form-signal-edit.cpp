@@ -148,6 +148,19 @@ void FormSignalEdit::b_add_signal_handle() {
 		return;
 	}
 
+	for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i) {
+		if (ui.tw_outputs->topLevelItem(i)->text(0).toInt() == ui.cb_add_sig->currentIndex()) {
+			// edit output
+			ui.tw_outputs->topLevelItem(i)->setText(
+				2,
+				QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0')
+			);
+			ui.cb_add_sig->setCurrentIndex(-1);
+			return;
+		}
+	}
+
+	// new output
 	auto *item = new QTreeWidgetItem(ui.tw_outputs);
 	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
