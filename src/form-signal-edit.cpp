@@ -155,7 +155,6 @@ void FormSignalEdit::b_add_signal_handle() {
 				2,
 				QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0')
 			);
-			ui.cb_add_sig->setCurrentIndex(-1);
 			return;
 		}
 	}
@@ -165,9 +164,7 @@ void FormSignalEdit::b_add_signal_handle() {
 	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
 	item->setText(2, QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0'));
-	ui.tw_outputs->addTopLevelItem(item); // TODO: will this sort automatically?
-
-	ui.cb_add_sig->setCurrentIndex(-1);
+	ui.tw_outputs->addTopLevelItem(item);
 }
 
 void FormSignalEdit::b_temp_save_handle() {
@@ -209,6 +206,13 @@ void FormSignalEdit::fillTemplates(const TmplStorage &templates) {
 
 void FormSignalEdit::tw_outputs_selection_changed() {
 	ui.b_delete_signal->setEnabled(!ui.tw_outputs->selectedItems().empty());
+	if (ui.tw_outputs->selectedItems().empty()) {
+		ui.cb_add_sig->setCurrentIndex(-1);
+		ui.sb_add_bits->setValue(0);
+	} else {
+		ui.cb_add_sig->setCurrentIndex(ui.tw_outputs->selectedItems()[0]->text(0).toInt());
+		ui.sb_add_bits->setValue(ui.tw_outputs->selectedItems()[0]->text(2).toInt(nullptr, 2));
+	}
 }
 
 void FormSignalEdit::sb_output_count_changed(int value) {
