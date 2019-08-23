@@ -26,7 +26,8 @@ void XnSignalTemplate::loadData(QSettings &s) {
 void XnSignalTemplate::saveData(QSettings &s) const {
 	for (const std::pair<const unsigned int, uint16_t> &output : this->outputs)
 		s.setValue(QString::number(output.first),
-				   QString("%1").arg(output.second, static_cast<int>(this->outputsCount), 2, QLatin1Char('0')));
+		           QString("%1").arg(output.second, static_cast<int>(this->outputsCount), 2,
+		                             QLatin1Char('0')));
 }
 
 XnSignal::XnSignal() = default;

@@ -1,10 +1,10 @@
 #ifndef FORMSIGNALEDIT_H
 #define FORMSIGNALEDIT_H
 
-#include <functional>
-#include <QMainWindow>
-#include "ui_signal-edit.h"
 #include "signals.h"
+#include "ui_signal-edit.h"
+#include <QMainWindow>
+#include <functional>
 
 namespace SignalEdit {
 

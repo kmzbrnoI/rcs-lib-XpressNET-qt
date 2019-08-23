@@ -1,12 +1,12 @@
-#include <cmath>
-#include <QMessageBox>
 #include "form-signal-edit.h"
 #include "lib/q-str-exception.h"
+#include <QMessageBox>
+#include <cmath>
 
 namespace SignalEdit {
 
 FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
-	: QDialog(parent), templates(templates) {
+    : QDialog(parent), templates(templates) {
 	ui.setupUi(this);
 	this->setFixedSize(this->size());
 
@@ -19,8 +19,10 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	QObject::connect(ui.b_delete_signal, SIGNAL(released()), this, SLOT(b_delete_signal_handle()));
 	QObject::connect(ui.b_add_signal, SIGNAL(released()), this, SLOT(b_add_signal_handle()));
 	QObject::connect(ui.b_temp_save, SIGNAL(released()), this, SLOT(b_temp_save_handle()));
-	QObject::connect(ui.tw_outputs, SIGNAL(itemSelectionChanged()), this, SLOT(tw_outputs_selection_changed()));
-	QObject::connect(ui.sb_output_count, SIGNAL(valueChanged(int)), this, SLOT(sb_output_count_changed(int)));
+	QObject::connect(ui.tw_outputs, SIGNAL(itemSelectionChanged()), this,
+	                 SLOT(tw_outputs_selection_changed()));
+	QObject::connect(ui.sb_output_count, SIGNAL(valueChanged(int)), this,
+	                 SLOT(sb_output_count_changed(int)));
 }
 
 void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
@@ -126,12 +128,13 @@ void FormSignalEdit::b_temp_load_handle() {
 
 	this->fillTemplate(this->templates.at(ui.cb_temp_load->currentText()));
 	ui.le_temp_save_name->setText(ui.cb_temp_load->currentText());
-	QMessageBox::information(this, "Ok", "Šablona " + ui.cb_temp_load->currentText() + " načtena.", QMessageBox::Ok);
+	QMessageBox::information(this, "Ok", "Šablona " + ui.cb_temp_load->currentText() + " načtena.",
+	                         QMessageBox::Ok);
 }
 
 void FormSignalEdit::b_delete_signal_handle() {
 	QMessageBox::StandardButton reply = QMessageBox::question(
-		this, "Smazat?", "Skutečné smazat vybrané návěsti?", QMessageBox::Yes|QMessageBox::No
+	    this, "Smazat?", "Skutečné smazat vybrané návěsti?", QMessageBox::Yes | QMessageBox::No
 	);
 	if (reply != QMessageBox::Yes)
 		return;
@@ -154,8 +157,8 @@ void FormSignalEdit::b_add_signal_handle() {
 		if (ui.tw_outputs->topLevelItem(i)->text(0).toInt() == ui.cb_add_sig->currentIndex()) {
 			// edit output
 			ui.tw_outputs->topLevelItem(i)->setText(
-				2,
-				QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0')
+			    2,
+			    QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0')
 			);
 			return;
 		}
@@ -165,7 +168,8 @@ void FormSignalEdit::b_add_signal_handle() {
 	auto *item = new QTreeWidgetItem(ui.tw_outputs);
 	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
-	item->setText(2, QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0'));
+	item->setText(2, QString::number(ui.sb_add_bits->value(), 2)
+	                     .rightJustified(ui.sb_output_count->value(), '0'));
 	ui.tw_outputs->addTopLevelItem(item);
 }
 
@@ -173,14 +177,15 @@ void FormSignalEdit::b_temp_save_handle() {
 	const QString name = ui.le_temp_save_name->text();
 
 	if (name == "") {
-		QMessageBox::warning(this, "Chyba", "Je třeba vybrat pojmenování šablony!", QMessageBox::Ok);
+		QMessageBox::warning(this, "Chyba", "Je třeba vybrat pojmenování šablony!",
+		                     QMessageBox::Ok);
 		return;
 	}
 
 	if (this->templates.find(name) != this->templates.end()) {
 		QMessageBox::StandardButton reply = QMessageBox::question(
-			this, "Přepsat?", "Přepsat uloženou šablonu " + name + "?",
-			QMessageBox::Yes|QMessageBox::No
+		    this, "Přepsat?", "Přepsat uloženou šablonu " + name + "?",
+		    QMessageBox::Yes|QMessageBox::No
 		);
 		if (reply != QMessageBox::Yes)
 			return;
