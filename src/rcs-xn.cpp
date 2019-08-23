@@ -969,7 +969,7 @@ void RcsXn::editedSignal(XnSignal signal) {
 				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
-	this->guiAddSignal(signal); // TODO: will sort automatically?
+	this->guiAddSignal(signal);
 	this->saveSignals(this->config_filename);
 }
 
