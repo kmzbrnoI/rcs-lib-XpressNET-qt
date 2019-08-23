@@ -74,6 +74,8 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 	}
 	ui.tw_outputs->setSortingEnabled(true);
 	ui.tw_outputs->sortByColumn(0, Qt::SortOrder::AscendingOrder);
+	for (int i = 0; i < ui.tw_outputs->columnCount(); ++i)
+		ui.tw_outputs->resizeColumnToContents(i);
 }
 
 RcsXn::XnSignalTemplate FormSignalEdit::getTemplate() const {
