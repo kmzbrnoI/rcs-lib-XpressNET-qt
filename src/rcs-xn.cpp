@@ -35,6 +35,7 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this, SLOT(chb_only_one_active_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
@@ -200,6 +201,7 @@ void RcsXn::loadConfig(const QString &filename) {
 
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
+	form.ui.chb_only_one_active->setChecked(s["general"]["onlyOneActive"].toBool());
 	this->fillConnectionsCbs();
 	this->fillSignals();
 }
@@ -1000,6 +1002,10 @@ void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
 
 void RcsXn::tw_signals_selection_changed() {
 	form.ui.b_signal_remove->setEnabled(!form.ui.tw_signals->selectedItems().empty());
+}
+
+void RcsXn::chb_only_one_active_changed(int state) {
+	s["general"]["onlyOneActive"] = static_cast<bool>(state);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,9 @@ const Config DEFAULTS {
 		{"flowcontrol", 1},
 		{"loglevel", 1},
 	}},
+	{"general", {
+		{"onlyOneActive", true},
+	}},
 	{"modules", {
 		{"active-in", "1-32,64-72"},
 		{"active-out", "1-28,70-92"},

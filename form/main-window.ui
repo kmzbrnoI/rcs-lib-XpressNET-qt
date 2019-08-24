@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -149,6 +149,19 @@
         </property>
         <property name="text">
          <string>Obnovit</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="chb_only_one_active">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>150</y>
+          <width>351</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Nejvýše jeden výstupní pin z dvojice může být aktivní</string>
         </property>
        </widget>
       </widget>
