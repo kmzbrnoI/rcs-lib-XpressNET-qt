@@ -554,13 +554,19 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		// Signal output
 		rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 	} else {
-		// Plain output
+		// Plain output		
+		if ((state > 0) && (rx.s["general"]["onlyOneActive"].toBool())) {
+			unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
+			rx.outputs[secondPort] = false;
+		}
+
 		rx.outputs[portAddr] = static_cast<bool>(state);
 		rx.xn.accOpRequest(
 			static_cast<uint16_t>(portAddr), static_cast<bool>(state), nullptr,
 		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                               reinterpret_cast<void *>(module))
 		);
+
 		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
 	}
 	return 0;
