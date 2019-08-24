@@ -225,10 +225,15 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 	this->parseActiveModules(inputs, this->active_in, except);
 	this->parseActiveModules(outputs, this->active_out, except);
 
-	this->modules_count = 0;
-	for (size_t i = 0; i < IO_MODULES_COUNT; i++)
+	this->modules_count = this->in_count = this->out_count = 0;
+	for (size_t i = 0; i < IO_MODULES_COUNT; i++) {
+		if (this->active_in[i])
+			this->in_count++;
+		if (this->active_out[i])
+			this->out_count++;
 		if (this->active_in[i] || this->active_out[i])
 			this->modules_count++;
+	}
 
 	this->fillActiveIO();
 }
@@ -384,10 +389,12 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	if (!this->active_in[port/2]) {
 		this->active_in[port/2] = true;
 		this->modules_count++;
+		this->in_count++;
 	}
 	if (!this->active_in[(port/2)+1]) {
 		this->active_in[(port/2)+1] = true;
 		this->modules_count++;
+		this->in_count++;
 	}
 
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group) &&
@@ -874,23 +881,31 @@ void RcsXn::guiOnClose() {
 }
 
 void RcsXn::b_active_load_handle() {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 	this->fillActiveIO();
+	QApplication::restoreOverrideCursor();
 	QMessageBox::information(&(this->form), "Ok", "Načteno.", QMessageBox::Ok);
 }
 
 void RcsXn::b_active_save_handle() {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
 	try {
 		this->loadActiveIO(
 			form.ui.te_active_inputs->toPlainText().replace("\n", ","),
 			form.ui.te_active_outputs->toPlainText().replace("\n", ",")
 		);
 		this->saveConfig(this->config_filename);
+		QApplication::restoreOverrideCursor();
 		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
 	} catch (const EInvalidRange &e) {
+		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(), QMessageBox::Ok);
 	} catch (const QStrException &e) {
+		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
 	} catch (...) {
+		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(&(this->form), "Chyba!", "Neznámá chyba.", QMessageBox::Ok);
 	}
 }
@@ -898,6 +913,7 @@ void RcsXn::b_active_save_handle() {
 void RcsXn::fillActiveIO() {
 	form.ui.te_active_inputs->setText(getActiveStr(this->active_in, ",\n"));
 	form.ui.te_active_outputs->setText(getActiveStr(this->active_out, ",\n"));
+	form.ui.l_io_count->setText(QString::number(this->in_count) + " vstupů, " + QString::number(this->out_count) + " výstupů");
 }
 
 void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {

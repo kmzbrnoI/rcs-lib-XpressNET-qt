@@ -165,6 +165,7 @@ public:
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 	unsigned int modules_count = 0;
+	unsigned int in_count = 0, out_count = 0;
 
 	// UI
 	MainWindow form;
