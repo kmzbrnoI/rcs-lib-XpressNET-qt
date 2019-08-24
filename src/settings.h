@@ -16,8 +16,9 @@ const Config DEFAULTS {
 		{"flowcontrol", 1},
 		{"loglevel", 1},
 	}},
-	{"general", {
+	{"global", {
 		{"onlyOneActive", true},
+		{"rocoAddrs", false},
 	}},
 	{"modules", {
 		{"active-in", "1-32,64-72"},

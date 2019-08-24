@@ -35,7 +35,8 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this, SLOT(chb_only_one_active_changed(int)));
+	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this, SLOT(chb_general_config_changed(int)));
+	QObject::connect(form.ui.chb_roco_addrs, SIGNAL(stateChanged(int)), this, SLOT(chb_general_config_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
@@ -200,17 +201,20 @@ void RcsXn::loadConfig(const QString &filename) {
 	this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(), false);
 
 	// GUI
+	this->gui_config_changing = true;
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
-	form.ui.chb_only_one_active->setChecked(s["general"]["onlyOneActive"].toBool());
+	form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
+	form.ui.chb_roco_addrs->setChecked(s["global"]["rocoAddrs"].toBool());
 	this->fillConnectionsCbs();
 	this->fillSignals();
+	this->gui_config_changing = false;
 }
 
 void RcsXn::first_scan() {
 	this->scan_group = 0;
 	this->scan_nibble = false;
 	xn.accInfoRequest(
-		0, false,
+		scan_group, scan_nibble,
 		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
@@ -226,6 +230,11 @@ void RcsXn::saveConfig(const QString &filename) {
 void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
 	this->parseActiveModules(inputs, this->active_in, except);
 	this->parseActiveModules(outputs, this->active_out, except);
+
+	if (s["global"]["rocoAddrs"].toBool()) {
+		this->active_in[0] = false;
+		this->active_out[0] = false;
+	}
 
 	this->modules_count = this->in_count = this->out_count = 0;
 	for (size_t i = 0; i < IO_MODULES_COUNT; i++) {
@@ -243,8 +252,9 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	// Pick next address
 	unsigned next_module = (group*4) + (nibble*2) + 2; // LSB always 0!
-	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module]) &&
-	       (!this->active_in[next_module+1]))
+	unsigned roco_correction = s["global"]["rocoAddrs"].toBool() ? 1 : 0;
+	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module+roco_correction]) &&
+		   (!this->active_in[next_module+roco_correction+1]))
 		next_module += 2;
 
 	if (next_module >= IO_MODULES_COUNT) {
@@ -383,6 +393,10 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	(void)inputType; // ignoring input type reported by decoder
 
 	unsigned int port = 8*groupAddr + 4*nibble;
+
+	if (rx.s["global"]["rocoAddrs"].toBool())
+		port += IO_MODULE_PIN_COUNT;
+
 	this->inputs[port+0] = state.sep.i0;
 	this->inputs[port+1] = state.sep.i1;
 	this->inputs[port+2] = state.sep.i2;
@@ -555,14 +569,23 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 	} else {
 		// Plain output		
-		if ((state > 0) && (rx.s["general"]["onlyOneActive"].toBool())) {
+		if ((state > 0) && (rx.s["global"]["onlyOneActive"].toBool())) {
 			unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
 			rx.outputs[secondPort] = false;
 		}
-
 		rx.outputs[portAddr] = static_cast<bool>(state);
+
+		unsigned int realPortAddr = portAddr;
+		if (rx.s["global"]["rocoAddrs"].toBool()) {
+			if (module == 0) {
+				rx.log("Invalid acc port (using Roco addresses): " + QString::number(portAddr), RcsXnLogLevel::llWarning);
+				return RCS_PORT_INVALID_NUMBER;
+			}
+			realPortAddr -= IO_MODULE_PIN_COUNT;
+		}
+
 		rx.xn.accOpRequest(
-			static_cast<uint16_t>(portAddr), static_cast<bool>(state), nullptr,
+			static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
 		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                               reinterpret_cast<void *>(module))
 		);
@@ -812,7 +835,7 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 void RcsXn::cb_loglevel_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
 
 void RcsXn::cb_connections_changed(int) {
-	if (this->gui_connection_changing)
+	if (this->gui_config_changing)
 		return;
 
 	s["XN"]["port"] = form.ui.cb_serial_port->currentText();
@@ -824,7 +847,7 @@ void RcsXn::fillConnectionsCbs() {
 	// Port
 	this->fillPortCb();
 
-	this->gui_connection_changing = true;
+	this->gui_config_changing = true;
 
 	// Speed
 	form.ui.cb_serial_speed->clear();
@@ -842,11 +865,11 @@ void RcsXn::fillConnectionsCbs() {
 	// Flow control
 	form.ui.cb_serial_flowcontrol->setCurrentIndex(s["XN"]["flowcontrol"].toInt());
 
-	this->gui_connection_changing = false;
+	this->gui_config_changing = false;
 }
 
 void RcsXn::fillPortCb() {
-	this->gui_connection_changing = true;
+	this->gui_config_changing = true;
 
 	form.ui.cb_serial_port->clear();
 	bool is_item = false;
@@ -860,7 +883,7 @@ void RcsXn::fillPortCb() {
 	else
 		form.ui.cb_serial_port->setCurrentIndex(-1);
 
-	this->gui_connection_changing = false;
+	this->gui_config_changing = false;
 }
 
 void RcsXn::b_serial_refresh_handle() { this->fillPortCb(); }
@@ -1010,8 +1033,12 @@ void RcsXn::tw_signals_selection_changed() {
 	form.ui.b_signal_remove->setEnabled(!form.ui.tw_signals->selectedItems().empty());
 }
 
-void RcsXn::chb_only_one_active_changed(int state) {
-	s["general"]["onlyOneActive"] = static_cast<bool>(state);
+void RcsXn::chb_general_config_changed(int) {
+	if (this->gui_config_changing)
+		return;
+
+	s["global"]["onlyOneActive"] = (form.ui.chb_only_one_active->checkState() == Qt::CheckState::Checked);
+	s["global"]["rocoAddrs"] = (form.ui.chb_roco_addrs->checkState() == Qt::CheckState::Checked);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

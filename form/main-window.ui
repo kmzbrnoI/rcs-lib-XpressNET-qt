@@ -164,6 +164,19 @@
          <string>Nejvýše jeden výstupní pin z dvojice může být aktivní</string>
         </property>
        </widget>
+       <widget class="QCheckBox" name="chb_roco_addrs">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>170</y>
+          <width>351</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Používat Roco adresy (adresa 0 je neplatná)</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="t_activeModules">
        <attribute name="title">

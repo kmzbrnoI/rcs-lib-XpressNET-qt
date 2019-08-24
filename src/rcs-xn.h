@@ -170,7 +170,7 @@ public:
 	// UI
 	MainWindow form;
 	SignalEdit::FormSignalEdit f_signal_edit;
-	bool gui_connection_changing = false;
+	bool gui_config_changing = false;
 
 	// signals
 	std::map<QString, XnSignalTemplate> sigTemplates;
@@ -218,7 +218,7 @@ private slots:
 	void b_signal_remove_handle();
 	void tw_signals_dbl_click(QTreeWidgetItem *, int);
 	void tw_signals_selection_changed();
-	void chb_only_one_active_changed(int state);
+	void chb_general_config_changed(int state);
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
