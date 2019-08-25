@@ -3,7 +3,9 @@
 
 /* This file defined various helper functions. */
 
+#include <algorithm>
 #include <cstddef>
+#include <cstring>
 
 namespace StrUtil {
 
