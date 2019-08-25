@@ -55,22 +55,31 @@ for building standalone `dll` file.
 You may want to use similar script as `activate.sh`:
 
 ```bash
-export PATH="$HOME/...../mxe/usr/bin:$PATH"
-~/...../mxe/usr/i686-w64-mingw32.static/qt5/bin/qmake ..
+$ export PATH="$HOME/...../mxe/usr/bin:$PATH"
+$ ~/...../mxe/usr/i686-w64-mingw32.static/qt5/bin/qmake ..
 ```
 
 Make MXE this way:
 
 ```bash
-make qtbase qtserialport
+$ make qtbase qtserialport
 ```
 
 ## Style checking
 
-```
+```bash
+$ cd src
 $ clang-tidy-7 -p ../build -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 -header-filter=src/ *.cpp
 $ clang-format-7 *.cpp *.h
+$ clang-include-fixer-7 -p ../build *.cpp
 ```
+
+For `clang-include-fixer` to work, it is necessary to [build `yaml` symbols
+database](https://clang.llvm.org/extra/clang-include-fixer.html#creating-a-symbol-index-from-a-compilation-database).
+You can do it this way:
+
+ 1. Download `run-find-all-symbols.py` from [github repo](https://github.com/microsoft/clang-tools-extra/blob/master/include-fixer/find-all-symbols/tool/run-find-all-symbols.py).
+ 2. Execute it in `build` directory.
 
 ## Authors
 
