@@ -12,12 +12,22 @@ This library implements
 
 ## Building & toolkit
 
-This library was developed in `vim` using `qmake` & `make`.
+This library was developed in `vim` using `qmake` & `make`. It is suggested
+to use `clang` as a compiler, because then you may use `clang-tools` (see below).
 
 ### Prerequisities
 
  * Qt 5
  * Qt's `serialport`
+ * [Bear](https://github.com/rizsotto/Bear)
+
+### Toolchain setup on debian
+
+```bash
+apt install qt5-default libqt5serialport5-dev
+apt install bear
+apt install clang-7 clang-tools-7 clang-tidy-7 clang-format-7
+```
 
 ### Build
 
@@ -32,10 +42,8 @@ And then build:
 ```
 $ mkdir build
 $ cd build
-$ uic ../form/main-window.ui -o ui_main-window.h
-$ uic ../form/signal-edit.ui -o ui_signal-edit.h
-$ qmake ..
-$ make
+$ qmake -spec linux-clang ..
+$ bear make
 ```
 
 ## Cross-compiling for Windows
@@ -60,7 +68,7 @@ make qtbase qtserialport
 ## Style checking
 
 ```
-$ clang-tidy-7 -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
+$ clang-tidy-7 -p ../build -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
 $ clang-format-7 *.cpp *.h
 ```
 
