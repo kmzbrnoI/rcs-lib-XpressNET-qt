@@ -304,8 +304,7 @@ void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize
 			} else {
 				if (except)
 					throw EInvalidRange("Invalid range: " + bounds[0]);
-				else
-					log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
+				log("Invalid range: " + bounds[0], RcsXnLogLevel::llWarning);
 			}
 		} else if (bounds.size() == 2) {
 			unsigned int left = bounds[0].toUInt(&okl);
@@ -316,14 +315,12 @@ void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize
 			} else {
 				if (except)
 					throw EInvalidRange("Invalid range: " + range);
-				else
-					log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+				log("Invalid range: " + range, RcsXnLogLevel::llWarning);
 			}
 		} else {
 			if (except)
 				throw EInvalidRange("Invalid range: " + range);
-			else
-				log("Invalid range: " + range, RcsXnLogLevel::llWarning);
+			log("Invalid range: " + range, RcsXnLogLevel::llWarning);
 		}
 	}
 }

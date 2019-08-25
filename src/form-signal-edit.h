@@ -16,6 +16,7 @@ class FormSignalEdit : public QDialog {
 
 public:
 	FormSignalEdit(TmplStorage &templates, QWidget *parent = nullptr);
+	using QDialog::open;
 	void open(EditCallback callback, TmplStorage &templates);
 	void open(RcsXn::XnSignal signal, EditCallback callback, TmplStorage &templates);
 
