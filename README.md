@@ -24,9 +24,9 @@ to use `clang` as a compiler, because then you may use `clang-tools` (see below)
 ### Toolchain setup on debian
 
 ```bash
-apt install qt5-default libqt5serialport5-dev
-apt install bear
-apt install clang-7 clang-tools-7 clang-tidy-7 clang-format-7
+$ apt install qt5-default libqt5serialport5-dev
+$ apt install bear
+$ apt install clang-7 clang-tools-7 clang-tidy-7 clang-format-7
 ```
 
 ### Build
