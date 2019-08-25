@@ -59,8 +59,8 @@ make qtbase qtserialport
 ## Style checking
 
 ```
-$ clang-tidy-6.0 -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
-$ clang-format-6.0 *.cpp *.h
+$ clang-tidy-7 -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
+$ clang-format-7 *.cpp *.h
 ```
 
 ## Authors
