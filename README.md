@@ -68,7 +68,7 @@ make qtbase qtserialport
 ## Style checking
 
 ```
-$ clang-tidy-7 -p ../build -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
+$ clang-tidy-7 -p ../build -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 -header-filter=src/ *.cpp
 $ clang-format-7 *.cpp *.h
 ```
 

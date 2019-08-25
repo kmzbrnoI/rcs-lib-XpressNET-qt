@@ -177,7 +177,7 @@ public:
 	std::map<unsigned int, XnSignal> sig; // hJOP output -> signal mapping
 
 	explicit RcsXn(QObject *parent = nullptr);
-	virtual ~RcsXn();
+	~RcsXn() override;
 
 	void log(const QString &msg, RcsXnLogLevel loglevel);
 	void error(const QString &message, uint16_t code, unsigned int module);
@@ -264,7 +264,7 @@ class AppThread {
 
 public:
 	AppThread() {
-		app.reset(new QApplication(argc, nullptr));
+		app = std::make_unique<QApplication>(argc, nullptr);
 		QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
 		app->exec();
 	}

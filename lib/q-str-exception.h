@@ -16,6 +16,6 @@ public:
 	operator QString() const { return this->m_err_msg; }
 };
 
-} // namespace Xn
+} // namespace RcsXn
 
 #endif
