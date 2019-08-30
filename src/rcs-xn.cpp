@@ -18,14 +18,14 @@ RcsXn rx;
 RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	// XN events
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
-	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::XnLogLevel)), this,
-	                 SLOT(xnOnLog(QString, Xn::XnLogLevel)));
+	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
+	                 SLOT(xnOnLog(QString, Xn::LogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
-	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::XnTrkStatus)), this,
-	                 SLOT(xnOnTrkStatusChanged(Xn::XnTrkStatus)));
-	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)),
-	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::XnFeedbackType, Xn::XnAccInputsState)));
+	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
+	                 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
+	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)),
+	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)));
 
 	// No loading of configuration here (caller should call LoadConfig)
 
@@ -115,7 +115,7 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 
 void RcsXn::setLogLevel(RcsXnLogLevel loglevel) {
 	this->loglevel = loglevel;
-	xn.loglevel = static_cast<Xn::XnLogLevel>(loglevel);
+	xn.loglevel = static_cast<Xn::LogLevel>(loglevel);
 	s["XN"]["loglevel"] = static_cast<int>(loglevel);
 }
 
@@ -200,7 +200,7 @@ int RcsXn::stop() {
 void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename, false); // do not load & store nonDefaults
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
-	this->xn.loglevel = static_cast<Xn::XnLogLevel>(s["XN"]["loglevel"].toInt());
+	this->xn.loglevel = static_cast<Xn::LogLevel>(s["XN"]["loglevel"].toInt());
 	this->loadSignals(filename);
 	this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(), false);
 
@@ -219,7 +219,7 @@ void RcsXn::first_scan() {
 	this->scan_nibble = false;
 	xn.accInfoRequest(
 		scan_group, scan_nibble,
-		std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+		std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
 
@@ -271,7 +271,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 
 	xn.accInfoRequest(
 	    this->scan_group, this->scan_nibble,
-	    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
 
@@ -360,7 +360,7 @@ void RcsXn::xnOnError(QString error) {
 		this->close();
 }
 
-void RcsXn::xnOnLog(QString message, Xn::XnLogLevel loglevel) {
+void RcsXn::xnOnLog(QString message, Xn::LogLevel loglevel) {
 	this->log(message, static_cast<RcsXnLogLevel>(loglevel));
 }
 
@@ -370,7 +370,7 @@ void RcsXn::xnOnConnect() {
 	try {
 		xn.getLIVersion(
 		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
-		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
+		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
 		);
 	} catch (const Xn::QStrException& e) {
 		error("Get LI Version: " + e.str(), RCS_NOT_OPENED);
@@ -383,13 +383,13 @@ void RcsXn::xnOnDisconnect() {
 	this->guiOnClose();
 }
 
-void RcsXn::xnOnTrkStatusChanged(Xn::XnTrkStatus s) {
+void RcsXn::xnOnTrkStatusChanged(Xn::TrkStatus s) {
 	(void)s;
 	// Nothing here yet.
 }
 
 void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
-                                Xn::XnFeedbackType inputType, Xn::XnAccInputsState state) {
+                                Xn::FeedbackType inputType, Xn::AccInputsState state) {
 	(void)error; // ignoring errors reported by decoders
 	(void)inputType; // ignoring input type reported by decoder
 
@@ -447,8 +447,8 @@ void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
 
 	try {
 		xn.getCommandStationStatus(
-		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
-		    std::make_unique<Xn::XnCb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
+		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
 	} catch (const Xn::QStrException& e) {
 		error("Get CS Status: " + e.str(), RCS_NOT_OPENED);
@@ -587,7 +587,7 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 
 		rx.xn.accOpRequest(
 			static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
-		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                               reinterpret_cast<void *>(module))
 		);
 
@@ -821,7 +821,7 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 		rx.outputs[port] = state;
 		rx.xn.accOpRequest(
 			static_cast<uint16_t>(port), state, nullptr,
-		    std::make_unique<Xn::XnCb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
+		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                               reinterpret_cast<void *>(module))
 		);
 		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
@@ -1050,12 +1050,12 @@ void RcsXn::chb_general_config_changed(int) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Xn::XnLIType RcsXn::interface(QString name) {
+Xn::LIType RcsXn::interface(QString name) {
 	if (name == "LI101")
-		return Xn::XnLIType::LI101;
+		return Xn::LIType::LI101;
 	if (name == "uLI")
-		return Xn::XnLIType::uLI;
-	return Xn::XnLIType::LI100;
+		return Xn::LIType::uLI;
+	return Xn::LIType::LI100;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

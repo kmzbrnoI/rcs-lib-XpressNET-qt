@@ -203,12 +203,12 @@ public:
 
 private slots:
 	void xnOnError(QString error);
-	void xnOnLog(QString message, Xn::XnLogLevel loglevel);
+	void xnOnLog(QString message, Xn::LogLevel loglevel);
 	void xnOnConnect();
 	void xnOnDisconnect();
-	void xnOnTrkStatusChanged(Xn::XnTrkStatus);
+	void xnOnTrkStatusChanged(Xn::TrkStatus);
 	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
-	                         Xn::XnFeedbackType inputType, Xn::XnAccInputsState state);
+	                         Xn::FeedbackType inputType, Xn::AccInputsState state);
 
 	// GUI
 	void cb_loglevel_changed(int);
@@ -231,7 +231,7 @@ private:
 	void xnOnInitScanningError(void *, void *);
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
-	Xn::XnLIType interface(QString name);
+	Xn::LIType interface(QString name);
 
 	template <std::size_t ArraySize>
 	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except = true);
