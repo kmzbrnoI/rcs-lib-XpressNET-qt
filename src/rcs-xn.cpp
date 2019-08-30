@@ -32,6 +32,7 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_loglevel_changed(int)));
+	QObject::connect(form.ui.cb_interface_type, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
@@ -132,9 +133,12 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 	events.call(rx.events.beforeOpen);
 	this->guiOnOpen();
 
+
+
 	try {
-		xn.connect(device, s["XN"]["baudrate"].toUInt(),
-		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()));
+		xn.connect(device, s["XN"]["baudrate"].toInt(),
+				   static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()),
+				   interface(s["XN"]["interface"].toString()));
 	} catch (const Xn::QStrException &e) {
 		error("XN connect error while opening serial port '" +
 		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
@@ -835,12 +839,16 @@ void RcsXn::cb_connections_changed(int) {
 	if (this->gui_config_changing)
 		return;
 
+	s["XN"]["interface"] = form.ui.cb_interface_type->currentText();
 	s["XN"]["port"] = form.ui.cb_serial_port->currentText();
 	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
 }
 
 void RcsXn::fillConnectionsCbs() {
+	// Interface type
+	form.ui.cb_interface_type->setCurrentText(s["XN"]["interface"].toString());
+
 	// Port
 	this->fillPortCb();
 
@@ -886,6 +894,7 @@ void RcsXn::fillPortCb() {
 void RcsXn::b_serial_refresh_handle() { this->fillPortCb(); }
 
 void RcsXn::guiOnOpen() {
+	form.ui.cb_interface_type->setEnabled(false);
 	form.ui.cb_serial_port->setEnabled(false);
 	form.ui.cb_serial_speed->setEnabled(false);
 	form.ui.cb_serial_flowcontrol->setEnabled(false);
@@ -898,6 +907,7 @@ void RcsXn::guiOnOpen() {
 }
 
 void RcsXn::guiOnClose() {
+	form.ui.cb_interface_type->setEnabled(true);
 	form.ui.cb_serial_port->setEnabled(true);
 	form.ui.cb_serial_speed->setEnabled(true);
 	form.ui.cb_serial_flowcontrol->setEnabled(true);
@@ -1036,6 +1046,16 @@ void RcsXn::chb_general_config_changed(int) {
 
 	s["global"]["onlyOneActive"] = (form.ui.chb_only_one_active->checkState() == Qt::CheckState::Checked);
 	s["global"]["rocoAddrs"] = (form.ui.chb_roco_addrs->checkState() == Qt::CheckState::Checked);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Xn::XnLIType RcsXn::interface(QString name) {
+	if (name == "LI101")
+		return Xn::XnLIType::LI101;
+	if (name == "uLI")
+		return Xn::XnLIType::uLI;
+	return Xn::XnLIType::LI100;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,6 @@ SOURCES += \
 HEADERS += \
 	lib/xn-lib-cpp-qt/q-str-exception.h \
 	lib/xn-lib-cpp-qt/xn.h \
-	lib/xn-lib-cpp-qt/xn-typedefs.h \
 	lib/xn-lib-cpp-qt/xn-commands.h \
 	lib/xn-lib-cpp-qt/xn-loco-addr.h \
 	lib/q-str-exception.h

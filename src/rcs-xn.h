@@ -13,6 +13,9 @@
 #include <array>
 #include <map>
 
+// DEBUG
+#define IGNORE_PIN_BOUNDS
+
 #if defined(RCS_XN_SHARED_LIBRARY)
 #define RCS_XN_SHARED_EXPORT Q_DECL_EXPORT
 #else
@@ -228,6 +231,7 @@ private:
 	void xnOnInitScanningError(void *, void *);
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
+	Xn::XnLIType interface(QString name);
 
 	template <std::size_t ArraySize>
 	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except = true);

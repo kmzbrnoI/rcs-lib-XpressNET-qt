@@ -15,6 +15,7 @@ const Config DEFAULTS {
 		{"baudrate", 19200},
 		{"flowcontrol", 1},
 		{"loglevel", 1},
+		{"interface", "LI101"},
 	}},
 	{"global", {
 		{"onlyOneActive", true},
