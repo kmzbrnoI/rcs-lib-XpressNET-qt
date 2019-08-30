@@ -13,9 +13,6 @@
 #include <array>
 #include <map>
 
-// DEBUG
-#define IGNORE_PIN_BOUNDS
-
 #if defined(RCS_XN_SHARED_LIBRARY)
 #define RCS_XN_SHARED_EXPORT Q_DECL_EXPORT
 #else
