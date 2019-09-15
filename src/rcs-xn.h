@@ -38,6 +38,7 @@ namespace RcsXn {
 constexpr size_t IO_COUNT = 2048;
 constexpr size_t IO_MODULE_PIN_COUNT = 2;
 constexpr size_t IO_MODULES_COUNT = IO_COUNT / IO_MODULE_PIN_COUNT;
+constexpr size_t LENZ_IO_PER_MODULE = 8;
 
 const QColor LOGC_ERROR = QColor(0xFF, 0xAA, 0xAA);
 const QColor LOGC_WARN = QColor(0xFF, 0xFF, 0xAA);

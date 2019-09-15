@@ -20,6 +20,7 @@ const Config DEFAULTS {
 	{"global", {
 		{"onlyOneActive", true},
 		{"rocoAddrs", false},
+		{"lenzAddrs", false},
 	}},
 	{"modules", {
 		{"active-in", "1-32,64-72"},

@@ -174,7 +174,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Používat Roco adresy (adresa 0 je neplatná)</string>
+         <string>Používat Roco adresy (1-1024)</string>
         </property>
        </widget>
        <widget class="QLabel" name="label_8">
@@ -214,6 +214,19 @@
           <string>uLI</string>
          </property>
         </item>
+       </widget>
+       <widget class="QCheckBox" name="chb_lenz_addrs">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>220</y>
+          <width>351</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Používat Lenz adresy (4-1027)</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="t_activeModules">
