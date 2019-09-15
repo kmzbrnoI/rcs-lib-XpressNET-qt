@@ -37,8 +37,7 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this, SLOT(chb_general_config_changed(int)));
-	QObject::connect(form.ui.chb_roco_addrs, SIGNAL(stateChanged(int)), this, SLOT(chb_general_config_changed(int)));
-	QObject::connect(form.ui.chb_lenz_addrs, SIGNAL(stateChanged(int)), this, SLOT(chb_general_config_changed(int)));
+	QObject::connect(form.ui.cb_addr_range, SIGNAL(currentIndexChanged(int)), this, SLOT(chb_general_config_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
@@ -209,8 +208,12 @@ void RcsXn::loadConfig(const QString &filename) {
 	this->gui_config_changing = true;
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 	form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
-	form.ui.chb_roco_addrs->setChecked(s["global"]["rocoAddrs"].toBool());
-	form.ui.chb_lenz_addrs->setChecked(s["global"]["lenzAddrs"].toBool());
+	if (s["global"]["addrRange"].toString() == "basic")
+		form.ui.cb_addr_range->setCurrentIndex(0);
+	else if (s["global"]["addrRange"].toString() == "roco")
+		form.ui.cb_addr_range->setCurrentIndex(1);
+	else if (s["global"]["addrRange"].toString() == "lenz")
+		form.ui.cb_addr_range->setCurrentIndex(2);
 	this->fillConnectionsCbs();
 	this->fillSignals();
 	this->gui_config_changing = false;
@@ -237,12 +240,10 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 	this->parseActiveModules(inputs, this->active_in, except);
 	this->parseActiveModules(outputs, this->active_out, except);
 
-	if (s["global"]["rocoAddrs"].toBool()) {
+	if (s["global"]["addrRange"].toString() == "roco") {
 		this->active_in[0] = false;
 		this->active_out[0] = false;
-	}
-
-	if (s["global"]["lenzAddrs"].toBool()) {
+	} else if (s["global"]["addrRange"].toString() == "lenz") {
 		for (size_t i = 0; i < LENZ_IO_PER_MODULE; ++i) {
 			this->active_in[i] = false;
 			this->active_out[i] = false;
@@ -265,8 +266,13 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	// Pick next address
 	unsigned next_module = (group*4) + (nibble*2) + 2; // LSB always 0!
-	unsigned correction = s["global"]["rocoAddrs"].toBool() ? 1 : 0;
-	correction += s["global"]["lenzAddrs"].toBool() ? 4 : 0;
+
+	unsigned correction = 0;
+	if (s["global"]["addrRange"].toString() == "roco")
+		correction += 1;
+	else if (s["global"]["addrRange"].toString() == "lenz")
+		correction += 4;
+
 	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module+correction]) &&
 		   (!this->active_in[next_module+correction+1]))
 		next_module += 2;
@@ -405,10 +411,9 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 
 	unsigned int port = 8*groupAddr + 4*nibble;
 
-	if (rx.s["global"]["rocoAddrs"].toBool())
+	if (rx.s["global"]["addrRange"].toString() == "roco")
 		port += IO_MODULE_PIN_COUNT;
-
-	if (rx.s["global"]["lenzAddrs"].toBool())
+	else if (rx.s["global"]["addrRange"].toString() == "lenz")
 		port += LENZ_IO_PER_MODULE;
 
 	this->inputs[port+0] = state.sep.i0;
@@ -590,14 +595,14 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		rx.outputs[portAddr] = static_cast<bool>(state);
 
 		unsigned int realPortAddr = portAddr;
-		if (rx.s["global"]["rocoAddrs"].toBool()) {
+		if (rx.s["global"]["addrRange"].toString() == "roco") {
 			if (module == 0) {
 				rx.log("Invalid acc port (using Roco addresses): " + QString::number(portAddr), RcsXnLogLevel::llWarning);
 				return RCS_PORT_INVALID_NUMBER;
 			}
 			realPortAddr -= IO_MODULE_PIN_COUNT;
 		}
-		if (rx.s["global"]["lenzAddrs"].toBool()) {
+		else if (rx.s["global"]["addrRange"].toString() == "lenz") {
 			if (realPortAddr < LENZ_IO_PER_MODULE) {
 				rx.log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr), RcsXnLogLevel::llWarning);
 				return RCS_PORT_INVALID_NUMBER;
@@ -1065,8 +1070,13 @@ void RcsXn::chb_general_config_changed(int) {
 		return;
 
 	s["global"]["onlyOneActive"] = (form.ui.chb_only_one_active->checkState() == Qt::CheckState::Checked);
-	s["global"]["rocoAddrs"] = (form.ui.chb_roco_addrs->checkState() == Qt::CheckState::Checked);
-	s["global"]["lenzAddrs"] = (form.ui.chb_lenz_addrs->checkState() == Qt::CheckState::Checked);
+
+	if (form.ui.cb_addr_range->currentIndex() == 0)
+		s["global"]["addrRange"] = "basic";
+	else if (form.ui.cb_addr_range->currentIndex() == 1)
+		s["global"]["addrRange"] = "roco";
+	else if (form.ui.cb_addr_range->currentIndex() == 2)
+		s["global"]["addrRange"] = "lenz";
 }
 
 ///////////////////////////////////////////////////////////////////////////////

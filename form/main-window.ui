@@ -164,19 +164,6 @@
          <string>Nejvýše jeden výstupní pin z dvojice může být aktivní</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="chb_roco_addrs">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>200</y>
-          <width>351</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Používat Roco adresy (1-1024)</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_8">
         <property name="geometry">
          <rect>
@@ -215,18 +202,43 @@
          </property>
         </item>
        </widget>
-       <widget class="QCheckBox" name="chb_lenz_addrs">
+       <widget class="QLabel" name="label_9">
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>220</y>
-          <width>351</width>
-          <height>17</height>
+          <y>140</y>
+          <width>181</width>
+          <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Používat Lenz adresy (4-1027)</string>
+         <string>Adresy dekodérů příslušenství:</string>
         </property>
+       </widget>
+       <widget class="QComboBox" name="cb_addr_range">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>140</y>
+          <width>171</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>Jako na XpressNETu (0-1023)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Roco (1-1024)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lenz (4-1027)</string>
+         </property>
+        </item>
        </widget>
       </widget>
       <widget class="QWidget" name="t_activeModules">
