@@ -1,8 +1,8 @@
-#include <algorithm>
-#include <cstring>
+#include <QMessageBox>
 #include <QSerialPortInfo>
 #include <QSettings>
-#include <QMessageBox>
+#include <algorithm>
+#include <cstring>
 
 #include "errors.h"
 #include "rcs-xn.h"
@@ -87,11 +87,11 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 		item->setText(1, "Nic");
 	else if (loglevel == RcsXnLogLevel::llError) {
 		item->setText(1, "Chyba");
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 			item->setBackground(i, LOGC_ERROR);
 	} else if (loglevel == RcsXnLogLevel::llWarning) {
 		item->setText(1, "Varování");
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 			item->setBackground(i, LOGC_WARN);
 	} else if (loglevel == RcsXnLogLevel::llInfo)
 		item->setText(1, "Info");
@@ -137,8 +137,8 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 
 	try {
 		xn.connect(device, s["XN"]["baudrate"].toInt(),
-				   static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()),
-				   interface(s["XN"]["interface"].toString()));
+		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()),
+		           interface(s["XN"]["interface"].toString()));
 	} catch (const Xn::QStrException &e) {
 		error("XN connect error while opening serial port '" +
 		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
@@ -202,7 +202,8 @@ void RcsXn::loadConfig(const QString &filename) {
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::LogLevel>(s["XN"]["loglevel"].toInt());
 	this->loadSignals(filename);
-	this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(), false);
+	this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(),
+	                   false);
 
 	// GUI
 	this->gui_config_changing = true;
@@ -274,7 +275,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 		correction += 4;
 
 	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module+correction]) &&
-		   (!this->active_in[next_module+correction+1]))
+	       (!this->active_in[next_module+correction+1]))
 		next_module += 2;
 
 	if (next_module >= IO_MODULES_COUNT) {
@@ -310,11 +311,12 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 }
 
 template <std::size_t ArraySize>
-void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except) {
+void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize> &result,
+                               bool except) {
 	std::fill(result.begin(), result.end(), false);
 
 	const QStringList ranges = active.split(',', QString::SkipEmptyParts);
-	for (const QString& range : ranges) {
+	for (const QString &range : ranges) {
 		const QStringList bounds = range.split('-');
 		bool okl, okr = false;
 		if (bounds.size() == 1) {
@@ -457,7 +459,7 @@ void RcsXn::xnOnCSStatusOk(void *, void *) {
 	this->events.call(this->events.afterOpen);
 }
 
-void RcsXn::xnGotLIVersion(void*, unsigned hw, unsigned sw) {
+void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	log("Got LI version. HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
 	    RcsXnLogLevel::llInfo);
 	this->li_ver_hw = hw;
@@ -518,9 +520,7 @@ void SetConfigFileName(char16_t *filename) { rx.config_filename = QString::fromU
 ///////////////////////////////////////////////////////////////////////////////
 // Loglevel
 
-void SetLogLevel(unsigned int loglevel) {
-	rx.setLogLevel(static_cast<RcsXnLogLevel>(loglevel));
-}
+void SetLogLevel(unsigned int loglevel) { rx.setLogLevel(static_cast<RcsXnLogLevel>(loglevel)); }
 
 unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
 
@@ -587,7 +587,7 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		// Signal output
 		rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 	} else {
-		// Plain output		
+		// Plain output
 		if ((state > 0) && (rx.s["global"]["onlyOneActive"].toBool())) {
 			unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
 			rx.outputs[secondPort] = false;
@@ -597,23 +597,24 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		unsigned int realPortAddr = portAddr;
 		if (rx.s["global"]["addrRange"].toString() == "roco") {
 			if (module == 0) {
-				rx.log("Invalid acc port (using Roco addresses): " + QString::number(portAddr), RcsXnLogLevel::llWarning);
+				rx.log("Invalid acc port (using Roco addresses): " + QString::number(portAddr),
+				       RcsXnLogLevel::llWarning);
 				return RCS_PORT_INVALID_NUMBER;
 			}
 			realPortAddr -= IO_MODULE_PIN_COUNT;
-		}
-		else if (rx.s["global"]["addrRange"].toString() == "lenz") {
+		} else if (rx.s["global"]["addrRange"].toString() == "lenz") {
 			if (realPortAddr < LENZ_IO_PER_MODULE) {
-				rx.log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr), RcsXnLogLevel::llWarning);
+				rx.log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
+				       RcsXnLogLevel::llWarning);
 				return RCS_PORT_INVALID_NUMBER;
 			}
 			realPortAddr -= LENZ_IO_PER_MODULE;
 		}
 
 		rx.xn.accOpRequest(
-			static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
+		    static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
 		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-		                               reinterpret_cast<void *>(module))
+		                             reinterpret_cast<void *>(module))
 		);
 
 		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
@@ -845,9 +846,9 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 
 		rx.outputs[port] = state;
 		rx.xn.accOpRequest(
-			static_cast<uint16_t>(port), state, nullptr,
+		    static_cast<uint16_t>(port), state, nullptr,
 		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-		                               reinterpret_cast<void *>(module))
+		                             reinterpret_cast<void *>(module))
 		);
 		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
 
@@ -963,7 +964,8 @@ void RcsXn::b_active_save_handle() {
 		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
 	} catch (const EInvalidRange &e) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(), QMessageBox::Ok);
+		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(),
+		                     QMessageBox::Ok);
 	} catch (const QStrException &e) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
@@ -976,7 +978,8 @@ void RcsXn::b_active_save_handle() {
 void RcsXn::fillActiveIO() {
 	form.ui.te_active_inputs->setText(getActiveStr(this->active_in, ",\n"));
 	form.ui.te_active_outputs->setText(getActiveStr(this->active_out, ",\n"));
-	form.ui.l_io_count->setText(QString::number(this->in_count) + " vstupů, " + QString::number(this->out_count) + " výstupů");
+	form.ui.l_io_count->setText(QString::number(this->in_count) + " vstupů, " +
+	                            QString::number(this->out_count) + " výstupů");
 }
 
 void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {
@@ -1044,7 +1047,8 @@ void RcsXn::editedSignal(XnSignal signal) {
 	if (this->sig.find(this->current_editing_signal) != this->sig.end()) {
 		this->sig.erase(this->current_editing_signal);
 		for (int i = 0; i < form.ui.tw_signals->topLevelItemCount(); ++i)
-			if (form.ui.tw_signals->topLevelItem(i)->text(0).toUInt() == this->current_editing_signal)
+			if (form.ui.tw_signals->topLevelItem(i)->text(0).toUInt() ==
+			    this->current_editing_signal)
 				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
@@ -1069,7 +1073,8 @@ void RcsXn::chb_general_config_changed(int) {
 	if (this->gui_config_changing)
 		return;
 
-	s["global"]["onlyOneActive"] = (form.ui.chb_only_one_active->checkState() == Qt::CheckState::Checked);
+	s["global"]["onlyOneActive"] =
+	    (form.ui.chb_only_one_active->checkState() == Qt::CheckState::Checked);
 
 	if (form.ui.cb_addr_range->currentIndex() == 0)
 		s["global"]["addrRange"] = "basic";

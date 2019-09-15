@@ -26,12 +26,12 @@
 #endif
 
 #include "events.h"
+#include "form-signal-edit.h"
+#include "lib/q-str-exception.h"
 #include "lib/xn-lib-cpp-qt/xn.h"
 #include "settings.h"
 #include "signals.h"
 #include "ui_main-window.h"
-#include "form-signal-edit.h"
-#include "lib/q-str-exception.h"
 
 namespace RcsXn {
 
@@ -44,7 +44,7 @@ const QColor LOGC_ERROR = QColor(0xFF, 0xAA, 0xAA);
 const QColor LOGC_WARN = QColor(0xFF, 0xFF, 0xAA);
 const QColor LOGC_DONE = QColor(0xAA, 0xFF, 0xAA);
 
-constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS{
+constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
     0x0301, // v1.3
 };
 
@@ -205,8 +205,8 @@ private slots:
 	void xnOnConnect();
 	void xnOnDisconnect();
 	void xnOnTrkStatusChanged(Xn::TrkStatus);
-	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
-	                         Xn::FeedbackType inputType, Xn::AccInputsState state);
+	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::FeedbackType inputType,
+	                         Xn::AccInputsState state);
 
 	// GUI
 	void cb_loglevel_changed(int);
@@ -232,10 +232,11 @@ private:
 	Xn::LIType interface(QString name);
 
 	template <std::size_t ArraySize>
-	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result, bool except = true);
+	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result,
+	                        bool except = true);
 
 	template <std::size_t ArraySize>
-	QString getActiveStr(const std::array<bool,ArraySize> &source, const QString &separator);
+	QString getActiveStr(const std::array<bool, ArraySize> &source, const QString &separator);
 
 	void loadActiveIO(const QString &inputs, const QString &outputs, bool except = true);
 
@@ -262,7 +263,7 @@ private:
 // This class should be created first
 class AppThread {
 	std::unique_ptr<QApplication> app;
-	int argc{0};
+	int argc {0};
 
 public:
 	AppThread() {
