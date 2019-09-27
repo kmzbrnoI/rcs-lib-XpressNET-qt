@@ -1141,6 +1141,8 @@ void RcsXn::chb_general_config_changed(int) {
 }
 
 void RcsXn::xn_onDccError(void *, void *) {
+	form.ui.b_dcc_on->setEnabled(true);
+	form.ui.b_dcc_off->setEnabled(true);
 	QMessageBox::warning(&(this->form), "Error!",
 	                     "Centrála neodpověděla na příkaz o nastavení DCC!");
 }
@@ -1158,12 +1160,20 @@ void RcsXn::setDcc(Xn::TrkStatus status) {
 				std::make_unique<Xn::Cb>([this](void *s, void *d) { xn_onDccError(s, d); })
 			);
 	} catch (const Xn::QStrException& e) {
+		form.ui.b_dcc_on->setEnabled(true);
+		form.ui.b_dcc_off->setEnabled(true);
 		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
 	}
 }
 
-void RcsXn::b_dcc_on_handle() { this->setDcc(Xn::TrkStatus::On); }
-void RcsXn::b_dcc_off_handle() { this->setDcc(Xn::TrkStatus::Off); }
+void RcsXn::b_dcc_on_handle() {
+	form.ui.b_dcc_on->setEnabled(false);
+	this->setDcc(Xn::TrkStatus::On);
+}
+void RcsXn::b_dcc_off_handle() {
+	form.ui.b_dcc_off->setEnabled(false);
+	this->setDcc(Xn::TrkStatus::Off);
+}
 
 void RcsXn::widgetSetColor(QWidget &widget, const QColor &color) {
 	QPalette palette = widget.palette();
