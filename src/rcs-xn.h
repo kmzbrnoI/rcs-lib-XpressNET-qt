@@ -220,6 +220,8 @@ private slots:
 	void tw_signals_dbl_click(QTreeWidgetItem *, int);
 	void tw_signals_selection_changed();
 	void chb_general_config_changed(int state);
+	void b_dcc_on_handle();
+	void b_dcc_off_handle();
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
@@ -227,6 +229,7 @@ private:
 	void xnOnCSStatusError(void *, void *);
 	void xnOnCSStatusOk(void *, void *);
 	void xnOnInitScanningError(void *, void *);
+	void xn_onDccError(void*, void*);
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
 	Xn::LIType interface(QString name);
@@ -246,6 +249,8 @@ private:
 	unsigned int current_editing_signal;
 	void newSignal(XnSignal);
 	void editedSignal(XnSignal);
+
+	void setDcc(Xn::TrkStatus);
 
 	// GUI:
 	void fillConnectionsCbs();

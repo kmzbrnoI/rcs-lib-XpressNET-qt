@@ -65,6 +65,9 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(form.ui.tw_signals, SIGNAL(itemSelectionChanged()), this,
 	                 SLOT(tw_signals_selection_changed()));
 
+	QObject::connect(form.ui.b_dcc_on, SIGNAL(released()), this, SLOT(b_dcc_on_handle()));
+	QObject::connect(form.ui.b_dcc_off, SIGNAL(released()), this, SLOT(b_dcc_off_handle()));
+
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 	form.setWindowTitle(text);
@@ -147,8 +150,6 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 
 	events.call(rx.events.beforeOpen);
 	this->guiOnOpen();
-
-
 
 	try {
 		xn.connect(device, s["XN"]["baudrate"].toInt(),
@@ -417,8 +418,17 @@ void RcsXn::xnOnDisconnect() {
 }
 
 void RcsXn::xnOnTrkStatusChanged(Xn::TrkStatus s) {
-	(void)s;
-	// Nothing here yet.
+	form.ui.b_dcc_on->setEnabled((s == Xn::TrkStatus::Off));
+	form.ui.b_dcc_off->setEnabled((s == Xn::TrkStatus::On));
+
+	if (s == Xn::TrkStatus::On)
+		form.ui.l_dcc_state->setText("ON");
+	else if (s == Xn::TrkStatus::Off)
+		form.ui.l_dcc_state->setText("OFF");
+	else if (s == Xn::TrkStatus::Off)
+		form.ui.l_dcc_state->setText("PROGRAM");
+	else
+		form.ui.l_dcc_state->setText("???");
 }
 
 void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
@@ -944,6 +954,10 @@ void RcsXn::guiOnOpen() {
 	form.ui.b_active_save->setEnabled(false);
 	form.ui.te_active_inputs->setEnabled(false);
 	form.ui.te_active_outputs->setEnabled(false);
+
+	form.ui.b_dcc_on->setEnabled(true);
+	form.ui.b_dcc_off->setEnabled(true);
+
 	this->fillActiveIO();
 }
 
@@ -957,6 +971,10 @@ void RcsXn::guiOnClose() {
 	form.ui.b_active_save->setEnabled(true);
 	form.ui.te_active_inputs->setEnabled(true);
 	form.ui.te_active_outputs->setEnabled(true);
+
+	form.ui.b_dcc_on->setEnabled(false);
+	form.ui.b_dcc_off->setEnabled(false);
+	form.ui.l_dcc_state->setText("???");
 }
 
 void RcsXn::b_active_load_handle() {
@@ -1098,6 +1116,27 @@ void RcsXn::chb_general_config_changed(int) {
 	else if (form.ui.cb_addr_range->currentIndex() == 2)
 		s["global"]["addrRange"] = "lenz";
 }
+
+
+void RcsXn::xn_onDccError(void*, void*) {
+	QMessageBox::warning(&(this->form), "Error!",
+	                     "Centrála neodpověděla na příkaz o nastavení DCC!");
+}
+
+void RcsXn::setDcc(Xn::TrkStatus status) {
+	try {
+		if (xn.connected())
+			xn.setTrkStatus(
+				status, nullptr,
+				std::make_unique<Xn::Cb>([this](void *s, void *d) { xn_onDccError(s, d); })
+			);
+	} catch (const Xn::QStrException& e) {
+		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
+	}
+}
+
+void RcsXn::b_dcc_on_handle() { this->setDcc(Xn::TrkStatus::On); }
+void RcsXn::b_dcc_off_handle() { this->setDcc(Xn::TrkStatus::Off); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
