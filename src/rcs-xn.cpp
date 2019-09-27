@@ -24,31 +24,46 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
 	                 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
-	QObject::connect(&xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)),
-	                 this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)));
+	QObject::connect(
+	    &xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)),
+	    this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState))
+	);
 
 	// No loading of configuration here (caller should call LoadConfig)
 
 	// GUI
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
-	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_loglevel_changed(int)));
-	QObject::connect(form.ui.cb_interface_type, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this, SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this, SLOT(chb_general_config_changed(int)));
-	QObject::connect(form.ui.cb_addr_range, SIGNAL(currentIndexChanged(int)), this, SLOT(chb_general_config_changed(int)));
+	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this,
+	                 SLOT(cb_loglevel_changed(int)));
+	QObject::connect(form.ui.cb_interface_type, SIGNAL(currentIndexChanged(int)), this,
+	                 SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this,
+	                 SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this,
+	                 SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this,
+	                 SLOT(cb_connections_changed(int)));
+	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this,
+	                 SLOT(chb_general_config_changed(int)));
+	QObject::connect(form.ui.cb_addr_range, SIGNAL(currentIndexChanged(int)), this,
+	                 SLOT(chb_general_config_changed(int)));
 
-	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this, SLOT(b_serial_refresh_handle()));
-	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this, SLOT(b_active_load_handle()));
+	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this,
+	                 SLOT(b_serial_refresh_handle()));
+	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this,
+	                 SLOT(b_active_load_handle()));
 	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
 
 	QObject::connect(form.ui.b_signal_add, SIGNAL(released()), this, SLOT(b_signal_add_handle()));
-	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this, SLOT(b_signal_remove_handle()));
+	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this,
+	                 SLOT(b_signal_remove_handle()));
 
-	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_log_double_clicked(QTreeWidgetItem*, int)));
-	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(tw_signals_dbl_click(QTreeWidgetItem*, int)));
-	QObject::connect(form.ui.tw_signals, SIGNAL(itemSelectionChanged()), this, SLOT(tw_signals_selection_changed()));
+	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
+	                 SLOT(tw_log_double_clicked(QTreeWidgetItem *, int)));
+	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
+	                 SLOT(tw_signals_dbl_click(QTreeWidgetItem *, int)));
+	QObject::connect(form.ui.tw_signals, SIGNAL(itemSelectionChanged()), this,
+	                 SLOT(tw_signals_selection_changed()));
 
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
