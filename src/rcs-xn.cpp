@@ -421,14 +421,19 @@ void RcsXn::xnOnTrkStatusChanged(Xn::TrkStatus s) {
 	form.ui.b_dcc_on->setEnabled((s == Xn::TrkStatus::Off));
 	form.ui.b_dcc_off->setEnabled((s == Xn::TrkStatus::On));
 
-	if (s == Xn::TrkStatus::On)
+	if (s == Xn::TrkStatus::On) {
 		form.ui.l_dcc_state->setText("ON");
-	else if (s == Xn::TrkStatus::Off)
+		widgetSetColor(*form.ui.l_dcc_state, Qt::green);
+	} else if (s == Xn::TrkStatus::Off) {
 		form.ui.l_dcc_state->setText("OFF");
-	else if (s == Xn::TrkStatus::Off)
+		widgetSetColor(*form.ui.l_dcc_state, Qt::red);
+	} else if (s == Xn::TrkStatus::Off) {
 		form.ui.l_dcc_state->setText("PROGRAM");
-	else
+		widgetSetColor(*form.ui.l_dcc_state, Qt::yellow);
+	} else {
 		form.ui.l_dcc_state->setText("???");
+		widgetSetColor(*form.ui.l_dcc_state, Qt::black);
+	}
 }
 
 void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
@@ -975,6 +980,7 @@ void RcsXn::guiOnClose() {
 	form.ui.b_dcc_on->setEnabled(false);
 	form.ui.b_dcc_off->setEnabled(false);
 	form.ui.l_dcc_state->setText("???");
+	widgetSetColor(*form.ui.l_dcc_state, Qt::black);
 }
 
 void RcsXn::b_active_load_handle() {
@@ -1137,6 +1143,12 @@ void RcsXn::setDcc(Xn::TrkStatus status) {
 
 void RcsXn::b_dcc_on_handle() { this->setDcc(Xn::TrkStatus::On); }
 void RcsXn::b_dcc_off_handle() { this->setDcc(Xn::TrkStatus::Off); }
+
+void RcsXn::widgetSetColor(QWidget & widget, const QColor & color) {
+	QPalette palette = widget.palette();
+	palette.setColor(QPalette::WindowText, color);
+	widget.setPalette(palette);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

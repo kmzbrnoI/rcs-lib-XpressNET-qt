@@ -251,6 +251,7 @@ private:
 	void editedSignal(XnSignal);
 
 	void setDcc(Xn::TrkStatus);
+	void widgetSetColor(QWidget & widget, const QColor & color);
 
 	// GUI:
 	void fillConnectionsCbs();
