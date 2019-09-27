@@ -227,9 +227,9 @@ private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
 	void xnOnLIVersionError(void *, void *);
 	void xnOnCSStatusError(void *, void *);
-	void xnOnCSStatusOk(void *, void *);
 	void xnOnInitScanningError(void *, void *);
 	void xn_onDccError(void*, void*);
+	void xn_onDccOpenError(void*, void*);
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
 	Xn::LIType interface(QString name);

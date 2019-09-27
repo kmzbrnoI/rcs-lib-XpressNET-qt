@@ -434,6 +434,23 @@ void RcsXn::xnOnTrkStatusChanged(Xn::TrkStatus s) {
 		form.ui.l_dcc_state->setText("???");
 		widgetSetColor(*form.ui.l_dcc_state, Qt::black);
 	}
+
+	if (this->opening) {
+		if (s == Xn::TrkStatus::Off) {
+			try {
+				xn.setTrkStatus(
+					Xn::TrkStatus::On, nullptr,
+					std::make_unique<Xn::Cb>([this](void *s, void *d) { xn_onDccOpenError(s, d); })
+				);
+			} catch (const Xn::QStrException& e) {
+				log("SetTrkStatus error: " + e.str(), RcsXnLogLevel::llError);
+				this->close();
+			}
+		} else {
+			this->opening = false;
+			this->events.call(this->events.afterOpen);
+		}
+	}
 }
 
 void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
@@ -483,12 +500,6 @@ void RcsXn::xnOnCSStatusError(void *, void *) {
 	this->close();
 }
 
-void RcsXn::xnOnCSStatusOk(void *, void *) {
-	// Device opened
-	this->opening = false;
-	this->events.call(this->events.afterOpen);
-}
-
 void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	log("Got LI version. HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
 	    RcsXnLogLevel::llInfo);
@@ -497,7 +508,7 @@ void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 
 	try {
 		xn.getCommandStationStatus(
-		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnCSStatusOk(s, d); }),
+		    nullptr,
 		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
 	} catch (const Xn::QStrException& e) {
@@ -1123,10 +1134,14 @@ void RcsXn::chb_general_config_changed(int) {
 		s["global"]["addrRange"] = "lenz";
 }
 
-
 void RcsXn::xn_onDccError(void*, void*) {
 	QMessageBox::warning(&(this->form), "Error!",
 	                     "Centrála neodpověděla na příkaz o nastavení DCC!");
+}
+
+void RcsXn::xn_onDccOpenError(void*, void*) {
+	log("No response on 'Set DCC' command!", RcsXnLogLevel::llError);
+	this->close();
 }
 
 void RcsXn::setDcc(Xn::TrkStatus status) {
