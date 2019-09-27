@@ -364,7 +364,7 @@ void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize
 }
 
 template <std::size_t ArraySize>
-QString RcsXn::getActiveStr(const std::array<bool,ArraySize> &source, const QString &separator) {
+QString RcsXn::getActiveStr(const std::array<bool, ArraySize> &source, const QString &separator) {
 	QString output;
 	for (size_t start = 0; start < source.size(); ++start) {
 		if (source[start]) {
@@ -775,9 +775,13 @@ unsigned int GetModuleOutputsCount(unsigned int module) {
 
 void BindBeforeOpen(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeOpen, f, data); }
 void BindAfterOpen(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterOpen, f, data); }
-void BindBeforeClose(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeClose, f, data); }
+void BindBeforeClose(StdNotifyEvent f, void *data) {
+	rx.events.bind(rx.events.beforeClose, f, data);
+}
 void BindAfterClose(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterClose, f, data); }
-void BindBeforeStart(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeStart, f, data); }
+void BindBeforeStart(StdNotifyEvent f, void *data) {
+	rx.events.bind(rx.events.beforeStart, f, data);
+}
 
 void BindAfterStart(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afterStart, f, data); }
 void BindBeforeStop(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeStop, f, data); }
@@ -785,8 +789,12 @@ void BindAfterStop(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afte
 void BindOnError(StdErrorEvent f, void *data) { rx.events.bind(rx.events.onError, f, data); }
 void BindOnLog(StdLogEvent f, void *data) { rx.events.bind(rx.events.onLog, f, data); }
 
-void BindOnInputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onInputChanged, f, data); }
-void BindOnOutputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onOutputChanged, f, data); }
+void BindOnInputChanged(StdModuleChangeEvent f, void *data) {
+	rx.events.bind(rx.events.onInputChanged, f, data);
+}
+void BindOnOutputChanged(StdModuleChangeEvent f, void *data) {
+	rx.events.bind(rx.events.onOutputChanged, f, data);
+}
 void BindOnScanned(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.onScanned, f, data); }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1110,9 +1118,7 @@ void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
 	(void)column;
 	this->current_editing_signal = item->text(0).toUInt();
 	f_signal_edit.open(this->sig[this->current_editing_signal],
-	                   [this](XnSignal signal) { this->editedSignal(signal); },
-	                   this->sigTemplates);
-	
+	                   [this](XnSignal signal) { this->editedSignal(signal); }, this->sigTemplates);
 }
 
 void RcsXn::tw_signals_selection_changed() {
@@ -1134,12 +1140,12 @@ void RcsXn::chb_general_config_changed(int) {
 		s["global"]["addrRange"] = "lenz";
 }
 
-void RcsXn::xn_onDccError(void*, void*) {
+void RcsXn::xn_onDccError(void *, void *) {
 	QMessageBox::warning(&(this->form), "Error!",
 	                     "Centrála neodpověděla na příkaz o nastavení DCC!");
 }
 
-void RcsXn::xn_onDccOpenError(void*, void*) {
+void RcsXn::xn_onDccOpenError(void *, void *) {
 	log("No response on 'Set DCC' command!", RcsXnLogLevel::llError);
 	this->close();
 }
@@ -1159,7 +1165,7 @@ void RcsXn::setDcc(Xn::TrkStatus status) {
 void RcsXn::b_dcc_on_handle() { this->setDcc(Xn::TrkStatus::On); }
 void RcsXn::b_dcc_off_handle() { this->setDcc(Xn::TrkStatus::Off); }
 
-void RcsXn::widgetSetColor(QWidget & widget, const QColor & color) {
+void RcsXn::widgetSetColor(QWidget &widget, const QColor &color) {
 	QPalette palette = widget.palette();
 	palette.setColor(QPalette::WindowText, color);
 	widget.setPalette(palette);

@@ -228,8 +228,8 @@ private:
 	void xnOnLIVersionError(void *, void *);
 	void xnOnCSStatusError(void *, void *);
 	void xnOnInitScanningError(void *, void *);
-	void xn_onDccError(void*, void*);
-	void xn_onDccOpenError(void*, void*);
+	void xn_onDccError(void *, void *);
+	void xn_onDccOpenError(void *, void *);
 	void initModuleScanned(uint8_t group, bool nibble);
 	void initScanningDone();
 	Xn::LIType interface(QString name);
@@ -251,7 +251,7 @@ private:
 	void editedSignal(XnSignal);
 
 	void setDcc(Xn::TrkStatus);
-	void widgetSetColor(QWidget & widget, const QColor & color);
+	void widgetSetColor(QWidget &widget, const QColor &color);
 
 	// GUI:
 	void fillConnectionsCbs();
