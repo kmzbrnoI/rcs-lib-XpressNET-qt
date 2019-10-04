@@ -23,6 +23,7 @@ struct XnSignal {
 	unsigned int startAddr; // 0-1023
 	XnSignalTemplate tmpl;
 	unsigned int hJOPaddr;
+	unsigned int currentCode;
 
 	XnSignal();
 	XnSignal(QSettings &, unsigned int hJOPaddr);

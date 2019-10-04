@@ -606,6 +606,11 @@ int GetOutput(unsigned int module, unsigned int port) {
 #endif
 	}
 
+	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
+	if (rx.isSignal(portAddr)) {
+		const XnSignal &sig = rx.sig.at(portAddr/2);
+		return static_cast<int>(sig.currentCode);
+	}
 	return rx.outputs[module*2 + port];
 }
 
@@ -883,7 +888,10 @@ bool RcsXn::isSignal(unsigned int portAddr) const {
 }
 
 void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
-	const XnSignal &sig = this->sig.at(portAddr);
+	XnSignal &sig = this->sig.at(portAddr);
+	sig.currentCode = code;
+	rx.events.call(rx.events.onOutputChanged, sig.hJOPaddr);
+
 	if (sig.tmpl.outputs.find(code) == sig.tmpl.outputs.end())
 		return; // no ports assignment for this signal code
 	uint16_t outputs = sig.tmpl.outputs.at(code);
