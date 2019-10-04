@@ -774,7 +774,11 @@ unsigned int GetModuleInputsCount(unsigned int module) {
 unsigned int GetModuleOutputsCount(unsigned int module) {
 	if (module >= IO_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	return rx.active_out[module] ? IO_MODULE_PIN_COUNT : 0;
+	if (!rx.active_out[module])
+		return 0;
+	if (rx.isSignal(module*IO_MODULE_PIN_COUNT))
+		return 1; // signal -> just one output
+	return IO_MODULE_PIN_COUNT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
