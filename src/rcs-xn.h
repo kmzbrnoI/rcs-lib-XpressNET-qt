@@ -157,7 +157,7 @@ public:
 	RcsStartState started = RcsStartState::stopped;
 	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
-	std::array<bool, IO_COUNT> outputs; // TODO: reset outputs at start?
+	std::array<bool, IO_COUNT> outputs;
 	std::array<bool, IO_MODULES_COUNT> active_in;
 	std::array<bool, IO_MODULES_COUNT> active_out;
 	uint8_t scan_group;
@@ -242,6 +242,7 @@ private:
 	QString getActiveStr(const std::array<bool, ArraySize> &source, const QString &separator);
 
 	void loadActiveIO(const QString &inputs, const QString &outputs, bool except = true);
+	void resetIOState();
 
 	void loadSignals(const QString &filename);
 	void saveSignals(const QString &filename);

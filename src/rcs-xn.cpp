@@ -148,6 +148,7 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 	if (xn.connected())
 		return RCS_ALREADY_OPENNED;
 
+	this->resetIOState();
 	events.call(rx.events.beforeOpen);
 	this->guiOnOpen();
 
@@ -185,6 +186,7 @@ int RcsXn::close() {
 		error("XN disconnect error while closing serial port:" + e);
 	}
 
+	this->resetIOState();
 	return 0;
 }
 
@@ -919,6 +921,13 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 
 		outputs >>= 1;
 	}
+}
+
+void RcsXn::resetIOState() {
+	std::fill(this->outputs.begin(), this->outputs.end(), false);
+	std::fill(this->inputs.begin(), this->inputs.end(), false);
+	for (auto &signal : this->sig)
+		signal.second.currentCode = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
