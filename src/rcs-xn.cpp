@@ -632,41 +632,46 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
 
 	if (rx.isSignal(portAddr)) {
-		// Signal output
 		rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
-	} else {
-		// Plain output
-		if ((state > 0) && (rx.s["global"]["onlyOneActive"].toBool())) {
-			unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
-			rx.outputs[secondPort] = false;
-		}
-		rx.outputs[portAddr] = static_cast<bool>(state);
-
-		unsigned int realPortAddr = portAddr;
-		if (rx.s["global"]["addrRange"].toString() == "roco") {
-			if (module == 0) {
-				rx.log("Invalid acc port (using Roco addresses): " + QString::number(portAddr),
-				       RcsXnLogLevel::llWarning);
-				return RCS_PORT_INVALID_NUMBER;
-			}
-			realPortAddr -= IO_MODULE_PIN_COUNT;
-		} else if (rx.s["global"]["addrRange"].toString() == "lenz") {
-			if (realPortAddr < LENZ_IO_PER_MODULE) {
-				rx.log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
-				       RcsXnLogLevel::llWarning);
-				return RCS_PORT_INVALID_NUMBER;
-			}
-			realPortAddr -= LENZ_IO_PER_MODULE;
-		}
-
-		rx.xn.accOpRequest(
-		    static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
-		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-		                             reinterpret_cast<void *>(module))
-		);
-
-		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
+		return 0;
 	}
+	return rx.setPlainOutput(portAddr, state);
+}
+
+int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
+	unsigned int module = portAddr / IO_MODULE_PIN_COUNT;
+	unsigned int port = portAddr % IO_MODULE_PIN_COUNT;
+
+	if ((state > 0) && (s["global"]["onlyOneActive"].toBool())) {
+		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
+		outputs[secondPort] = false;
+	}
+	outputs[portAddr] = static_cast<bool>(state);
+
+	unsigned int realPortAddr = portAddr;
+	if (s["global"]["addrRange"].toString() == "roco") {
+		if (module == 0) {
+			log("Invalid acc port (using Roco addresses): " + QString::number(portAddr),
+				RcsXnLogLevel::llWarning);
+			return RCS_PORT_INVALID_NUMBER;
+		}
+		realPortAddr -= IO_MODULE_PIN_COUNT;
+	} else if (s["global"]["addrRange"].toString() == "lenz") {
+		if (realPortAddr < LENZ_IO_PER_MODULE) {
+			log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
+				RcsXnLogLevel::llWarning);
+			return RCS_PORT_INVALID_NUMBER;
+		}
+		realPortAddr -= LENZ_IO_PER_MODULE;
+	}
+
+	xn.accOpRequest(
+		static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
+		std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
+								 reinterpret_cast<void *>(module))
+	);
+
+	events.call(events.onOutputChanged, module); // TODO: move to ok callback?
 	return 0;
 }
 
@@ -905,24 +910,13 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 	for (int i = sig.tmpl.outputsCount-1; i >= 0; --i) {
 		const unsigned int module = sig.startAddr+i;
 
-		unsigned int portEn, portDis;
-		if (outputs&1) {
+		unsigned int portEn;
+		if (outputs&1)
 			portEn = 2*module; // 1 = set turnout +
-			portDis = 2*module + 1;
-		} else {
+		else
 			portEn = 2*module + 1; // 0 = set turnout -
-			portDis = 2*module;
-		}
 
-		rx.outputs[portEn] = 1;
-		rx.outputs[portDis] = 0;
-		rx.xn.accOpRequest(
-		    static_cast<uint16_t>(portEn), 1, nullptr,
-		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
-		                             reinterpret_cast<void *>(module))
-		);
-		rx.events.call(rx.events.onOutputChanged, module); // TODO: move to ok callback?
-
+		this->setPlainOutput(portEn, true);
 		outputs >>= 1;
 	}
 }
