@@ -20,7 +20,7 @@ struct XnSignalTemplate {
 
 struct XnSignal {
 	QString name;
-	unsigned int startAddr;
+	unsigned int startAddr; // 0-1023
 	XnSignalTemplate tmpl;
 	unsigned int hJOPaddr;
 

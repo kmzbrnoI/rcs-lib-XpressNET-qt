@@ -888,14 +888,22 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 		return; // no ports assignment for this signal code
 	uint16_t outputs = sig.tmpl.outputs.at(code);
 
-	for (size_t i = 0; i < sig.tmpl.outputsCount; ++i) {
-		const unsigned int port = sig.startAddr + i;
-		const unsigned int module = port/2;
-		const bool state = outputs&1;
+	for (int i = sig.tmpl.outputsCount-1; i >= 0; --i) {
+		const unsigned int module = sig.startAddr+i;
 
-		rx.outputs[port] = state;
+		unsigned int portEn, portDis;
+		if (outputs&1) {
+			portEn = 2*module; // 1 = set turnout +
+			portDis = 2*module + 1;
+		} else {
+			portEn = 2*module + 1; // 0 = set turnout -
+			portDis = 2*module;
+		}
+
+		rx.outputs[portEn] = 1;
+		rx.outputs[portDis] = 0;
 		rx.xn.accOpRequest(
-		    static_cast<uint16_t>(port), state, nullptr,
+		    static_cast<uint16_t>(portEn), 1, nullptr,
 		    std::make_unique<Xn::Cb>([](void *s, void *d) { rx.xnSetOutputError(s, d); },
 		                             reinterpret_cast<void *>(module))
 		);
