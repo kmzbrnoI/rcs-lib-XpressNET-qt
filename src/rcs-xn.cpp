@@ -894,7 +894,7 @@ bool RcsXn::isSignal(unsigned int portAddr) const {
 }
 
 void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
-	XnSignal &sig = this->sig.at(portAddr);
+	XnSignal &sig = this->sig.at(portAddr/IO_MODULE_PIN_COUNT);
 	sig.currentCode = code;
 	rx.events.call(rx.events.onOutputChanged, sig.hJOPaddr);
 
