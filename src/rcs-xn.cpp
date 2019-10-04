@@ -886,7 +886,7 @@ void RcsXn::saveSignals(const QString &filename) {
 }
 
 bool RcsXn::isSignal(unsigned int portAddr) const {
-	return (this->sig.find(portAddr >> 1) != this->sig.end());
+	return ((!(portAddr&1)) && (this->sig.find(portAddr >> 1) != this->sig.end()));
 }
 
 void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
