@@ -481,24 +481,30 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	this->inputs[port+2] = state.sep.i2;
 	this->inputs[port+3] = state.sep.i3;
 
-	if (!this->active_in[port/2]) {
-		this->active_in[port/2] = true;
-		this->modules_count++;
-		this->in_count++;
-	}
-	if (!this->active_in[(port/2)+1]) {
-		this->active_in[(port/2)+1] = true;
-		this->modules_count++;
-		this->in_count++;
+	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group) &&
+		(nibble == this->scan_nibble)) {
+		this->initModuleScanned(groupAddr, nibble);
+		return;
 	}
 
-	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group) &&
-	    (nibble == this->scan_nibble)) {
-		this->initModuleScanned(groupAddr, nibble);
-	} else {
-		events.call(events.onInputChanged, port/2);
-		events.call(events.onInputChanged, (port/2)+1);
+	const std::vector<unsigned int> activeCheck = {port/2, (port/2)+1};
+	bool anyActivated = false;
+	for (const auto& activeAddr : activeCheck) {
+		if (!this->active_in[activeAddr]) {
+			if (!form.ui.chb_scan_inputs->isChecked())
+				return; // no scanning -> ignore change
+			this->active_in[activeAddr] = true;
+			this->modules_count++;
+			this->in_count++;
+			anyActivated = true;
+		}
 	}
+	if (anyActivated) {
+		try { this->fillActiveIO(); } catch (...) {}
+	}
+
+	events.call(events.onInputChanged, port/2);
+	events.call(events.onInputChanged, (port/2)+1);
 }
 
 void RcsXn::xnOnLIVersionError(void *, void *) {

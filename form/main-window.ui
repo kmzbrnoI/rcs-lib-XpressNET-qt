@@ -402,9 +402,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>396</y>
+          <y>397</y>
           <width>47</width>
-          <height>13</height>
+          <height>10</height>
          </rect>
         </property>
         <property name="text">
@@ -414,14 +414,27 @@
        <widget class="QLabel" name="l_io_count">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>410</y>
-          <width>171</width>
-          <height>16</height>
+          <x>60</x>
+          <y>393</y>
+          <width>111</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
          <string>TextLabel</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="chb_scan_inputs">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>412</y>
+          <width>141</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Skenovat aktivní vstupy</string>
         </property>
        </widget>
       </widget>
