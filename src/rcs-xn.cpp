@@ -249,8 +249,12 @@ void RcsXn::loadConfig(const QString &filename) {
 			this->log("Nepodařilo se načíst aktivní vstupy a výstupy: " + e.str(), RcsXnLogLevel::llError);
 			throw;
 		}
-
+		this->fillActiveIO();
+		this->gui_config_changing = false;
 	} catch (...) {
+		this->fillSignals();
+		this->fillActiveIO();
+
 		this->gui_config_changing = false;
 		throw;
 	}
@@ -277,9 +281,6 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 	this->parseActiveModules(inputs, this->active_in, except);
 	this->parseActiveModules(outputs, this->active_out, except);
 
-	if ((s["global"]["addrRange"].toString() == "lenz") && (this->active_in[0] || this->active_out[0]))
-		throw EInvalidRange("Adresa 0 není validní adresou systému Lenz!");
-
 	this->modules_count = this->in_count = this->out_count = 0;
 	for (size_t i = 0; i < IO_MODULES_COUNT; i++) {
 		if (this->active_in[i])
@@ -290,7 +291,8 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 			this->modules_count++;
 	}
 
-	this->fillActiveIO();
+	if ((s["global"]["addrRange"].toString() == "lenz") && (this->active_in[0] || this->active_out[0]))
+		throw EInvalidRange("Adresa 0 není validní adresou systému Lenz!");
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
