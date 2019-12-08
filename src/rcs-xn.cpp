@@ -277,15 +277,8 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 	this->parseActiveModules(inputs, this->active_in, except);
 	this->parseActiveModules(outputs, this->active_out, except);
 
-	if (s["global"]["addrRange"].toString() == "roco") {
-		this->active_in[0] = false;
-		this->active_out[0] = false;
-	} else if (s["global"]["addrRange"].toString() == "lenz") {
-		for (size_t i = 0; i < LENZ_IO_PER_MODULE; ++i) {
-			this->active_in[i] = false;
-			this->active_out[i] = false;
-		}
-	}
+	if ((s["global"]["addrRange"].toString() == "lenz") && (this->active_in[0] || this->active_out[0]))
+		throw EInvalidRange("Adresa 0 není validní adresou systému Lenz!");
 
 	this->modules_count = this->in_count = this->out_count = 0;
 	for (size_t i = 0; i < IO_MODULES_COUNT; i++) {
@@ -305,10 +298,8 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	unsigned next_module = (group*4) + (nibble*2) + 2; // LSB always 0!
 
 	unsigned correction = 0;
-	if (s["global"]["addrRange"].toString() == "roco")
+	if (s["global"]["addrRange"].toString() == "lenz")
 		correction += 1;
-	else if (s["global"]["addrRange"].toString() == "lenz")
-		correction += 4;
 
 	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module+correction]) &&
 	       (!this->active_in[next_module+correction+1]))
@@ -480,10 +471,8 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 
 	unsigned int port = 8*groupAddr + 4*nibble;
 
-	if (rx.s["global"]["addrRange"].toString() == "roco")
+	if (rx.s["global"]["addrRange"].toString() == "lenz")
 		port += IO_MODULE_PIN_COUNT;
-	else if (rx.s["global"]["addrRange"].toString() == "lenz")
-		port += LENZ_IO_PER_MODULE;
 
 	this->inputs[port+0] = state.sep.i0;
 	this->inputs[port+1] = state.sep.i1;
@@ -667,20 +656,13 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
 	outputs[portAddr] = static_cast<bool>(state);
 
 	unsigned int realPortAddr = portAddr;
-	if (s["global"]["addrRange"].toString() == "roco") {
+	if (s["global"]["addrRange"].toString() == "lenz") {
 		if (module == 0) {
-			log("Invalid acc port (using Roco addresses): " + QString::number(portAddr),
-				RcsXnLogLevel::llWarning);
-			return RCS_PORT_INVALID_NUMBER;
-		}
-		realPortAddr -= IO_MODULE_PIN_COUNT;
-	} else if (s["global"]["addrRange"].toString() == "lenz") {
-		if (realPortAddr < LENZ_IO_PER_MODULE) {
 			log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
 				RcsXnLogLevel::llWarning);
 			return RCS_PORT_INVALID_NUMBER;
 		}
-		realPortAddr -= LENZ_IO_PER_MODULE;
+		realPortAddr -= IO_MODULE_PIN_COUNT;
 	}
 
 	xn.accOpRequest(
@@ -1176,8 +1158,6 @@ void RcsXn::chb_general_config_changed(int) {
 	if (form.ui.cb_addr_range->currentIndex() == 0)
 		s["global"]["addrRange"] = "basic";
 	else if (form.ui.cb_addr_range->currentIndex() == 1)
-		s["global"]["addrRange"] = "roco";
-	else if (form.ui.cb_addr_range->currentIndex() == 2)
 		s["global"]["addrRange"] = "lenz";
 }
 

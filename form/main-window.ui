@@ -231,12 +231,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Roco (1-1024)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Lenz (4-1027)</string>
+          <string>Lenz (1-1024)</string>
          </property>
         </item>
        </widget>
