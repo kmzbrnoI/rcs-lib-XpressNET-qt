@@ -29,6 +29,7 @@ private slots:
 	void b_temp_save_handle();
 	void tw_outputs_selection_changed();
 	void sb_output_count_changed(int);
+	void sb_hjop_rcs_add_changed(int);
 
 private:
 	Ui::f_signal_edit ui;

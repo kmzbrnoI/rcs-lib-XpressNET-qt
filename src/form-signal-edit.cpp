@@ -23,6 +23,8 @@ FormSignalEdit::FormSignalEdit(TmplStorage &templates, QWidget *parent)
 	                 SLOT(tw_outputs_selection_changed()));
 	QObject::connect(ui.sb_output_count, SIGNAL(valueChanged(int)), this,
 	                 SLOT(sb_output_count_changed(int)));
+	QObject::connect(ui.sb_hjop_rcs_addr, SIGNAL(valueChanged(int)), this,
+					 SLOT(sb_hjop_rcs_add_changed(int)));
 }
 
 void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
@@ -228,6 +230,13 @@ void FormSignalEdit::sb_output_count_changed(int value) {
 		QTreeWidgetItem &item = *(ui.tw_outputs->topLevelItem(i));
 		item.setText(2, item.text(2).right(value).rightJustified(value, '0'));
 	}
+}
+
+void FormSignalEdit::sb_hjop_rcs_add_changed(int value) {
+	static int lastValue = 0;
+	if (ui.sb_output_addr->value() == lastValue)
+		ui.sb_output_addr->setValue(value);
+	lastValue = value;
 }
 
 } // namespace SignalEdit
