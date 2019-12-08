@@ -219,23 +219,41 @@ void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename, false); // do not load & store nonDefaults
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
 	this->xn.loglevel = static_cast<Xn::LogLevel>(s["XN"]["loglevel"].toInt());
-	this->loadSignals(filename);
-	this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(),
-	                   false);
 
-	// GUI
 	this->gui_config_changing = true;
-	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
-	form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
-	if (s["global"]["addrRange"].toString() == "basic")
-		form.ui.cb_addr_range->setCurrentIndex(0);
-	else if (s["global"]["addrRange"].toString() == "roco")
-		form.ui.cb_addr_range->setCurrentIndex(1);
-	else if (s["global"]["addrRange"].toString() == "lenz")
-		form.ui.cb_addr_range->setCurrentIndex(2);
-	this->fillConnectionsCbs();
-	this->fillSignals();
-	this->gui_config_changing = false;
+	try {
+		form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
+		form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
+		if (s["global"]["addrRange"].toString() == "basic")
+			form.ui.cb_addr_range->setCurrentIndex(0);
+		else if (s["global"]["addrRange"].toString() == "lenz")
+			form.ui.cb_addr_range->setCurrentIndex(1);
+		else {
+			s["global"]["addrRange"] = "basic";
+			form.ui.cb_addr_range->setCurrentIndex(0);
+		}
+		this->fillConnectionsCbs();
+
+		try {
+			this->loadSignals(filename);
+		} catch (const QStrException &e) {
+			this->log("Nepodařilo se načíst návěstidla: " + e.str(), RcsXnLogLevel::llError);
+			throw;
+		}
+		this->fillSignals();
+
+		try {
+			this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(),
+							   false);
+		} catch (const QStrException &e) {
+			this->log("Nepodařilo se načíst aktivní vstupy a výstupy: " + e.str(), RcsXnLogLevel::llError);
+			throw;
+		}
+
+	} catch (...) {
+		this->gui_config_changing = false;
+		throw;
+	}
 }
 
 void RcsXn::first_scan() {
