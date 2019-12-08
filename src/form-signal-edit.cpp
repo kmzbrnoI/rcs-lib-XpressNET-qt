@@ -66,6 +66,7 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 }
 
 void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
+	ui.sb_output_count->setValue(tmpl.outputsCount);
 	ui.tw_outputs->setSortingEnabled(false);
 	ui.tw_outputs->clear();
 	for (const auto &output : tmpl.outputs) {
