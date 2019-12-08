@@ -913,19 +913,26 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 
 	if (sig.tmpl.outputs.find(code) == sig.tmpl.outputs.end())
 		return; // no ports assignment for this signal code
-	uint16_t outputs = sig.tmpl.outputs.at(code);
+	QString outputs = sig.tmpl.outputs.at(code);
 
-	for (int i = sig.tmpl.outputsCount-1; i >= 0; --i) {
+	for (size_t i = 0; i < std::min(sig.tmpl.outputsCount, static_cast<std::size_t>(outputs.length())); i++) {
+		QChar state = outputs[i];
+		if (state == 'N')
+			continue;
+
 		const unsigned int module = sig.startAddr+i;
 
-		unsigned int portEn;
-		if (outputs&1)
-			portEn = 2*module; // 1 = set turnout +
-		else
-			portEn = 2*module + 1; // 0 = set turnout -
-
-		this->setPlainOutput(portEn, true);
-		outputs >>= 1;
+		if (state == '+')
+			this->setPlainOutput(2*module, true);
+		else if (state == '-')
+			this->setPlainOutput(2*module + 1, true);
+		else if (state == '0') {
+			this->setPlainOutput(2*module, false);
+			this->setPlainOutput(2*module + 1, false);
+		} else if (state == '1') {
+			this->setPlainOutput(2*module, true);
+			this->setPlainOutput(2*module + 1, true);
+		}
 	}
 }
 

@@ -211,23 +211,17 @@
       <string>Přidat</string>
      </property>
     </widget>
-    <widget class="QSpinBox" name="sb_add_bits">
+    <widget class="QLineEdit" name="le_outputs">
      <property name="geometry">
       <rect>
        <x>190</x>
        <y>20</y>
        <width>71</width>
-       <height>21</height>
+       <height>20</height>
       </rect>
      </property>
-     <property name="buttonSymbols">
-      <enum>QAbstractSpinBox::NoButtons</enum>
-     </property>
-     <property name="value">
-      <number>15</number>
-     </property>
-     <property name="displayIntegerBase">
-      <number>2</number>
+     <property name="inputMask">
+      <string/>
      </property>
     </widget>
    </widget>
@@ -377,7 +371,6 @@
   <tabstop>tw_outputs</tabstop>
   <tabstop>b_delete_signal</tabstop>
   <tabstop>cb_add_sig</tabstop>
-  <tabstop>sb_add_bits</tabstop>
   <tabstop>b_add_signal</tabstop>
   <tabstop>le_temp_save_name</tabstop>
   <tabstop>b_temp_save</tabstop>

@@ -37,7 +37,7 @@ void FormSignalEdit::open(EditCallback callback, TmplStorage &templates) {
 	ui.sb_output_addr->setValue(0);
 	ui.sb_output_count->setValue(4);
 	ui.tw_outputs->clear();
-	ui.sb_add_bits->setValue(0);
+	ui.le_outputs->setText("");
 
 	this->fillTemplates(templates);
 	this->setWindowTitle("Přidat nové návěstidlo");
@@ -57,7 +57,7 @@ void FormSignalEdit::open(RcsXn::XnSignal signal, EditCallback callback, TmplSto
 
 	this->fillTemplate(signal.tmpl);
 
-	ui.sb_add_bits->setValue(0);
+	ui.le_outputs->setText("");
 
 	this->fillTemplates(templates);
 	this->setWindowTitle("Upravit návěstidlo " + signal.name);
@@ -76,7 +76,7 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 			item->setText(1, RcsXn::XnSignalCodes[output.first]);
 		else
 			item->setText(1, "?");
-		item->setText(2, QString::number(output.second, 2).rightJustified(tmpl.outputsCount, '0'));
+		item->setText(2, output.second);
 		ui.tw_outputs->addTopLevelItem(item);
 	}
 	ui.tw_outputs->setSortingEnabled(true);
@@ -90,7 +90,7 @@ RcsXn::XnSignalTemplate FormSignalEdit::getTemplate() const {
 	result.outputsCount = ui.sb_output_count->value();
 	for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i) {
 		const QTreeWidgetItem *item = ui.tw_outputs->topLevelItem(i);
-		result.outputs.emplace(item->text(0).toUInt(), item->text(2).toUInt(nullptr, 2));
+		result.outputs.emplace(item->text(0).toUInt(), item->text(2));
 	}
 	return result;
 }
@@ -155,14 +155,19 @@ void FormSignalEdit::b_add_signal_handle() {
 		QMessageBox::warning(this, "Chyba", "Je třeba vybrat návěst!", QMessageBox::Ok);
 		return;
 	}
+	if (ui.le_outputs->text().length() != ui.sb_output_count->value()) {
+		QMessageBox::warning(this, "Chyba", "Text musí mít přesně takovou délku, jako je počet výstupů!", QMessageBox::Ok);
+		return;
+	}
+	if (!RcsXn::isValidSignalOutputStr(ui.le_outputs->text().toUpper())) {
+		QMessageBox::warning(this, "Chyba", "Výstup může obsahovat jen znaky +-01N !", QMessageBox::Ok);
+		return;
+	}
 
 	for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i) {
 		if (ui.tw_outputs->topLevelItem(i)->text(0).toInt() == ui.cb_add_sig->currentIndex()) {
 			// edit output
-			ui.tw_outputs->topLevelItem(i)->setText(
-			    2,
-			    QString::number(ui.sb_add_bits->value(), 2).rightJustified(ui.sb_output_count->value(), '0')
-			);
+			ui.tw_outputs->topLevelItem(i)->setText(2, ui.le_outputs->text());
 			return;
 		}
 	}
@@ -171,8 +176,7 @@ void FormSignalEdit::b_add_signal_handle() {
 	auto *item = new QTreeWidgetItem(ui.tw_outputs);
 	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
-	item->setText(2, QString::number(ui.sb_add_bits->value(), 2)
-	                     .rightJustified(ui.sb_output_count->value(), '0'));
+	item->setText(2, ui.le_outputs->text().toUpper());
 	ui.tw_outputs->addTopLevelItem(item);
 }
 
@@ -217,15 +221,15 @@ void FormSignalEdit::tw_outputs_selection_changed() {
 	ui.b_delete_signal->setEnabled(!ui.tw_outputs->selectedItems().empty());
 	if (ui.tw_outputs->selectedItems().empty()) {
 		ui.cb_add_sig->setCurrentIndex(-1);
-		ui.sb_add_bits->setValue(0);
+		ui.le_outputs->setText("");
 	} else {
 		ui.cb_add_sig->setCurrentIndex(ui.tw_outputs->selectedItems()[0]->text(0).toInt());
-		ui.sb_add_bits->setValue(ui.tw_outputs->selectedItems()[0]->text(2).toInt(nullptr, 2));
+		ui.le_outputs->setText((ui.tw_outputs->selectedItems()[0]->text(2)));
 	}
 }
 
 void FormSignalEdit::sb_output_count_changed(int value) {
-	ui.sb_add_bits->setMaximum(pow(2, value)-1);
+	ui.le_outputs->setMaxLength(value);
 
 	for (int i = 0; i < ui.tw_outputs->topLevelItemCount(); ++i) {
 		QTreeWidgetItem &item = *(ui.tw_outputs->topLevelItem(i));

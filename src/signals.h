@@ -10,7 +10,7 @@ namespace RcsXn {
 
 struct XnSignalTemplate {
 	std::size_t outputsCount;
-	std::map<unsigned int, uint16_t> outputs; // scom code -> outputs state
+	std::map<unsigned int, QString> outputs; // scom code -> outputs state
 
 	XnSignalTemplate();
 	XnSignalTemplate(QSettings &);
@@ -32,7 +32,7 @@ struct XnSignal {
 	QString outputRange() const;
 };
 
-const std::array<QString, 16> XnSignalCodes{
+const std::array<QString, 16> XnSignalCodes {
     "Stůj/posun zakázán",
     "Volno",
     "Výstraha",
@@ -50,6 +50,8 @@ const std::array<QString, 16> XnSignalCodes{
     "Opak. návěsti očekávejte 40 km/h",
     "Opak. návěsti výstraha a 40 km/h",
 };
+
+bool isValidSignalOutputStr(const QString str);
 
 } // namespace RcsXn
 
