@@ -237,12 +237,12 @@
     <rect>
      <x>10</x>
      <y>40</y>
-     <width>101</width>
+     <width>121</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>hJOP RCS modul:</string>
+    <string>Virtuální hJOP modul:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -250,12 +250,12 @@
     <rect>
      <x>10</x>
      <y>70</y>
-     <width>91</width>
+     <width>121</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>hJOP RCS port:</string>
+    <string>Virtuální hJOP port:</string>
    </property>
   </widget>
   <widget class="QSpinBox" name="sb_hjop_rcs_addr">
@@ -310,7 +310,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Počátek výstupních adres:</string>
+    <string>Adresa prvního DCC výstupu:</string>
    </property>
   </widget>
   <widget class="QPushButton" name="b_apply">
