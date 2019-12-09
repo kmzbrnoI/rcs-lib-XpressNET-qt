@@ -577,10 +577,8 @@ void RcsXn::loadSignals(const QString &filename) {
 
 		try {
 			QStringList name = g.split('-');
-			if (name.size() < 2) {
-				log("Invalid signal: " + g, RcsXnLogLevel::llWarning);
-				continue;
-			}
+			if (name.size() < 2)
+				throw QStrException("Invalid signal: " + g);
 
 			unsigned int hJOPoutput = name[1].toUInt(); // signal always at nibble 0
 
@@ -588,7 +586,7 @@ void RcsXn::loadSignals(const QString &filename) {
 			this->sig.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
 			s.endGroup();
 		} catch (...) {
-			log("Invalid signal: " + g, RcsXnLogLevel::llWarning);
+			throw QStrException("Invalid signal: " + g);
 		}
 	}
 
@@ -599,10 +597,8 @@ void RcsXn::loadSignals(const QString &filename) {
 
 		try {
 			QStringList name = g.split('-');
-			if (name.size() < 2) {
-				log("Invalid signal template: " + g, RcsXnLogLevel::llWarning);
-				continue;
-			}
+			if (name.size() < 2)
+				throw QStrException("Invalid signal template: " + g);
 
 			const QString sigName = name[1];
 
@@ -610,7 +606,7 @@ void RcsXn::loadSignals(const QString &filename) {
 			this->sigTemplates.emplace(sigName, XnSignalTemplate(s));
 			s.endGroup();
 		} catch (...) {
-			log("Invalid signal template: " + g, RcsXnLogLevel::llWarning);
+			throw QStrException("Invalid signal template: " + g);
 		}
 	}
 }
