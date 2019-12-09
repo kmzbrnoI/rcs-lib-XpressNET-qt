@@ -1,4 +1,5 @@
 #include "signals.h"
+#include "lib/q-str-exception.h"
 
 namespace RcsXn {
 
@@ -59,12 +60,78 @@ QString XnSignal::outputRange() const {
 	       QString::number(this->startAddr + this->tmpl.outputsCount);
 }
 
-bool isValidSignalOutputStr(const QString str) {
+bool isValidSignalOutputStr(const QString &str) {
 	const QString ALLOWED_CHARS = "01+-N";
 	for (const QChar& c : str)
 		if (!ALLOWED_CHARS.contains(c))
 			return false;
 	return true;
+}
+
+SigStorage signalsFromFile(QSettings &s) {
+	SigStorage result;
+
+	for (const auto &g : s.childGroups()) {
+		if (not g.startsWith("Signal"))
+			continue;
+
+		try {
+			QStringList name = g.split('-');
+			if (name.size() < 2)
+				throw QStrException("Invalid signal: " + g);
+
+			unsigned int hJOPoutput = name[1].toUInt(); // signal always at nibble 0
+
+			s.beginGroup(g);
+			result.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
+			s.endGroup();
+		} catch (...) {
+			throw QStrException("Invalid signal: " + g);
+		}
+	}
+
+	return result;
+}
+
+SigTmplStorage signalTemplatesFromFile(QSettings &s) {
+	SigTmplStorage result;
+
+	for (const auto &g : s.childGroups()) {
+		if (not g.startsWith("SigTemplate"))
+			continue;
+
+		try {
+			QStringList name = g.split('-');
+			if (name.size() < 2)
+				throw QStrException("Invalid signal template: " + g);
+
+			const QString sigName = name[1];
+
+			s.beginGroup(g);
+			result.emplace(sigName, XnSignalTemplate(s));
+			s.endGroup();
+		} catch (...) {
+			throw QStrException("Invalid signal template: " + g);
+		}
+	}
+	return result;
+}
+
+void signalsToFile(QSettings &s, const SigStorage &storage) {
+	for (const auto &pair : storage) {
+		QString group = "Signal-" + QString::number(pair.first);
+		s.beginGroup(group);
+		pair.second.saveData(s);
+		s.endGroup();
+	}
+}
+
+void signalTmplsToFile(QSettings &s, const SigTmplStorage &storage) {
+	for (const auto &pair : storage) {
+		s.beginGroup("SigTemplate-" + pair.first);
+		pair.second.saveData(s);
+		s.endGroup();
+	}
 }
 
 } // namespace RcsXn

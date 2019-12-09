@@ -94,8 +94,8 @@ public:
 	bool gui_config_changing = false;
 
 	// signals
-	std::map<QString, XnSignalTemplate> sigTemplates;
-	std::map<unsigned int, XnSignal> sig; // hJOP output -> signal mapping
+	SigTmplStorage sigTemplates;
+	SigStorage sig;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	~RcsXn() override;

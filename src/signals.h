@@ -51,7 +51,14 @@ const std::array<QString, 16> XnSignalCodes {
     "Opak. návěsti výstraha a 40 km/h",
 };
 
-bool isValidSignalOutputStr(const QString str);
+using SigTmplStorage = std::map<QString, XnSignalTemplate>;
+using SigStorage = std::map<unsigned int, XnSignal>; // hJOP output -> signal mapping
+
+bool isValidSignalOutputStr(const QString &str);
+SigStorage signalsFromFile(QSettings &);
+SigTmplStorage signalTemplatesFromFile(QSettings &);
+void signalsToFile(QSettings &s, const SigStorage &storage);
+void signalTmplsToFile(QSettings &s, const SigTmplStorage &storage);
 
 } // namespace RcsXn
 

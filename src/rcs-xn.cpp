@@ -234,7 +234,10 @@ void RcsXn::loadConfig(const QString &filename) {
 		this->fillConnectionsCbs();
 
 		try {
-			this->loadSignals(filename);
+			QSettings s(filename, QSettings::IniFormat);
+			s.setIniCodec("UTF-8");
+			this->sig = signalsFromFile(s);
+			this->sigTemplates = signalTemplatesFromFile(s);
 		} catch (const QStrException &e) {
 			this->log("Nepodařilo se načíst návěstidla: " + e.str(), RcsXnLogLevel::llError);
 			throw;
@@ -566,51 +569,6 @@ void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 ///////////////////////////////////////////////////////////////////////////////
 // Signals
 
-void RcsXn::loadSignals(const QString &filename) {
-	QSettings s(filename, QSettings::IniFormat);
-	s.setIniCodec("UTF-8");
-
-	// signals
-	for (const auto &g : s.childGroups()) {
-		if (not g.startsWith("Signal"))
-			continue;
-
-		try {
-			QStringList name = g.split('-');
-			if (name.size() < 2)
-				throw QStrException("Invalid signal: " + g);
-
-			unsigned int hJOPoutput = name[1].toUInt(); // signal always at nibble 0
-
-			s.beginGroup(g);
-			this->sig.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
-			s.endGroup();
-		} catch (...) {
-			throw QStrException("Invalid signal: " + g);
-		}
-	}
-
-	// signal templates
-	for (const auto &g : s.childGroups()) {
-		if (not g.startsWith("SigTemplate"))
-			continue;
-
-		try {
-			QStringList name = g.split('-');
-			if (name.size() < 2)
-				throw QStrException("Invalid signal template: " + g);
-
-			const QString sigName = name[1];
-
-			s.beginGroup(g);
-			this->sigTemplates.emplace(sigName, XnSignalTemplate(s));
-			s.endGroup();
-		} catch (...) {
-			throw QStrException("Invalid signal template: " + g);
-		}
-	}
-}
-
 void RcsXn::saveSignals(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
@@ -624,20 +582,8 @@ void RcsXn::saveSignals(const QString &filename) {
 		}
 	}
 
-	// signals
-	for (const auto &pair : this->sig) {
-		QString group = "Signal-" + QString::number(pair.first);
-		s.beginGroup(group);
-		pair.second.saveData(s);
-		s.endGroup();
-	}
-
-	// signal templates
-	for (const auto &pair : this->sigTemplates) {
-		s.beginGroup("SigTemplate-" + pair.first);
-		pair.second.saveData(s);
-		s.endGroup();
-	}
+	signalsToFile(s, this->sig);
+	signalTmplsToFile(s, this->sigTemplates);
 }
 
 bool RcsXn::isSignal(unsigned int portAddr) const {
