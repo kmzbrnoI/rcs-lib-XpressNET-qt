@@ -338,6 +338,36 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 	      module);
 }
 
+int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
+	unsigned int module = portAddr / IO_MODULE_PIN_COUNT;
+	unsigned int port = portAddr % IO_MODULE_PIN_COUNT;
+
+	if ((state > 0) && (s["global"]["onlyOneActive"].toBool())) {
+		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
+		outputs[secondPort] = false;
+	}
+	outputs[portAddr] = static_cast<bool>(state);
+
+	unsigned int realPortAddr = portAddr;
+	if (s["global"]["addrRange"].toString() == "lenz") {
+		if (module == 0) {
+			log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
+				RcsXnLogLevel::llWarning);
+			return RCS_PORT_INVALID_NUMBER;
+		}
+		realPortAddr -= IO_MODULE_PIN_COUNT;
+	}
+
+	xn.accOpRequest(
+		static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
+		std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
+								 reinterpret_cast<void *>(module))
+	);
+
+	events.call(events.onOutputChanged, module); // TODO: move to ok callback?
+	return 0;
+}
+
 template <std::size_t ArraySize>
 void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize> &result,
                                bool except) {

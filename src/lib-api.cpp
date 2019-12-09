@@ -10,21 +10,50 @@ namespace RcsXn {
 ///////////////////////////////////////////////////////////////////////////////
 // Open/close
 
-int Open() { return rx.openDevice(rx.s["XN"]["port"].toString(), false); }
-
-int OpenDevice(char16_t *device, bool persist) {
-	return rx.openDevice(QString::fromUtf16(device), persist);
+int Open() {
+	try {
+		return rx.openDevice(rx.s["XN"]["port"].toString(), false);
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
-int Close() { return rx.close(); }
-bool Opened() { return (rx.xn.connected() && (!rx.opening)); }
+int OpenDevice(char16_t *device, bool persist) {
+	try {
+		return rx.openDevice(QString::fromUtf16(device), persist);
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
+
+int Close() {
+	try {
+		return rx.close();
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
+
+bool Opened() {
+	try {
+		return (rx.xn.connected() && (!rx.opening));
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Start/stop
 
-int Start() { return rx.start(); }
-int Stop() { return rx.stop(); }
-bool Started() { return (rx.started > RcsStartState::stopped); }
+int Start() {
+	try{
+		return rx.start();
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
+
+int Stop() {
+	try {
+		return rx.stop();
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
+
+bool Started() {
+	try {
+		return (rx.started > RcsStartState::stopped);
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Config
@@ -51,16 +80,28 @@ void SetConfigFileName(char16_t *filename) { rx.config_filename = QString::fromU
 ///////////////////////////////////////////////////////////////////////////////
 // Loglevel
 
-void SetLogLevel(unsigned int loglevel) { rx.setLogLevel(static_cast<RcsXnLogLevel>(loglevel)); }
+void SetLogLevel(unsigned int loglevel) {
+	try {
+		rx.setLogLevel(static_cast<RcsXnLogLevel>(loglevel));
+	} catch (...) {}
+}
 
 unsigned int GetLogLevel() { return static_cast<unsigned int>(rx.loglevel); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // UI
 
-void ShowConfigDialog() { rx.form.show(); }
+void ShowConfigDialog() {
+	try {
+		rx.form.show();
+	} catch (...) {}
+}
 
-void HideConfigDialog() { rx.form.close(); }
+void HideConfigDialog() {
+	try {
+		rx.form.close();
+	} catch (...) {}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // RCS IO
@@ -117,43 +158,15 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 #endif
 	}
 
-	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
+	try {
+		unsigned int portAddr = (module<<1) + (port&1); // 0-2047
 
-	if (rx.isSignal(portAddr)) {
-		rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
-		return 0;
-	}
-	return rx.setPlainOutput(portAddr, state);
-}
-
-int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
-	unsigned int module = portAddr / IO_MODULE_PIN_COUNT;
-	unsigned int port = portAddr % IO_MODULE_PIN_COUNT;
-
-	if ((state > 0) && (s["global"]["onlyOneActive"].toBool())) {
-		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
-		outputs[secondPort] = false;
-	}
-	outputs[portAddr] = static_cast<bool>(state);
-
-	unsigned int realPortAddr = portAddr;
-	if (s["global"]["addrRange"].toString() == "lenz") {
-		if (module == 0) {
-			log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
-				RcsXnLogLevel::llWarning);
-			return RCS_PORT_INVALID_NUMBER;
+		if (rx.isSignal(portAddr)) {
+			rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
+			return 0;
 		}
-		realPortAddr -= IO_MODULE_PIN_COUNT;
-	}
-
-	xn.accOpRequest(
-		static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
-		std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
-								 reinterpret_cast<void *>(module))
-	);
-
-	events.call(events.onOutputChanged, module); // TODO: move to ok callback?
-	return 0;
+		return rx.setPlainOutput(portAddr, state);
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int GetInputType(unsigned int module, unsigned int port) {
