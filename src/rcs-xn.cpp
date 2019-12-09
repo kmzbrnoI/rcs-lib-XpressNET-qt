@@ -1,6 +1,7 @@
 #include <QMessageBox>
 #include <QSerialPortInfo>
 #include <QSettings>
+#include <QTimer>
 #include <algorithm>
 #include <cstring>
 
@@ -223,6 +224,7 @@ void RcsXn::loadConfig(const QString &filename) {
 }
 
 void RcsXn::first_scan() {
+	log("Skenuji stav aktivních vstupů...", RcsXnLogLevel::llInfo);
 	this->scan_group = 0;
 	this->scan_nibble = false;
 	xn.accInfoRequest(
@@ -289,8 +291,12 @@ void RcsXn::xnOnInitScanningError(void *, void *) {
 }
 
 void RcsXn::initScanningDone() {
+	log("Stav vstupů naskenován.", RcsXnLogLevel::llInfo);
 	this->started = RcsStartState::started;
 	events.call(events.onScanned);
+
+	if (this->s["global"]["resetSignals"].toBool())
+		this->resetSignals();
 }
 
 void RcsXn::xnSetOutputError(void *sender, void *data) {
@@ -432,7 +438,7 @@ void RcsXn::xnOnTrkStatusChanged(Xn::TrkStatus s) {
 	} else if (s == Xn::TrkStatus::Off) {
 		form.ui.l_dcc_state->setText("OFF");
 		widgetSetColor(*form.ui.l_dcc_state, Qt::red);
-	} else if (s == Xn::TrkStatus::Off) {
+	} else if (s == Xn::TrkStatus::Programming) {
 		form.ui.l_dcc_state->setText("PROGRAM");
 		widgetSetColor(*form.ui.l_dcc_state, Qt::yellow);
 	} else {
@@ -441,7 +447,7 @@ void RcsXn::xnOnTrkStatusChanged(Xn::TrkStatus s) {
 	}
 
 	if (this->opening) {
-		if (s == Xn::TrkStatus::Off) {
+		if (s != Xn::TrkStatus::On) {
 			try {
 				xn.setTrkStatus(
 					Xn::TrkStatus::On, nullptr,
@@ -577,6 +583,27 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 			this->setPlainOutput(2*module, true);
 			this->setPlainOutput(2*module + 1, true);
 		}
+	}
+}
+
+void RcsXn::resetSignals() {
+	static QTimer timer;
+	static auto it = this->sig.begin();
+
+	if (!timer.isActive()) {
+		log("Nastavuji návěstidla na stůj...", RcsXnLogLevel::llInfo);
+		it = this->sig.begin();
+		QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(resetSignals()));
+		timer.setInterval(100);
+		timer.start();
+	}
+
+	this->setSignal(it->second.startAddr * IO_MODULE_PIN_COUNT, 0);
+
+	++it;
+	if (it == this->sig.end() || !this->xn.connected()) {
+		timer.stop();
+		log("Návěstidla nastavena na stůj.", RcsXnLogLevel::llInfo);
 	}
 }
 

@@ -1,8 +1,8 @@
 #ifndef RCS_XN_H
 #define RCS_XN_H
 
-/* This is the main file of RCS-XN library. It defined exported functions as
- * well as RcsXn class which holds all the library's data.
+/* This is the main file of RCS-XN library. It defines RcsXn class which holds
+ * all the library's data.
  */
 
 #include <QCoreApplication>
@@ -129,6 +129,8 @@ private slots:
 	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::FeedbackType inputType,
 	                         Xn::AccInputsState state);
 
+	void resetSignals();
+
 	// GUI
 	void cb_loglevel_changed(int);
 	void cb_connections_changed(int);
@@ -143,6 +145,7 @@ private slots:
 	void chb_general_config_changed(int state);
 	void b_dcc_on_handle();
 	void b_dcc_off_handle();
+
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
