@@ -4,6 +4,8 @@
 #include <QString>
 #include <cstdint>
 
+#include "lib-api-common-def.h"
+
 /* This file provides storage & calling capabilities of callbacks from the
  * library back to the hJOPserver.
  */

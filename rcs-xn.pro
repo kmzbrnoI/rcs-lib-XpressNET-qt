@@ -7,7 +7,8 @@ SOURCES += \
 	src/rcs-xn.cpp \
 	src/settings.cpp \
 	src/signals.cpp \
-	src/form-signal-edit.cpp
+	src/form-signal-edit.cpp \
+	src/lib-api.cpp
 HEADERS += \
 	src/rcs-xn.h \
 	src/errors.h \
@@ -15,7 +16,9 @@ HEADERS += \
 	src/settings.h \
 	src/util.h \
 	src/signals.h \
-	src/form-signal-edit.h
+	src/form-signal-edit.h \
+	src/lib-api.h \
+	src/lib-api-common-def.h
 
 FORMS += \
 	form/main-window.ui \
