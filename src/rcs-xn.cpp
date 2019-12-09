@@ -916,7 +916,7 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 	QString outputs = sig.tmpl.outputs.at(code);
 
 	for (size_t i = 0; i < std::min(sig.tmpl.outputsCount, static_cast<std::size_t>(outputs.length())); i++) {
-		QChar state = outputs[i];
+		QChar state = outputs[static_cast<int>(i)];
 		if (state == 'N')
 			continue;
 
