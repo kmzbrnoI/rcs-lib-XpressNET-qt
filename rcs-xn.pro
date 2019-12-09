@@ -11,6 +11,7 @@ SOURCES += \
 	src/lib-api.cpp
 HEADERS += \
 	src/rcs-xn.h \
+	src/rcs-xn-gui.h \
 	src/errors.h \
 	src/events.h \
 	src/settings.h \

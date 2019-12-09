@@ -176,6 +176,7 @@ private:
 	void widgetSetColor(QWidget &widget, const QColor &color);
 
 	// GUI:
+	void guiInit();
 	void fillConnectionsCbs();
 	void fillPortCb();
 	void guiOnOpen();
