@@ -20,6 +20,7 @@ const Config DEFAULTS {
 	{"global", {
 		{"onlyOneActive", true},
 		{"addrRange", "basic"},
+		{"resetSignals", false},
 	}},
 	{"modules", {
 		{"active-in", "1-32,64-72"},

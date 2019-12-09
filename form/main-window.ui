@@ -312,6 +312,19 @@
          </property>
         </widget>
        </widget>
+       <widget class="QCheckBox" name="chb_reset_signals">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>200</y>
+          <width>351</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Nastavit všechna návěstidla při startu na stůj</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="t_activeModules">
        <attribute name="title">

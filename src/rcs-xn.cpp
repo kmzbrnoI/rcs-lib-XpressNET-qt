@@ -182,6 +182,7 @@ void RcsXn::loadConfig(const QString &filename) {
 	try {
 		form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 		form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
+		form.ui.chb_reset_signals->setChecked(s["global"]["resetSignals"].toBool());
 		if (s["global"]["addrRange"].toString() == "basic")
 			form.ui.cb_addr_range->setCurrentIndex(0);
 		else if (s["global"]["addrRange"].toString() == "lenz")
