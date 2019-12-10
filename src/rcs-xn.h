@@ -24,8 +24,10 @@
 namespace RcsXn {
 
 constexpr size_t IO_COUNT = 2048;
-constexpr size_t IO_MODULE_PIN_COUNT = 2;
-constexpr size_t IO_MODULES_COUNT = IO_COUNT / IO_MODULE_PIN_COUNT;
+constexpr size_t IO_OUT_MODULE_PIN_COUNT = 2;
+constexpr size_t IO_IN_MODULE_PIN_COUNT = 8;
+constexpr size_t IO_OUT_MODULES_COUNT = IO_COUNT / IO_OUT_MODULE_PIN_COUNT;
+constexpr size_t IO_IN_MODULES_COUNT = IO_COUNT / IO_IN_MODULE_PIN_COUNT;
 
 const QColor LOGC_ERROR = QColor(0xFF, 0xAA, 0xAA);
 const QColor LOGC_WARN = QColor(0xFF, 0xFF, 0xAA);
@@ -78,10 +80,9 @@ public:
 	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs;
-	std::array<bool, IO_MODULES_COUNT> active_in;
-	std::array<bool, IO_MODULES_COUNT> active_out;
+	std::array<bool, IO_IN_MODULES_COUNT> active_in; // 0-255
+	std::array<bool, IO_OUT_MODULES_COUNT> active_out; // 0-1023
 	uint8_t scan_group;
-	bool scan_nibble;
 	unsigned int api_version = 0x0301;
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
@@ -155,6 +156,7 @@ private:
 	void xn_onDccError(void *, void *);
 	void xn_onDccOpenError(void *, void *);
 	void initModuleScanned(uint8_t group, bool nibble);
+	void scanNextGroup(uint8_t previousGroup);
 	void initScanningDone();
 	Xn::LIType interface(QString name);
 

@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -335,12 +335,12 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>131</width>
+          <width>141</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Aktivní vstupní porty:</string>
+         <string>Aktivní vstupy (0-255):</string>
         </property>
        </widget>
        <widget class="QTextEdit" name="te_active_inputs">
@@ -364,12 +364,12 @@
          <rect>
           <x>200</x>
           <y>10</y>
-          <width>141</width>
+          <width>151</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Aktivní výstupní porty:</string>
+         <string>Aktivní výstupy (0-1023):</string>
         </property>
        </widget>
        <widget class="QTextEdit" name="te_active_outputs">
@@ -442,7 +442,7 @@
          <rect>
           <x>10</x>
           <y>412</y>
-          <width>141</width>
+          <width>171</width>
           <height>17</height>
          </rect>
         </property>

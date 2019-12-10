@@ -225,12 +225,7 @@ void RcsXn::loadConfig(const QString &filename) {
 
 void RcsXn::first_scan() {
 	log("Skenuji stav aktivních vstupů...", RcsXnLogLevel::llInfo);
-	this->scan_group = 0;
-	this->scan_nibble = false;
-	xn.accInfoRequest(
-		scan_group, scan_nibble,
-		std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
-	);
+	this->scanNextGroup(0);
 }
 
 void RcsXn::saveConfig(const QString &filename) {
@@ -246,41 +241,51 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 	this->parseActiveModules(outputs, this->active_out, except);
 
 	this->modules_count = this->in_count = this->out_count = 0;
-	for (size_t i = 0; i < IO_MODULES_COUNT; i++) {
+	for (size_t i = 0; i < IO_IN_MODULES_COUNT; i++)
 		if (this->active_in[i])
 			this->in_count++;
+	for (size_t i = 0; i < IO_OUT_MODULES_COUNT; i++)
 		if (this->active_out[i])
 			this->out_count++;
-		if (this->active_in[i] || this->active_out[i])
+	for (size_t i = 0; i < std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT); i++)
+		if ((i < IO_IN_MODULES_COUNT && this->active_in[i]) ||
+				(i < IO_OUT_MODULES_COUNT && this->active_out[i]))
 			this->modules_count++;
-	}
 
-	if ((s["global"]["addrRange"].toString() == "lenz") && (this->active_in[0] || this->active_out[0]))
+	if ((s["global"]["addrRange"].toString() == "lenz") && (this->active_out[0]))
 		throw EInvalidRange("Adresa 0 není validní adresou systému Lenz!");
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
-	// Pick next address
-	unsigned next_module = (group*4) + (nibble*2) + 2; // LSB always 0!
+	static int nibbles_scanned = 0;
+	nibbles_scanned |= static_cast<int>(nibble);
 
-	unsigned correction = 0;
-	if (s["global"]["addrRange"].toString() == "lenz")
-		correction += 1;
+	if (nibbles_scanned != 3) // not both nibbles scanned -> wait for other nibble
+		return;
 
-	while ((next_module < IO_MODULES_COUNT) && (!this->active_in[next_module+correction]) &&
-	       (!this->active_in[next_module+correction+1]))
-		next_module += 2;
+	this->scanNextGroup(group);
+}
 
-	if (next_module >= IO_MODULES_COUNT) {
+void RcsXn::scanNextGroup(uint8_t previousGroup) {
+	unsigned int nextGroup = previousGroup+1;
+
+	while ((nextGroup < IO_IN_MODULES_COUNT) && (!this->active_in[nextGroup]))
+		nextGroup += 1;
+
+	if (nextGroup >= IO_IN_MODULES_COUNT) {
 		this->initScanningDone();
 		return;
 	}
 
-	this->scan_group = static_cast<uint8_t>(next_module/4);
-	this->scan_nibble = (next_module%4) >> 1;
+	this->scan_group = nextGroup;
 
+	// Scan both nibbles
 	xn.accInfoRequest(
-	    this->scan_group, this->scan_nibble,
+	    this->scan_group, false,
+	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+	);
+	xn.accInfoRequest(
+	    this->scan_group, true,
 	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
 	);
 }
@@ -308,8 +313,8 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 }
 
 int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
-	unsigned int module = portAddr / IO_MODULE_PIN_COUNT;
-	unsigned int port = portAddr % IO_MODULE_PIN_COUNT;
+	unsigned int module = portAddr / IO_OUT_MODULE_PIN_COUNT;
+	unsigned int port = portAddr % IO_OUT_MODULE_PIN_COUNT;
 
 	if ((state > 0) && (s["global"]["onlyOneActive"].toBool())) {
 		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
@@ -324,7 +329,7 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
 				RcsXnLogLevel::llWarning);
 			return RCS_PORT_INVALID_NUMBER;
 		}
-		realPortAddr -= IO_MODULE_PIN_COUNT;
+		realPortAddr -= IO_OUT_MODULE_PIN_COUNT;
 	}
 
 	xn.accOpRequest(
@@ -471,16 +476,15 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 
 	unsigned int port = 8*groupAddr + 4*nibble;
 
-	if (rx.s["global"]["addrRange"].toString() == "lenz")
-		port += IO_MODULE_PIN_COUNT;
+	// if (rx.s["global"]["addrRange"].toString() == "lenz") TODO: this is nonsense, or?
+	//	port += IO_MODULE_PIN_COUNT;
 
 	this->inputs[port+0] = state.sep.i0;
 	this->inputs[port+1] = state.sep.i1;
 	this->inputs[port+2] = state.sep.i2;
 	this->inputs[port+3] = state.sep.i3;
 
-	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group) &&
-		(nibble == this->scan_nibble)) {
+	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
 		this->initModuleScanned(groupAddr, nibble);
 		return;
 	}
@@ -501,8 +505,7 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 		try { this->fillActiveIO(); } catch (...) {}
 	}
 
-	events.call(events.onInputChanged, port/2);
-	events.call(events.onInputChanged, (port/2)+1);
+	events.call(events.onInputChanged, groupAddr);
 }
 
 void RcsXn::xnOnLIVersionError(void *, void *) {
@@ -557,7 +560,7 @@ bool RcsXn::isSignal(unsigned int portAddr) const {
 }
 
 void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
-	XnSignal &sig = this->sig.at(portAddr/IO_MODULE_PIN_COUNT);
+	XnSignal &sig = this->sig.at(portAddr/IO_OUT_MODULE_PIN_COUNT);
 	sig.currentCode = code;
 	rx.events.call(rx.events.onOutputChanged, sig.hJOPaddr);
 
@@ -598,7 +601,7 @@ void RcsXn::resetSignals() {
 		timer.start();
 	}
 
-	this->setSignal(it->second.startAddr * IO_MODULE_PIN_COUNT, 0);
+	this->setSignal(it->second.startAddr * IO_OUT_MODULE_PIN_COUNT, 0);
 
 	++it;
 	if (it == this->sig.end() || !this->xn.connected()) {

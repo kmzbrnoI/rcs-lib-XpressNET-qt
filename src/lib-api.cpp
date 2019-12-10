@@ -109,9 +109,9 @@ void HideConfigDialog() {
 int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_MODULES_COUNT) || (!rx.active_in[module]))
+	if ((module >= IO_IN_MODULES_COUNT) || (!rx.active_in[module]))
 		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_MODULE_PIN_COUNT) {
+	if ((port > IO_OUT_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
 		return 0;
 #else
@@ -121,15 +121,16 @@ int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::scanning)
 		return RCS_INPUT_NOT_YET_SCANNED;
 
-	return rx.inputs[module*2 + port];
+	unsigned int portAddr = module*IO_OUT_MODULE_PIN_COUNT + port-1; // 0-2047
+	return rx.inputs[portAddr];
 }
 
 int GetOutput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_MODULES_COUNT) || (!rx.active_out[module]))
+	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_MODULE_PIN_COUNT) {
+	if (port >= IO_OUT_MODULE_PIN_COUNT) {
 #ifdef IGNORE_PIN_BOUNDS
 		return 0;
 #else
@@ -142,15 +143,15 @@ int GetOutput(unsigned int module, unsigned int port) {
 		const XnSignal &sig = rx.sig.at(portAddr/2);
 		return static_cast<int>(sig.currentCode);
 	}
-	return rx.outputs[module*2 + port];
+	return rx.outputs[portAddr];
 }
 
 int SetOutput(unsigned int module, unsigned int port, int state) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_MODULES_COUNT) || (!rx.active_out[module]))
+	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_MODULE_PIN_COUNT) {
+	if (port >= IO_OUT_MODULE_PIN_COUNT) {
 #ifdef IGNORE_PIN_BOUNDS
 		return 0;
 #else
@@ -197,10 +198,14 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 unsigned int GetModuleCount() { return rx.modules_count; }
 
 bool IsModule(unsigned int module) {
-	return ((module < IO_MODULES_COUNT) && ((rx.active_in[module]) || (rx.active_out[module])));
+	if (module < IO_IN_MODULES_COUNT && rx.active_in[module])
+		return true;
+	if (module < IO_OUT_MODULES_COUNT && rx.active_out[module])
+		return true;
+	return false;
 }
 
-unsigned int GetMaxModuleAddr() { return IO_MODULES_COUNT-1; }
+unsigned int GetMaxModuleAddr() { return std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT) - 1; }
 
 bool IsModuleFailure(unsigned int module) {
 	(void)module;
@@ -215,7 +220,7 @@ int GetModuleTypeStr(unsigned int module, char16_t *type, unsigned int typeLen) 
 }
 
 int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
-	if (module >= IO_MODULES_COUNT)
+	if (module >= IO_IN_MODULES_COUNT && module >= IO_OUT_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
 	const QString str = "Module " + QString::number(module);
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(str.utf16()), name, nameLen);
@@ -223,7 +228,7 @@ int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
 }
 
 int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
-	if (module >= IO_MODULES_COUNT)
+	if (module >= IO_IN_MODULES_COUNT && module >= IO_OUT_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
 	const QString sfw = "-";
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sfw.utf16()), fw, fwLen);
@@ -265,19 +270,19 @@ unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
 // General library configuration
 
 unsigned int GetModuleInputsCount(unsigned int module) {
-	if (module >= IO_MODULES_COUNT)
+	if (module >= IO_IN_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	return rx.active_in[module] ? IO_MODULE_PIN_COUNT : 0;
+	return rx.active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
 }
 
 unsigned int GetModuleOutputsCount(unsigned int module) {
-	if (module >= IO_MODULES_COUNT)
+	if (module >= IO_OUT_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
 	if (!rx.active_out[module])
 		return 0;
-	if (rx.isSignal(module*IO_MODULE_PIN_COUNT))
+	if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
 		return 1; // signal -> just one output
-	return IO_MODULE_PIN_COUNT;
+	return IO_OUT_MODULE_PIN_COUNT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
