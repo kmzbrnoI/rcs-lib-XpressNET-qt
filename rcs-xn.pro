@@ -5,13 +5,13 @@ DEFINES += RCS_XN_SHARED_LIBRARY
 
 SOURCES += \
 	src/rcs-xn.cpp \
+    src/rcs-xn-gui.cpp \
 	src/settings.cpp \
 	src/signals.cpp \
 	src/form-signal-edit.cpp \
 	src/lib-api.cpp
 HEADERS += \
 	src/rcs-xn.h \
-	src/rcs-xn-gui.h \
 	src/errors.h \
 	src/events.h \
 	src/settings.h \
