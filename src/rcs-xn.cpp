@@ -58,6 +58,13 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
 	item->setText(0, QTime::currentTime().toString("hh:mm:ss"));
 
+	if (msg.startsWith("GET:"))
+		for (int i = 0; i < 3; i++)
+			item->setBackground(i, LOGC_GET);
+	if (msg.startsWith("PUT:"))
+		for (int i = 0; i < 3; i++)
+			item->setBackground(i, LOGC_PUT);
+
 	if (loglevel == RcsXnLogLevel::llNo)
 		item->setText(1, "Nic");
 	else if (loglevel == RcsXnLogLevel::llError) {

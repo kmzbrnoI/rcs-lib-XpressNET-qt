@@ -32,6 +32,8 @@ constexpr size_t IO_IN_MODULES_COUNT = IO_COUNT / IO_IN_MODULE_PIN_COUNT;
 const QColor LOGC_ERROR = QColor(0xFF, 0xAA, 0xAA);
 const QColor LOGC_WARN = QColor(0xFF, 0xFF, 0xAA);
 const QColor LOGC_DONE = QColor(0xAA, 0xFF, 0xAA);
+const QColor LOGC_GET = QColor(0xE0, 0xE0, 0xFF);
+const QColor LOGC_PUT = QColor(0xE0, 0xFF, 0xE0);
 
 constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
     0x0301, // v1.3
