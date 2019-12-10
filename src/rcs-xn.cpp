@@ -1,5 +1,3 @@
-#include <QMessageBox>
-#include <QSerialPortInfo>
 #include <QSettings>
 #include <QTimer>
 #include <algorithm>

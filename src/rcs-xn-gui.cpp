@@ -1,6 +1,10 @@
+#include <QMessageBox>
+#include <QSerialPortInfo>
+#include "rcs-xn.h"
+
 /* Implementations of GUI functions from rcs-xn.h */
 
-#include "rcs-xn.h"
+namespace RcsXn {
 
 void RcsXn::guiInit() {
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
@@ -319,3 +323,5 @@ void RcsXn::widgetSetColor(QWidget &widget, const QColor &color) {
 	palette.setColor(QPalette::WindowText, color);
 	widget.setPalette(palette);
 }
+
+} // namespace RcsXn
