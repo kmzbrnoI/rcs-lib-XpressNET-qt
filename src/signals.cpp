@@ -57,12 +57,12 @@ QString XnSignal::outputRange() const {
 	if (this->tmpl.outputsCount == 1)
 		return QString::number(this->tmpl.outputsCount);
 	return QString::number(this->startAddr) + "-" +
-		   QString::number(this->startAddr + this->tmpl.outputsCount - 1);
+	       QString::number(this->startAddr + this->tmpl.outputsCount - 1);
 }
 
 bool isValidSignalOutputStr(const QString &str) {
 	const QString ALLOWED_CHARS = "01+-N";
-	for (const QChar& c : str)
+	for (const QChar &c : str)
 		if (!ALLOWED_CHARS.contains(c))
 			return false;
 	return true;
@@ -85,9 +85,7 @@ SigStorage signalsFromFile(QSettings &s) {
 			s.beginGroup(g);
 			result.emplace(hJOPoutput, XnSignal(s, hJOPoutput));
 			s.endGroup();
-		} catch (...) {
-			throw QStrException("Invalid signal: " + g);
-		}
+		} catch (...) { throw QStrException("Invalid signal: " + g); }
 	}
 
 	return result;
@@ -110,9 +108,7 @@ SigTmplStorage signalTemplatesFromFile(QSettings &s) {
 			s.beginGroup(g);
 			result.emplace(sigName, XnSignalTemplate(s));
 			s.endGroup();
-		} catch (...) {
-			throw QStrException("Invalid signal template: " + g);
-		}
+		} catch (...) { throw QStrException("Invalid signal template: " + g); }
 	}
 	return result;
 }

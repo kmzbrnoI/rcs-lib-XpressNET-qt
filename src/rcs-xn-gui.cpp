@@ -1,5 +1,6 @@
 #include <QMessageBox>
 #include <QSerialPortInfo>
+
 #include "rcs-xn.h"
 
 /* Implementations of GUI functions from rcs-xn.h */

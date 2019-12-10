@@ -4,6 +4,7 @@
 /* This file deafines prototypes of library API functions. */
 
 #include <QtCore/QtGlobal>
+
 #include "lib-api-common-def.h"
 
 #include "events.h"

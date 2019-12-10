@@ -216,10 +216,11 @@ void RcsXn::loadConfig(const QString &filename) {
 		this->fillSignals();
 
 		try {
-			this->loadActiveIO(s["modules"]["active-in"].toString(), s["modules"]["active-out"].toString(),
-							   false);
+			this->loadActiveIO(s["modules"]["active-in"].toString(),
+			                   s["modules"]["active-out"].toString(), false);
 		} catch (const QStrException &e) {
-			this->log("Nepodařilo se načíst aktivní vstupy a výstupy: " + e.str(), RcsXnLogLevel::llError);
+			this->log("Nepodařilo se načíst aktivní vstupy a výstupy: " + e.str(),
+			          RcsXnLogLevel::llError);
 			throw;
 		}
 		this->fillActiveIO();
@@ -260,7 +261,7 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 			this->out_count++;
 	for (size_t i = 0; i < std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT); i++)
 		if ((i < IO_IN_MODULES_COUNT && this->user_active_in[i]) ||
-				(i < IO_OUT_MODULES_COUNT && this->user_active_out[i]))
+		    (i < IO_OUT_MODULES_COUNT && this->user_active_out[i]))
 			this->modules_count++;
 
 	if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_out[0]))
@@ -313,11 +314,13 @@ void RcsXn::scanNextGroup(int previousGroup) {
 	// Scan both nibbles
 	xn.accInfoRequest(
 	    this->scan_group, false,
-		std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); }, reinterpret_cast<void*>(false))
+	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
+	                             reinterpret_cast<void *>(false))
 	);
 	xn.accInfoRequest(
 	    this->scan_group, true,
-		std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); }, reinterpret_cast<void*>(true))
+	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
+	                             reinterpret_cast<void *>(true))
 	);
 }
 
@@ -359,16 +362,16 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
 	if (s["global"]["addrRange"].toString() == "lenz") {
 		if (module == 0) {
 			log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
-				RcsXnLogLevel::llWarning);
+			    RcsXnLogLevel::llWarning);
 			return RCS_PORT_INVALID_NUMBER;
 		}
 		realPortAddr -= IO_OUT_MODULE_PIN_COUNT;
 	}
 
 	xn.accOpRequest(
-		static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
-		std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
-								 reinterpret_cast<void *>(module))
+	    static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
+	    std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
+	                             reinterpret_cast<void *>(module))
 	);
 
 	events.call(events.onOutputChanged, module); // TODO: move to ok callback?

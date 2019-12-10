@@ -1,6 +1,6 @@
 #include "lib-api.h"
-#include "rcs-xn.h"
 #include "errors.h"
+#include "rcs-xn.h"
 #include "util.h"
 
 /* This file deafines all library exported API functions. */
@@ -38,7 +38,7 @@ bool Opened() {
 // Start/stop
 
 int Start() {
-	try{
+	try {
 		return rx.start();
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
@@ -208,8 +208,8 @@ bool IsModule(unsigned int module) {
 unsigned int GetMaxModuleAddr() { return std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT) - 1; }
 
 bool IsModuleFailure(unsigned int module) {
-	return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT
-			&& rx.user_active_in[module] && !rx.real_active_in[module]);
+	return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT &&
+	        rx.user_active_in[module] && !rx.real_active_in[module]);
 }
 
 int GetModuleTypeStr(unsigned int module, char16_t *type, unsigned int typeLen) {

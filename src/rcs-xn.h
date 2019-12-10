@@ -13,13 +13,13 @@
 #include <array>
 #include <map>
 
+#include "events.h"
 #include "form-signal-edit.h"
 #include "lib/q-str-exception.h"
 #include "lib/xn-lib-cpp-qt/xn.h"
 #include "settings.h"
 #include "signals.h"
 #include "ui_main-window.h"
-#include "events.h"
 
 namespace RcsXn {
 
@@ -149,7 +149,6 @@ private slots:
 	void chb_general_config_changed(int state);
 	void b_dcc_on_handle();
 	void b_dcc_off_handle();
-
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
