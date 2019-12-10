@@ -162,9 +162,11 @@ int RcsXn::start() {
 	if (!xn.connected())
 		return RCS_NOT_OPENED;
 
+	log("Spouštím komunikaci...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeStart);
 	started = RcsStartState::scanning;
 	events.call(rx.events.afterStart);
+	log("Komunikace běží.", RcsXnLogLevel::llInfo);
 	this->first_scan();
 	return 0;
 }
@@ -173,9 +175,11 @@ int RcsXn::stop() {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
 
+	log("Zastavuji komunikaci...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeStop);
 	this->started = RcsStartState::stopped;
 	events.call(rx.events.afterStop);
+	log("Komunikace zastavena", RcsXnLogLevel::llInfo);
 	return 0;
 }
 
