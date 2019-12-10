@@ -593,17 +593,18 @@ void RcsXn::resetSignals() {
 		log("Nastavuji návěstidla na stůj...", RcsXnLogLevel::llInfo);
 		it = this->sig.begin();
 		QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(resetSignals()));
-		timer.setInterval(100);
+		timer.setInterval(200);
 		timer.start();
+	} else {
+		if (it == this->sig.end() || !this->xn.connected()) {
+			timer.stop();
+			log("Návěstidla nastavena na stůj.", RcsXnLogLevel::llInfo);
+			return;
+		}
 	}
 
 	this->setSignal(it->second.startAddr * IO_OUT_MODULE_PIN_COUNT, 0);
-
 	++it;
-	if (it == this->sig.end() || !this->xn.connected()) {
-		timer.stop();
-		log("Návěstidla nastavena na stůj.", RcsXnLogLevel::llInfo);
-	}
 }
 
 void RcsXn::resetIOState() {
