@@ -220,7 +220,7 @@ int GetModuleTypeStr(unsigned int module, char16_t *type, unsigned int typeLen) 
 }
 
 int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
-	if (module >= IO_IN_MODULES_COUNT && module >= IO_OUT_MODULES_COUNT)
+	if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
 		return RCS_MODULE_INVALID_ADDR;
 	const QString str = "Module " + QString::number(module);
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(str.utf16()), name, nameLen);
@@ -228,7 +228,7 @@ int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
 }
 
 int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
-	if (module >= IO_IN_MODULES_COUNT && module >= IO_OUT_MODULES_COUNT)
+	if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
 		return RCS_MODULE_INVALID_ADDR;
 	const QString sfw = "-";
 	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sfw.utf16()), fw, fwLen);
