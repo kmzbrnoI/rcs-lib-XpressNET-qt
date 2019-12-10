@@ -256,11 +256,12 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	static int nibbles_scanned = 0;
-	nibbles_scanned |= static_cast<int>(nibble);
+	nibbles_scanned |= static_cast<int>(nibble)+1; // fill 2 LSBs
 
 	if (nibbles_scanned != 3) // not both nibbles scanned -> wait for other nibble
 		return;
 
+	nibbles_scanned = 0;
 	this->scanNextGroup(group);
 }
 
