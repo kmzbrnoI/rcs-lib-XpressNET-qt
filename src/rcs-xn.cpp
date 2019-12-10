@@ -178,6 +178,7 @@ int RcsXn::stop() {
 	log("Zastavuji komunikaci...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeStop);
 	this->started = RcsStartState::stopped;
+	std::fill(this->real_active_in.begin(), this->real_active_in.end(), false);
 	events.call(rx.events.afterStop);
 	log("Komunikace zastavena", RcsXnLogLevel::llInfo);
 	return 0;
@@ -234,40 +235,60 @@ void RcsXn::loadConfig(const QString &filename) {
 
 void RcsXn::first_scan() {
 	log("Skenuji stav aktivních vstupů...", RcsXnLogLevel::llInfo);
-	this->scanNextGroup(0);
+	std::fill(this->real_active_in.begin(), this->real_active_in.end(), false);
+	this->scanNextGroup(-1);
 }
 
 void RcsXn::saveConfig(const QString &filename) {
-	s["modules"]["active-in"] = getActiveStr(this->active_in, ",");
-	s["modules"]["active-out"] = getActiveStr(this->active_out, ",");
+	s["modules"]["active-in"] = getActiveStr(this->user_active_in, ",");
+	s["modules"]["active-out"] = getActiveStr(this->user_active_out, ",");
 
 	s.save(filename);
 	this->saveSignals(filename);
 }
 
 void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
-	this->parseActiveModules(inputs, this->active_in, except);
-	this->parseActiveModules(outputs, this->active_out, except);
+	this->parseActiveModules(inputs, this->user_active_in, except);
+	this->parseActiveModules(outputs, this->user_active_out, except);
 
 	this->modules_count = this->in_count = this->out_count = 0;
 	for (size_t i = 0; i < IO_IN_MODULES_COUNT; i++)
-		if (this->active_in[i])
+		if (this->user_active_in[i])
 			this->in_count++;
 	for (size_t i = 0; i < IO_OUT_MODULES_COUNT; i++)
-		if (this->active_out[i])
+		if (this->user_active_out[i])
 			this->out_count++;
 	for (size_t i = 0; i < std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT); i++)
-		if ((i < IO_IN_MODULES_COUNT && this->active_in[i]) ||
-				(i < IO_OUT_MODULES_COUNT && this->active_out[i]))
+		if ((i < IO_IN_MODULES_COUNT && this->user_active_in[i]) ||
+				(i < IO_OUT_MODULES_COUNT && this->user_active_out[i]))
 			this->modules_count++;
 
-	if ((s["global"]["addrRange"].toString() == "lenz") && (this->active_out[0]))
+	if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_out[0]))
 		throw EInvalidRange("Adresa 0 není validní adresou systému Lenz!");
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	static int nibbles_scanned = 0;
-	nibbles_scanned |= static_cast<int>(nibble)+1; // fill 2 LSBs
+	int received_nibble = static_cast<int>(nibble)+1;
+
+	if (this->started != RcsStartState::scanning)
+		return;
+
+	if (nibbles_scanned == received_nibble) {
+		// LZV100 does this: it responds 2 times with same nibble when module not connected
+		// -> go to next message directly
+		uint8_t old_scan_group = this->scan_group;
+		log("Module scanning: invalid response!", RcsXnLogLevel::llError);
+		xn.histClear();
+		if (this->scan_group == old_scan_group && this->started != RcsStartState::started) {
+			// Buffer clear did not automatically call scanNextGroup -> call it manually
+			nibbles_scanned = 0;
+			this->scanNextGroup(this->scan_group);
+		}
+		return;
+	}
+
+	nibbles_scanned |= received_nibble; // fill 2 LSBs
 
 	if (nibbles_scanned != 3) // not both nibbles scanned -> wait for other nibble
 		return;
@@ -276,10 +297,10 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	this->scanNextGroup(group);
 }
 
-void RcsXn::scanNextGroup(uint8_t previousGroup) {
+void RcsXn::scanNextGroup(int previousGroup) {
 	unsigned int nextGroup = previousGroup+1;
 
-	while ((nextGroup < IO_IN_MODULES_COUNT) && (!this->active_in[nextGroup]))
+	while ((nextGroup < IO_IN_MODULES_COUNT) && (!this->user_active_in[nextGroup]))
 		nextGroup += 1;
 
 	if (nextGroup >= IO_IN_MODULES_COUNT) {
@@ -292,17 +313,19 @@ void RcsXn::scanNextGroup(uint8_t previousGroup) {
 	// Scan both nibbles
 	xn.accInfoRequest(
 	    this->scan_group, false,
-	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+		std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); }, reinterpret_cast<void*>(false))
 	);
 	xn.accInfoRequest(
 	    this->scan_group, true,
-	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); })
+		std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); }, reinterpret_cast<void*>(true))
 	);
 }
 
-void RcsXn::xnOnInitScanningError(void *, void *) {
-	error("Module scanning: no response!", RCS_NOT_OPENED);
-	this->stop();
+void RcsXn::xnOnInitScanningError(void *, void *data) {
+	log("Module scanning: no response!", RcsXnLogLevel::llError);
+	bool nibble = static_cast<bool>(data);
+	this->real_active_in[this->scan_group] = false;
+	this->initModuleScanned(this->scan_group, nibble); // continue scanning
 }
 
 void RcsXn::initScanningDone() {
@@ -492,14 +515,17 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	this->inputs[port+3] = state.sep.i3;
 
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
+		this->real_active_in[groupAddr] = true;
 		this->initModuleScanned(groupAddr, nibble);
 		return;
 	}
 
-	if (!this->active_in[groupAddr]) {
+	this->real_active_in[groupAddr] = true;
+
+	if (!this->user_active_in[groupAddr]) {
 		if (!form.ui.chb_scan_inputs->isChecked())
 			return; // no scanning -> ignore change
-		this->active_in[groupAddr] = true;
+		this->user_active_in[groupAddr] = true;
 		this->modules_count++;
 		this->in_count++;
 		try { this->fillActiveIO(); } catch (...) {}

@@ -177,8 +177,8 @@ void RcsXn::b_active_save_handle() {
 }
 
 void RcsXn::fillActiveIO() {
-	form.ui.te_active_inputs->setText(getActiveStr(this->active_in, ",\n"));
-	form.ui.te_active_outputs->setText(getActiveStr(this->active_out, ",\n"));
+	form.ui.te_active_inputs->setText(getActiveStr(this->user_active_in, ",\n"));
+	form.ui.te_active_outputs->setText(getActiveStr(this->user_active_out, ",\n"));
 	form.ui.l_io_count->setText(QString::number(this->in_count) + " vstupů, " +
 	                            QString::number(this->out_count) + " výstupů");
 }

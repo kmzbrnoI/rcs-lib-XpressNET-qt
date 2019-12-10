@@ -109,7 +109,7 @@ void HideConfigDialog() {
 int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_IN_MODULES_COUNT) || (!rx.active_in[module]))
+	if ((module >= IO_IN_MODULES_COUNT) || (!rx.real_active_in[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
@@ -128,7 +128,7 @@ int GetInput(unsigned int module, unsigned int port) {
 int GetOutput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.active_out[module]))
+	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.user_active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_OUT_MODULE_PIN_COUNT) {
 #ifdef IGNORE_PIN_BOUNDS
@@ -149,7 +149,7 @@ int GetOutput(unsigned int module, unsigned int port) {
 int SetOutput(unsigned int module, unsigned int port, int state) {
 	if (rx.started == RcsStartState::stopped)
 		return RCS_NOT_STARTED;
-	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.active_out[module]))
+	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.user_active_out[module]))
 		return RCS_MODULE_INVALID_ADDR;
 	if (port >= IO_OUT_MODULE_PIN_COUNT) {
 #ifdef IGNORE_PIN_BOUNDS
@@ -198,9 +198,9 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 unsigned int GetModuleCount() { return rx.modules_count; }
 
 bool IsModule(unsigned int module) {
-	if (module < IO_IN_MODULES_COUNT && rx.active_in[module])
+	if (module < IO_IN_MODULES_COUNT && rx.user_active_in[module])
 		return true;
-	if (module < IO_OUT_MODULES_COUNT && rx.active_out[module])
+	if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
 		return true;
 	return false;
 }
@@ -208,8 +208,8 @@ bool IsModule(unsigned int module) {
 unsigned int GetMaxModuleAddr() { return std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT) - 1; }
 
 bool IsModuleFailure(unsigned int module) {
-	(void)module;
-	return false; // XpressNET provides no info about module failure
+	return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT
+			&& rx.user_active_in[module] && !rx.real_active_in[module]);
 }
 
 int GetModuleTypeStr(unsigned int module, char16_t *type, unsigned int typeLen) {
@@ -272,13 +272,13 @@ unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
 unsigned int GetModuleInputsCount(unsigned int module) {
 	if (module >= IO_IN_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	return rx.active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
+	return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
 }
 
 unsigned int GetModuleOutputsCount(unsigned int module) {
 	if (module >= IO_OUT_MODULES_COUNT)
 		return RCS_MODULE_INVALID_ADDR;
-	if (!rx.active_out[module])
+	if (!rx.user_active_out[module])
 		return 0;
 	if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
 		return 1; // signal -> just one output

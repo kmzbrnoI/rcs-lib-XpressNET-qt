@@ -82,8 +82,9 @@ public:
 	bool opening = false;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs;
-	std::array<bool, IO_IN_MODULES_COUNT> active_in; // 0-255
-	std::array<bool, IO_OUT_MODULES_COUNT> active_out; // 0-1023
+	std::array<bool, IO_IN_MODULES_COUNT> real_active_in; // 0-255
+	std::array<bool, IO_IN_MODULES_COUNT> user_active_in; // 0-255
+	std::array<bool, IO_OUT_MODULES_COUNT> user_active_out; // 0-1023
 	uint8_t scan_group;
 	unsigned int api_version = 0x0301;
 	QString config_filename = "";
@@ -158,7 +159,7 @@ private:
 	void xn_onDccError(void *, void *);
 	void xn_onDccOpenError(void *, void *);
 	void initModuleScanned(uint8_t group, bool nibble);
-	void scanNextGroup(uint8_t previousGroup);
+	void scanNextGroup(int previousGroup);
 	void initScanningDone();
 	Xn::LIType interface(QString name);
 
