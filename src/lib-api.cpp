@@ -111,7 +111,7 @@ int GetInput(unsigned int module, unsigned int port) {
 		return RCS_NOT_STARTED;
 	if ((module >= IO_IN_MODULES_COUNT) || (!rx.active_in[module]))
 		return RCS_MODULE_INVALID_ADDR;
-	if ((port > IO_OUT_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
+	if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
 		return 0;
 #else
@@ -121,7 +121,7 @@ int GetInput(unsigned int module, unsigned int port) {
 	if (rx.started == RcsStartState::scanning)
 		return RCS_INPUT_NOT_YET_SCANNED;
 
-	unsigned int portAddr = module*IO_OUT_MODULE_PIN_COUNT + port-1; // 0-2047
+	unsigned int portAddr = module*IO_IN_MODULE_PIN_COUNT + port-1; // 0-2047
 	return rx.inputs[portAddr];
 }
 
