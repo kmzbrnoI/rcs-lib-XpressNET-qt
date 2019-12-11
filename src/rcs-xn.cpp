@@ -654,6 +654,8 @@ Xn::LIType RcsXn::interface(QString name) {
 		return Xn::LIType::LI101;
 	if (name == "uLI")
 		return Xn::LIType::uLI;
+	if (name == "LI-USB-Ethernet")
+		return Xn::LIType::LIUSBEth;
 	return Xn::LIType::LI100;
 }
 
