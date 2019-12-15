@@ -291,6 +291,15 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 
 	nibbles_scanned |= received_nibble; // fill 2 LSBs
 
+	if (nibbles_scanned == 1 && this->xn.liType() == Xn::LIType::LIUSBEth) {
+		// LI-USB-Eth has problems with multiple commands -> send serially
+		xn.accInfoRequest(
+			this->scan_group, true,
+			std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
+									 reinterpret_cast<void *>(true))
+		);
+	}
+
 	if (nibbles_scanned != 3) // not both nibbles scanned -> wait for other nibble
 		return;
 
@@ -317,11 +326,15 @@ void RcsXn::scanNextGroup(int previousGroup) {
 	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
 	                             reinterpret_cast<void *>(false))
 	);
-	xn.accInfoRequest(
-	    this->scan_group, true,
-	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
-	                             reinterpret_cast<void *>(true))
-	);
+
+	if (this->xn.liType() != Xn::LIType::LIUSBEth) {
+		// LI-USB-Eth has problems with multiple commands
+		xn.accInfoRequest(
+			this->scan_group, true,
+			std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
+									 reinterpret_cast<void *>(true))
+		);
+	}
 }
 
 void RcsXn::xnOnInitScanningError(void *, void *data) {
