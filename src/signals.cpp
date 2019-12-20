@@ -55,7 +55,7 @@ QString XnSignal::outputRange() const {
 	if (this->tmpl.outputsCount == 0)
 		return "-";
 	if (this->tmpl.outputsCount == 1)
-		return QString::number(this->tmpl.outputsCount);
+		return QString::number(this->startAddr);
 	return QString::number(this->startAddr) + "-" +
 	       QString::number(this->startAddr + this->tmpl.outputsCount - 1);
 }
