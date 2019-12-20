@@ -121,8 +121,10 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 		           static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()),
 		           interface(s["XN"]["interface"].toString()));
 	} catch (const Xn::QStrException &e) {
-		error("XN connect error while opening serial port '" +
-		      s["XN"]["port"].toString() + "':" + e, RCS_CANNOT_OPEN_PORT);
+		const QString errMsg = "XN connect error while opening serial port '" +
+			s["XN"]["port"].toString() + "': " + e;
+		error(errMsg, RCS_CANNOT_OPEN_PORT);
+		log(errMsg, RcsXnLogLevel::llError);
 		events.call(rx.events.afterClose);
 		this->guiOnClose();
 		return RCS_CANNOT_OPEN_PORT;
