@@ -161,6 +161,7 @@ private:
 	void scanNextGroup(int previousGroup);
 	void initScanningDone();
 	Xn::LIType interface(QString name);
+	uint8_t inBusModuleAddr(uint8_t userAddr);
 
 	template <std::size_t ArraySize>
 	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result,

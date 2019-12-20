@@ -267,7 +267,9 @@ void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool exc
 			this->modules_count++;
 
 	if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_out[0]))
-		throw EInvalidRange("Adresa 0 není validní adresou systému Lenz!");
+		throw EInvalidRange("Adresa výstupu 0 není validní adresou systému Lenz!");
+	if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_in[0]))
+		throw EInvalidRange("Adresa vstupního modulu 0 není validní adresou systému Lenz!");
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
@@ -296,7 +298,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 	if (nibbles_scanned == 1 && this->xn.liType() == Xn::LIType::LIUSBEth) {
 		// LI-USB-Eth has problems with multiple commands -> send serially
 		xn.accInfoRequest(
-			this->scan_group, true,
+			inBusModuleAddr(this->scan_group), true,
 			std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
 									 reinterpret_cast<void *>(true))
 		);
@@ -324,7 +326,7 @@ void RcsXn::scanNextGroup(int previousGroup) {
 
 	// Scan both nibbles
 	xn.accInfoRequest(
-	    this->scan_group, false,
+		inBusModuleAddr(this->scan_group), false,
 	    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
 	                             reinterpret_cast<void *>(false))
 	);
@@ -332,7 +334,7 @@ void RcsXn::scanNextGroup(int previousGroup) {
 	if (this->xn.liType() != Xn::LIType::LIUSBEth) {
 		// LI-USB-Eth has problems with multiple commands
 		xn.accInfoRequest(
-			this->scan_group, true,
+			inBusModuleAddr(this->scan_group), true,
 			std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
 									 reinterpret_cast<void *>(true))
 		);
@@ -525,6 +527,16 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	(void)error; // ignoring errors reported by decoders
 	(void)inputType; // ignoring input type reported by decoder
 
+	if (s["global"]["addrRange"].toString() == "lenz") {
+		// Lenz module 0 (bus) = module 1 (editation)
+		if (groupAddr == 255) {
+			log("Unsupported acc module (using Lenz addresses): " + QString::number(groupAddr),
+				RcsXnLogLevel::llWarning);
+			return;
+		}
+		groupAddr++;
+	}
+
 	unsigned int port = 8*groupAddr + 4*nibble;
 
 	this->inputs[port+0] = state.sep.i0;
@@ -672,6 +684,17 @@ Xn::LIType RcsXn::interface(QString name) {
 	if (name == "LI-USB-Ethernet")
 		return Xn::LIType::LIUSBEth;
 	return Xn::LIType::LI100;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+uint8_t RcsXn::inBusModuleAddr(uint8_t userAddr) {
+	if (s["global"]["addrRange"].toString() == "lenz") {
+		if (userAddr == 0)
+			return 0;
+		return userAddr - 1;
+	}
+	return userAddr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
