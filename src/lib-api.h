@@ -6,7 +6,6 @@
 #include <QtCore/QtGlobal>
 
 #include "lib-api-common-def.h"
-
 #include "events.h"
 
 namespace RcsXn {
