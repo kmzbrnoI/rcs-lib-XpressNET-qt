@@ -1,7 +1,9 @@
-#include "form-signal-edit.h"
-#include "lib/q-str-exception.h"
 #include <QMessageBox>
 #include <cmath>
+
+#include "form-signal-edit.h"
+#include "lib/q-str-exception.h"
+#include "q-tree-num-widget-item.h"
 
 namespace SignalEdit {
 
@@ -70,7 +72,7 @@ void FormSignalEdit::fillTemplate(const RcsXn::XnSignalTemplate &tmpl) {
 	ui.tw_outputs->setSortingEnabled(false);
 	ui.tw_outputs->clear();
 	for (const auto &output : tmpl.outputs) {
-		auto *item = new QTreeWidgetItem(ui.tw_outputs);
+		auto *item = new FirstNumTreeWidgetItem(ui.tw_outputs);
 		item->setText(0, QString::number(output.first));
 		if (output.first < RcsXn::XnSignalCodes.size())
 			item->setText(1, RcsXn::XnSignalCodes[output.first]);
@@ -173,7 +175,7 @@ void FormSignalEdit::b_add_signal_handle() {
 	}
 
 	// new output
-	auto *item = new QTreeWidgetItem(ui.tw_outputs);
+	auto *item = new FirstNumTreeWidgetItem(ui.tw_outputs);
 	item->setText(0, QString::number(ui.cb_add_sig->currentIndex()));
 	item->setText(1, RcsXn::XnSignalCodes[ui.cb_add_sig->currentIndex()]);
 	item->setText(2, ui.le_outputs->text().toUpper());

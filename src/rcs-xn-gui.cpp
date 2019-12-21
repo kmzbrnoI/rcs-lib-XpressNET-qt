@@ -2,6 +2,7 @@
 #include <QSerialPortInfo>
 
 #include "rcs-xn.h"
+#include "q-tree-num-widget-item.h"
 
 /* Implementations of GUI functions from rcs-xn.h */
 
@@ -227,7 +228,7 @@ void RcsXn::fillSignals() {
 }
 
 void RcsXn::guiAddSignal(const XnSignal &signal) {
-	auto *item = new QTreeWidgetItem(form.ui.tw_signals);
+	auto *item = new FirstNumTreeWidgetItem(form.ui.tw_signals);
 	item->setText(0, QString::number(signal.hJOPaddr));
 	item->setText(1, signal.outputRange());
 	item->setText(2, signal.name);

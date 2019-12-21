@@ -19,7 +19,8 @@ HEADERS += \
 	src/signals.h \
 	src/form-signal-edit.h \
 	src/lib-api.h \
-	src/lib-api-common-def.h
+	src/lib-api-common-def.h \
+	src/q-tree-num-widget-item.h
 
 FORMS += \
 	form/main-window.ui \
