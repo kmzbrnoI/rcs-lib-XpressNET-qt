@@ -170,6 +170,32 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
+bool IsSimulation() {
+	return rx.s["global"]["mockInputs"].toBool();
+}
+
+int SetInput(unsigned int module, unsigned int port, int state) {
+	// only debug method
+	if (!rx.s["global"]["mockInputs"].toBool())
+		return 0;
+	if (rx.started == RcsStartState::stopped)
+		return 0;
+	if ((module >= IO_IN_MODULES_COUNT) || (!rx.user_active_in[module]))
+		return RCS_MODULE_INVALID_ADDR;
+	if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
+#ifdef IGNORE_PIN_BOUNDS
+		return 0;
+#else
+		return RCS_PORT_INVALID_NUMBER;
+#endif
+	}
+
+	unsigned int portAddr = module*IO_IN_MODULE_PIN_COUNT + port-1; // 0-2047
+	rx.inputs[portAddr] = static_cast<bool>(state);
+	rx.events.call(rx.events.onInputChanged, module);
+	return 0;
+}
+
 int GetInputType(unsigned int module, unsigned int port) {
 	(void)module;
 	(void)port;
