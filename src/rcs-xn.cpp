@@ -350,6 +350,10 @@ void RcsXn::xnOnInitScanningError(void *, void *data) {
 
 void RcsXn::initScanningDone() {
 	log("Stav vstupů naskenován.", RcsXnLogLevel::llInfo);
+
+	if (rx.s["global"]["mockInputs"].toBool())
+		this->real_active_in = this->user_active_in;
+
 	this->started = RcsStartState::started;
 	events.call(events.onScanned);
 
