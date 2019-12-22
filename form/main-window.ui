@@ -321,13 +321,26 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>200</y>
+          <y>220</y>
           <width>351</width>
           <height>17</height>
          </rect>
         </property>
         <property name="text">
          <string>Nastavit všechna návěstidla při startu na stůj</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="chb_forbid_00_output">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>200</y>
+          <width>351</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Neodesílat stav, kdy by obě polohy výhybky měly být neaktivní</string>
         </property>
        </widget>
       </widget>

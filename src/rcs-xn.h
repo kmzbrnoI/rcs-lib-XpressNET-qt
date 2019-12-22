@@ -118,7 +118,7 @@ public:
 	int start();
 	int stop();
 
-	int setPlainOutput(unsigned int portAddr, int state);
+	int setPlainOutput(unsigned int portAddr, int state, bool signal = false);
 	void xnSetOutputError(void *sender, void *data);
 
 	bool isSignal(unsigned int portAddr) const; // 0-2047

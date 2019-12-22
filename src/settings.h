@@ -22,6 +22,7 @@ const Config DEFAULTS {
 		{"addrRange", "basic"},
 		{"resetSignals", false},
 		{"mockInputs", false},
+		{"forbid00Output", true},
 	}},
 	{"modules", {
 		{"active-in", "1-32,64-72"},

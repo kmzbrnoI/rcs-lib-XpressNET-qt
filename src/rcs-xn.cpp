@@ -195,6 +195,7 @@ void RcsXn::loadConfig(const QString &filename) {
 	try {
 		form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 		form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
+		form.ui.chb_forbid_00_output->setChecked(s["global"]["forbid00Output"].toBool());
 		form.ui.chb_reset_signals->setChecked(s["global"]["resetSignals"].toBool());
 		if (s["global"]["addrRange"].toString() == "basic")
 			form.ui.cb_addr_range->setCurrentIndex(0);
@@ -369,17 +370,23 @@ void RcsXn::xnSetOutputError(void *sender, void *data) {
 	      module);
 }
 
-int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
+int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool signal) {
 	unsigned int module = portAddr / IO_OUT_MODULE_PIN_COUNT;
 	unsigned int port = portAddr % IO_OUT_MODULE_PIN_COUNT;
-
-	if ((state > 0) && (s["global"]["onlyOneActive"].toBool())) {
-		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
-		outputs[secondPort] = false;
-	}
-	outputs[portAddr] = static_cast<bool>(state);
-
 	unsigned int realPortAddr = portAddr;
+
+	if (!signal) {
+		// Checks only done for non-signal outputs
+
+		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
+		if ((s["global"]["onlyOneActive"].toBool()) && (state > 0))
+			outputs[secondPort] = false;
+		outputs[portAddr] = static_cast<bool>(state);
+
+		if ((s["global"]["forbid00Output"].toBool()) && (!this->outputs[secondPort]) && (state == 0))
+			goto clean;
+	}
+
 	if (s["global"]["addrRange"].toString() == "lenz") {
 		if (module == 0) {
 			log("Invalid acc port (using Lenz addresses): " + QString::number(portAddr),
@@ -395,6 +402,8 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state) {
 	                             reinterpret_cast<void *>(module))
 	);
 
+
+clean:
 	events.call(events.onOutputChanged, module); // TODO: move to ok callback?
 	return 0;
 }
@@ -636,15 +645,15 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 		const unsigned int module = sig.startAddr+i;
 
 		if (state == '+')
-			this->setPlainOutput(2*module, true);
+			this->setPlainOutput(2*module, true, true);
 		else if (state == '-')
-			this->setPlainOutput(2*module + 1, true);
+			this->setPlainOutput(2*module + 1, true, true);
 		else if (state == '0') {
-			this->setPlainOutput(2*module, false);
-			this->setPlainOutput(2*module + 1, false);
+			this->setPlainOutput(2*module, false, true);
+			this->setPlainOutput(2*module + 1, false, true);
 		} else if (state == '1') {
-			this->setPlainOutput(2*module, true);
-			this->setPlainOutput(2*module + 1, true);
+			this->setPlainOutput(2*module, true, true);
+			this->setPlainOutput(2*module + 1, true, true);
 		}
 	}
 }
