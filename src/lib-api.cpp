@@ -166,6 +166,9 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 			rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 			return 0;
 		}
+
+		if (rx.outputs[portAddr] == static_cast<bool>(state))
+			return 0;
 		return rx.setPlainOutput(portAddr, state);
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
