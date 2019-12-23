@@ -56,7 +56,7 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 		form.ui.tw_xn_log->clear();
 
 	auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
-	item->setText(0, QTime::currentTime().toString("hh:mm:ss"));
+	item->setText(0, QTime::currentTime().toString("hh:mm:ss,zzz"));
 
 	if (msg.startsWith("GET:"))
 		for (int i = 0; i < 3; i++)
