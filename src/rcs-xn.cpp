@@ -88,7 +88,7 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	label->setWordWrap(true);
 	label->setText(msg);
 
-	form.ui.tw_xn_log->insertTopLevelItem(0, item);
+	form.ui.tw_xn_log->addTopLevelItem(item);
 	form.ui.tw_xn_log->setItemWidget(item, 2, label);
 
 	// event
