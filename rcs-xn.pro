@@ -4,7 +4,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += RCS_XN_SHARED_LIBRARY
 
 SOURCES += \
-	src/rcs-xn.cpp \
+	src/rcs-xn.cpp \	
     src/rcs-xn-gui.cpp \
 	src/settings.cpp \
 	src/signals.cpp \
@@ -27,12 +27,14 @@ FORMS += \
 	form/signal-edit.ui
 
 SOURCES += \
-	lib/xn-lib-cpp-qt/xn.cpp
+	lib/xn-lib-cpp-qt/xn.cpp \
+	lib/xn-lib-cpp-qt/xn-api.cpp \
+	lib/xn-lib-cpp-qt/xn-receive.cpp \
+	lib/xn-lib-cpp-qt/xn-send.cpp \
+	lib/xn-lib-cpp-qt/xn-hist.cpp
 HEADERS += \
 	lib/xn-lib-cpp-qt/q-str-exception.h \
 	lib/xn-lib-cpp-qt/xn.h \
-	lib/xn-lib-cpp-qt/xn-commands.h \
-	lib/xn-lib-cpp-qt/xn-loco-addr.h \
 	lib/q-str-exception.h
 
 CONFIG += c++14 dll
