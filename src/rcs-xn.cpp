@@ -152,7 +152,6 @@ int RcsXn::close() {
 		error("XN disconnect error while closing serial port:" + e);
 	}
 
-	this->resetIOState();
 	return 0;
 }
 
@@ -167,8 +166,9 @@ int RcsXn::start() {
 	log("Spouštím komunikaci...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeStart);
 	started = RcsStartState::scanning;
+	this->resetIOState();
 	events.call(rx.events.afterStart);
-	log("Komunikace běží.", RcsXnLogLevel::llInfo);
+	log("Komunikace běží.", RcsXnLogLevel::llInfo);	
 	this->first_scan();
 	return 0;
 }
@@ -181,6 +181,7 @@ int RcsXn::stop() {
 	events.call(rx.events.beforeStop);
 	this->started = RcsStartState::stopped;
 	std::fill(this->real_active_in.begin(), this->real_active_in.end(), false);
+	this->resetIOState();
 	events.call(rx.events.afterStop);
 	log("Komunikace zastavena", RcsXnLogLevel::llInfo);
 	return 0;
@@ -672,7 +673,7 @@ void RcsXn::resetSignals() {
 		log("Nastavuji návěstidla na stůj...", RcsXnLogLevel::llInfo);
 		it = this->sig.begin();
 		QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(resetSignals()));
-		timer.setInterval(200);
+		timer.setInterval(SIGNAL_INIT_RESET_PERIOD);
 		timer.start();
 	} else {
 		if (it == this->sig.end() || !this->xn.connected()) {
@@ -682,8 +683,13 @@ void RcsXn::resetSignals() {
 		}
 	}
 
-	this->setSignal(it->second.startAddr * IO_OUT_MODULE_PIN_COUNT, 0);
-	++it;
+	while (it->second.currentCode != 0 && it != this->sig.end())
+		++it;
+
+	if (it != this->sig.end()) {
+		this->setSignal(it->second.startAddr * IO_OUT_MODULE_PIN_COUNT, 0);
+		++it;
+	}
 }
 
 void RcsXn::resetIOState() {

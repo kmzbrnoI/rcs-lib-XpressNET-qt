@@ -28,6 +28,7 @@ constexpr size_t IO_OUT_MODULE_PIN_COUNT = 2;
 constexpr size_t IO_IN_MODULE_PIN_COUNT = 8;
 constexpr size_t IO_OUT_MODULES_COUNT = IO_COUNT / IO_OUT_MODULE_PIN_COUNT;
 constexpr size_t IO_IN_MODULES_COUNT = IO_COUNT / IO_IN_MODULE_PIN_COUNT;
+constexpr size_t SIGNAL_INIT_RESET_PERIOD = 200; // 200 ms
 
 const QColor LOGC_ERROR = QColor(0xFF, 0xAA, 0xAA);
 const QColor LOGC_WARN = QColor(0xFF, 0xFF, 0xAA);
