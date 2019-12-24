@@ -631,10 +631,16 @@ bool RcsXn::isSignal(unsigned int portAddr) const {
 void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 	XnSignal &sig = this->sig.at(portAddr/IO_OUT_MODULE_PIN_COUNT);
 	sig.currentCode = code;
+	if (code < XnSignalCodes.size())
+		log(sig.name + ":  " + XnSignalCodes[code], RcsXnLogLevel::llCommands);
 	rx.events.call(rx.events.onOutputChanged, sig.hJOPaddr);
 
-	if (sig.tmpl.outputs.find(code) == sig.tmpl.outputs.end())
-		return; // no ports assignment for this signal code
+	if (sig.tmpl.outputs.find(code) == sig.tmpl.outputs.end()) {
+		if (code < XnSignalCodes.size())
+			log(sig.name + ": kódu návěsti " + XnSignalCodes[code] +
+				" není přiřazen žádný návěstní znak.", RcsXnLogLevel::llWarning);
+		return;
+	}
 	QString outputs = sig.tmpl.outputs.at(code);
 
 	for (size_t i = 0; i < std::min(sig.tmpl.outputsCount, static_cast<std::size_t>(outputs.length())); i++) {
