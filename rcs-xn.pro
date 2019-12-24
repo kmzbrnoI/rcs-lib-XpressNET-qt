@@ -34,8 +34,10 @@ SOURCES += \
 	lib/xn-lib-cpp-qt/xn-hist.cpp
 HEADERS += \
 	lib/xn-lib-cpp-qt/q-str-exception.h \
+	lib/xn-lib-cpp-qt/xn-loco-addr.h \
+	lib/xn-lib-cpp-qt/xn-commands.h \
 	lib/xn-lib-cpp-qt/xn.h \
-	lib/q-str-exception.h
+	lib/q-str-exception.h	 
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
