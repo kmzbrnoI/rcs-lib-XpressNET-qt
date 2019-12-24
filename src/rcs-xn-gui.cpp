@@ -23,7 +23,7 @@ void RcsXn::guiInit() {
 	QObject::connect(form.ui.chb_only_one_active, SIGNAL(stateChanged(int)), this,
 	                 SLOT(chb_general_config_changed(int)));
 	QObject::connect(form.ui.chb_forbid_00_output, SIGNAL(stateChanged(int)), this,
-					 SLOT(chb_general_config_changed(int)));
+	                 SLOT(chb_general_config_changed(int)));
 	QObject::connect(form.ui.chb_reset_signals, SIGNAL(stateChanged(int)), this,
 	                 SLOT(chb_general_config_changed(int)));
 	QObject::connect(form.ui.cb_addr_range, SIGNAL(currentIndexChanged(int)), this,

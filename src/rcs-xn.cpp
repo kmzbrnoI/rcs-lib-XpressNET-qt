@@ -338,7 +338,7 @@ void RcsXn::scanNextGroup(int previousGroup) {
 		xn.accInfoRequest(
 			inBusModuleAddr(this->scan_group), true,
 			std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnInitScanningError(s, d); },
-									 reinterpret_cast<void *>(true))
+			                         reinterpret_cast<void *>(true))
 		);
 	}
 }

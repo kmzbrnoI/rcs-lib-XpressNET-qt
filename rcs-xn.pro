@@ -4,8 +4,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += RCS_XN_SHARED_LIBRARY
 
 SOURCES += \
-	src/rcs-xn.cpp \	
-    src/rcs-xn-gui.cpp \
+	src/rcs-xn.cpp \
+	src/rcs-xn-gui.cpp \
 	src/settings.cpp \
 	src/signals.cpp \
 	src/form-signal-edit.cpp \
@@ -37,7 +37,7 @@ HEADERS += \
 	lib/xn-lib-cpp-qt/xn-loco-addr.h \
 	lib/xn-lib-cpp-qt/xn-commands.h \
 	lib/xn-lib-cpp-qt/xn.h \
-	lib/q-str-exception.h	 
+	lib/q-str-exception.h
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
