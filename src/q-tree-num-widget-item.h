@@ -8,15 +8,15 @@
 #include <QTreeWidgetItem>
 
 class FirstNumTreeWidgetItem : public QTreeWidgetItem {
-  public:
-  FirstNumTreeWidgetItem(QTreeWidget* parent): QTreeWidgetItem(parent) {}
-  private:
-  bool operator<(const QTreeWidgetItem &other) const {
-     int column = treeWidget()->sortColumn();
-     if (column == 0)
-         return text(column).toInt() < other.text(column).toInt();
-     return text(column) < other.text(column);
-  }
+public:
+	FirstNumTreeWidgetItem(QTreeWidget* parent): QTreeWidgetItem(parent) {}
+private:
+	bool operator<(const QTreeWidgetItem &other) const override {
+		int column = treeWidget()->sortColumn();
+		if (column == 0)
+			return text(column).toInt() < other.text(column).toInt();
+		return text(column) < other.text(column);
+	}
 };
 
 #endif // QTREENUMWIDGETITEM_H
