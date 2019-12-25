@@ -161,7 +161,7 @@ private:
 	void initModuleScanned(uint8_t group, bool nibble);
 	void scanNextGroup(int previousGroup);
 	void initScanningDone();
-	Xn::LIType interface(QString name);
+	Xn::LIType interface(const QString &name) const;
 	uint8_t inBusModuleAddr(uint8_t userAddr);
 
 	template <std::size_t ArraySize>

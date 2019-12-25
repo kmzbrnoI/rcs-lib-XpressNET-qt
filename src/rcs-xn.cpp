@@ -701,7 +701,7 @@ void RcsXn::resetIOState() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Xn::LIType RcsXn::interface(QString name) {
+Xn::LIType RcsXn::interface(const QString &name) const {
 	if (name == "LI101")
 		return Xn::LIType::LI101;
 	if (name == "uLI")
