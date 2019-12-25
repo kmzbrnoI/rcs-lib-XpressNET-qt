@@ -41,13 +41,6 @@ public:
 	std::map<QString, QVariant> &at(const QString &g);
 	std::map<QString, QVariant> &operator[](const QString &g);
 
-	static void cfgToUnsigned(std::map<QString, QVariant> &cfg, const QString &section,
-	                          unsigned &target);
-	static void cfgToDouble(std::map<QString, QVariant> &cfg, const QString &section,
-	                        double &target);
-	static void cfgToQString(std::map<QString, QVariant> &cfg, const QString &section,
-	                         QString &target);
-
 private:
 	void loadDefaults();
 };

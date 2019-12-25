@@ -44,27 +44,3 @@ void Settings::save(const QString &filename) {
 
 std::map<QString, QVariant> &Settings::at(const QString &g) { return data[g]; }
 std::map<QString, QVariant> &Settings::operator[](const QString &g) { return at(g); }
-
-void Settings::cfgToUnsigned(std::map<QString, QVariant> &cfg, const QString &section,
-                             unsigned &target) {
-	if (cfg.find(section) != cfg.end())
-		target = cfg[section].toUInt();
-	else
-		cfg[section] = target;
-}
-
-void Settings::cfgToDouble(std::map<QString, QVariant> &cfg, const QString &section,
-                           double &target) {
-	if (cfg.find(section) != cfg.end())
-		target = cfg[section].toDouble();
-	else
-		cfg[section] = target;
-}
-
-void Settings::cfgToQString(std::map<QString, QVariant> &cfg, const QString &section,
-                            QString &target) {
-	if (cfg.find(section) != cfg.end())
-		target = cfg[section].toString();
-	else
-		cfg[section] = target;
-}
