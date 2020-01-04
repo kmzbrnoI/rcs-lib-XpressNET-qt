@@ -68,13 +68,14 @@ void RcsXn::cb_connections_changed(int) {
 }
 
 void RcsXn::fillConnectionsCbs() {
+    this->gui_config_changing = true;
+
 	// Interface type
 	form.ui.cb_interface_type->setCurrentText(s["XN"]["interface"].toString());
 
 	// Port
 	this->fillPortCb();
-
-	this->gui_config_changing = true;
+    this->gui_config_changing = true;
 
 	// Speed
 	form.ui.cb_serial_speed->clear();
