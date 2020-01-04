@@ -41,7 +41,7 @@ const std::array<QString, 16> XnSignalCodes {
     "Svítí vše (rezerva)",
     "40 km/h a výstraha",
     "40 km/h a očekávejte 40 km/h",
-    "Přivolávascí návěst",
+    "Přivolávací návěst",
     "Dovolen zajištěný posun",
     "Dovolen nezajištěný posun",
     "Opakování návěsti volno",
