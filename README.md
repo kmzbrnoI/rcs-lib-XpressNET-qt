@@ -10,6 +10,16 @@ for XpressNET communication. The library is written in C++ in framework
 This library implements
 [RCS API of hJOPserver](https://github.com/kmzbrnoI/mtb-lib/wiki/api-specs).
 
+## Downloads
+
+You can download precompiled `dll` version of this library in *Releases* section.
+
+This library is distributed as `rcs-xn.dll` file. This library is developed in
+Qt framework, thus some more dll are required on your computer for `rcs-xn.dll`
+to work. These libraries are available in *Relaeses* in zips
+`rcs-xn-required-libs-*.zip`. Use `min` variant by default, this should be
+enough. If your computer complains about unmet dependencies, use `all` variant.
+
 ## Building & toolkit
 
 This library was developed in `vim` using `qmake` & `make`. It is suggested
