@@ -1,5 +1,12 @@
 # XpressNET library for RCS of hJOPserver
 
+---
+
+Hledáte návod pro použití knihovny v češtině? Najdete ho
+[zde](https://github.com/kmzbrnoI/rcs-lib-XpressNET-qt/wiki).
+
+---
+
 This library allows [hJOPserver](https://github.com/kmzbrnoI/hJOPserver) to
 operate with XpressNET accessory modules. It replaces
 [MTB library](https://github.com/kmzbrnoI/mtb-lib). Library is distributed as
