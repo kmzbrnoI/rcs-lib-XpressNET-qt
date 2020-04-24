@@ -48,6 +48,8 @@ RcsXn::~RcsXn() {
 }
 
 void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
+	constexpr size_t COLUMN_COUNT = 3;
+
 	if (loglevel > this->loglevel)
 		return;
 
@@ -59,21 +61,21 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	item->setText(0, QTime::currentTime().toString("hh:mm:ss,zzz"));
 
 	if (msg.startsWith("GET:"))
-		for (int i = 0; i < 3; i++)
+		for (size_t i = 0; i < COLUMN_COUNT; i++)
 			item->setBackground(i, LOGC_GET);
 	if (msg.startsWith("PUT:"))
-		for (int i = 0; i < 3; i++)
+		for (size_t i = 0; i < COLUMN_COUNT; i++)
 			item->setBackground(i, LOGC_PUT);
 
 	if (loglevel == RcsXnLogLevel::llNo)
 		item->setText(1, "Nic");
 	else if (loglevel == RcsXnLogLevel::llError) {
 		item->setText(1, "Chyba");
-		for (int i = 0; i < 3; i++)
+		for (size_t i = 0; i < COLUMN_COUNT; i++)
 			item->setBackground(i, LOGC_ERROR);
 	} else if (loglevel == RcsXnLogLevel::llWarning) {
 		item->setText(1, "Varování");
-		for (int i = 0; i < 3; i++)
+		for (size_t i = 0; i < COLUMN_COUNT; i++)
 			item->setBackground(i, LOGC_WARN);
 	} else if (loglevel == RcsXnLogLevel::llInfo)
 		item->setText(1, "Info");
