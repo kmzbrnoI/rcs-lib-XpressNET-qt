@@ -23,6 +23,7 @@ const Config DEFAULTS {
 		{"resetSignals", false},
 		{"mockInputs", false},
 		{"forbid00Output", true},
+		{"disableSetOutputOff", false},
 	}},
 	{"modules", {
 		{"active-in", "1-32,64-72"},

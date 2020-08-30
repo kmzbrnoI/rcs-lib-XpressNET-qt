@@ -200,6 +200,7 @@ void RcsXn::loadConfig(const QString &filename) {
 		form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
 		form.ui.chb_forbid_00_output->setChecked(s["global"]["forbid00Output"].toBool());
 		form.ui.chb_reset_signals->setChecked(s["global"]["resetSignals"].toBool());
+		form.ui.chb_disable_set_output_off->setChecked(s["global"]["disableSetOutputOff"].toBool());
 		if (s["global"]["addrRange"].toString() == "basic")
 			form.ui.cb_addr_range->setCurrentIndex(0);
 		else if (s["global"]["addrRange"].toString() == "lenz")

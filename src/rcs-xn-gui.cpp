@@ -26,6 +26,8 @@ void RcsXn::guiInit() {
 	                 SLOT(chb_general_config_changed(int)));
 	QObject::connect(form.ui.chb_reset_signals, SIGNAL(stateChanged(int)), this,
 	                 SLOT(chb_general_config_changed(int)));
+	QObject::connect(form.ui.chb_disable_set_output_off, SIGNAL(stateChanged(int)), this,
+					 SLOT(chb_general_config_changed(int)));
 	QObject::connect(form.ui.cb_addr_range, SIGNAL(currentIndexChanged(int)), this,
 	                 SLOT(chb_general_config_changed(int)));
 
@@ -283,6 +285,8 @@ void RcsXn::chb_general_config_changed(int) {
 		(form.ui.chb_forbid_00_output->checkState() == Qt::CheckState::Checked);
 	s["global"]["resetSignals"] =
 	    (form.ui.chb_reset_signals->checkState() == Qt::CheckState::Checked);
+	s["global"]["disableSetOutputOff"] =
+		(form.ui.chb_disable_set_output_off->checkState() == Qt::CheckState::Checked);
 
 	if (form.ui.cb_addr_range->currentIndex() == 0)
 		s["global"]["addrRange"] = "basic";
