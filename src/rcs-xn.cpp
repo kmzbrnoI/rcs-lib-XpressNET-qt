@@ -400,6 +400,9 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool signal) {
 		realPortAddr -= IO_OUT_MODULE_PIN_COUNT;
 	}
 
+	if ((s["global"]["disableSetOutputOff"].toBool()) && (rx.xn.getTrkStatus() != Xn::TrkStatus::On))
+		return RCS_MODULE_INVALID_ADDR;
+
 	xn.accOpRequest(
 	    static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
 	    std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
