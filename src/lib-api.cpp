@@ -162,10 +162,8 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 	try {
 		unsigned int portAddr = (module<<1) + (port&1); // 0-2047
 
-		if (rx.isSignal(portAddr)) {
-			rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
-			return 0;
-		}
+		if (rx.isSignal(portAddr))
+			return rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 
 		if (rx.outputs[portAddr] == static_cast<bool>(state))
 			return 0;

@@ -123,7 +123,7 @@ public:
 	void xnSetOutputError(void *sender, void *data);
 
 	bool isSignal(unsigned int portAddr) const; // 0-2047
-	void setSignal(unsigned int portAddr, unsigned int code);
+	int setSignal(unsigned int portAddr, unsigned int code); // returns same error codes as SetOutput
 
 private slots:
 	void xnOnError(QString error);

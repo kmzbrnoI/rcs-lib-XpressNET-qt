@@ -635,7 +635,8 @@ bool RcsXn::isSignal(unsigned int portAddr) const {
 	return ((!(portAddr&1)) && (this->sig.find(portAddr >> 1) != this->sig.end()));
 }
 
-void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
+int RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
+	int retval = 0;
 	XnSignal &sig = this->sig.at(portAddr/IO_OUT_MODULE_PIN_COUNT);
 	sig.currentCode = code;
 	if (code < XnSignalCodes.size())
@@ -646,7 +647,7 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 		if (code < XnSignalCodes.size())
 			log(sig.name + ": kódu návěsti " + XnSignalCodes[code] +
 				" není přiřazen žádný návěstní znak.", RcsXnLogLevel::llWarning);
-		return;
+		return RCS_INVALID_SCOM_CODE;
 	}
 	QString outputs = sig.tmpl.outputs.at(code);
 
@@ -656,19 +657,28 @@ void RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 			continue;
 
 		const unsigned int module = sig.startAddr+i;
+		int subret = 0;
 
-		if (state == '+')
-			this->setPlainOutput(2*module, true, true);
-		else if (state == '-')
-			this->setPlainOutput(2*module + 1, true, true);
-		else if (state == '0') {
-			this->setPlainOutput(2*module, false, true);
-			this->setPlainOutput(2*module + 1, false, true);
+		if (state == '+') {
+			subret = this->setPlainOutput(2*module, true, true);
+		} else if (state == '-') {
+			subret = this->setPlainOutput(2*module + 1, true, true);
+		} else if (state == '0') {
+			subret = this->setPlainOutput(2*module, false, true);
+			if (subret != 0 && retval == 0)
+				retval = subret;
+			subret = this->setPlainOutput(2*module + 1, false, true);
 		} else if (state == '1') {
 			this->setPlainOutput(2*module, true, true);
+			if (subret != 0 && retval == 0)
+				retval = subret;
 			this->setPlainOutput(2*module + 1, true, true);
 		}
+		if (subret != 0 && retval == 0)
+			retval = subret;
 	}
+
+	return retval;
 }
 
 void RcsXn::resetSignals() {
