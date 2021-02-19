@@ -32,7 +32,7 @@ struct XnSignal {
 	QString outputRange() const;
 };
 
-const std::array<QString, 16> XnSignalCodes {
+const std::array<QString, 17> XnSignalCodes {
     "Stůj/posun zakázán",
     "Volno",
     "Výstraha",
@@ -49,6 +49,7 @@ const std::array<QString, 16> XnSignalCodes {
     "Návěstidlo zhaslé",
     "Opak. návěsti očekávejte 40 km/h",
     "Opak. návěsti výstraha a 40 km/h",
+    "Opak. návěsti oček. 40 km/h a 40 km/h",
 };
 
 using SigTmplStorage = std::map<QString, XnSignalTemplate>;
