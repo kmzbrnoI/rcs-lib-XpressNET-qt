@@ -107,59 +107,63 @@ void HideConfigDialog() {
 // RCS IO
 
 int GetInput(unsigned int module, unsigned int port) {
-	if (rx.started == RcsStartState::stopped)
-		return RCS_NOT_STARTED;
-	if ((module >= IO_IN_MODULES_COUNT) || (!rx.real_active_in[module]))
-		return RCS_MODULE_INVALID_ADDR;
-	if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
+	try {
+		if (rx.started == RcsStartState::stopped)
+			return RCS_NOT_STARTED;
+		if ((module >= IO_IN_MODULES_COUNT) || (!rx.real_active_in[module]))
+			return RCS_MODULE_INVALID_ADDR;
+		if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
-		return 0;
+			return 0;
 #else
-		return RCS_PORT_INVALID_NUMBER;
+			return RCS_PORT_INVALID_NUMBER;
 #endif
-	}
-	if (rx.started == RcsStartState::scanning)
-		return RCS_INPUT_NOT_YET_SCANNED;
+		}
+		if (rx.started == RcsStartState::scanning)
+			return RCS_INPUT_NOT_YET_SCANNED;
 
-	unsigned int portAddr = module*IO_IN_MODULE_PIN_COUNT + port-1; // 0-2047
-	return rx.inputs[portAddr];
+		unsigned int portAddr = module*IO_IN_MODULE_PIN_COUNT + port-1; // 0-2047
+		return rx.inputs[portAddr];
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int GetOutput(unsigned int module, unsigned int port) {
-	if (rx.started == RcsStartState::stopped)
-		return RCS_NOT_STARTED;
-	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.user_active_out[module]))
-		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_OUT_MODULE_PIN_COUNT) {
-#ifdef IGNORE_PIN_BOUNDS
-		return 0;
-#else
-		return RCS_PORT_INVALID_NUMBER;
-#endif
-	}
+	try {
+		if (rx.started == RcsStartState::stopped)
+			return RCS_NOT_STARTED;
+		if ((module >= IO_OUT_MODULES_COUNT) || (!rx.user_active_out[module]))
+			return RCS_MODULE_INVALID_ADDR;
+		if (port >= IO_OUT_MODULE_PIN_COUNT) {
+	#ifdef IGNORE_PIN_BOUNDS
+			return 0;
+	#else
+			return RCS_PORT_INVALID_NUMBER;
+	#endif
+		}
 
-	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
-	if (rx.isSignal(portAddr)) {
-		const XnSignal &sig = rx.sig.at(portAddr/2);
-		return static_cast<int>(sig.currentCode);
-	}
-	return rx.outputs[portAddr];
+		unsigned int portAddr = (module<<1) + (port&1); // 0-2047
+		if (rx.isSignal(portAddr)) {
+			const XnSignal &sig = rx.sig.at(portAddr/2);
+			return static_cast<int>(sig.currentCode);
+		}
+		return rx.outputs[portAddr];
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int SetOutput(unsigned int module, unsigned int port, int state) {
-	if (rx.started == RcsStartState::stopped)
-		return RCS_NOT_STARTED;
-	if ((module >= IO_OUT_MODULES_COUNT) || (!rx.user_active_out[module]))
-		return RCS_MODULE_INVALID_ADDR;
-	if (port >= IO_OUT_MODULE_PIN_COUNT) {
-#ifdef IGNORE_PIN_BOUNDS
-		return 0;
-#else
-		return RCS_PORT_INVALID_NUMBER;
-#endif
-	}
-
 	try {
+		if (rx.started == RcsStartState::stopped)
+			return RCS_NOT_STARTED;
+		if ((module >= IO_OUT_MODULES_COUNT) || (!rx.user_active_out[module]))
+			return RCS_MODULE_INVALID_ADDR;
+		if (port >= IO_OUT_MODULE_PIN_COUNT) {
+#ifdef IGNORE_PIN_BOUNDS
+			return 0;
+#else
+			return RCS_PORT_INVALID_NUMBER;
+#endif
+		}
+
 		unsigned int portAddr = (module<<1) + (port&1); // 0-2047
 
 		if (rx.isSignal(portAddr))
@@ -172,40 +176,48 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 }
 
 bool IsSimulation() {
-	return rx.s["global"]["mockInputs"].toBool();
+	try {
+		return rx.s["global"]["mockInputs"].toBool();
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int SetInput(unsigned int module, unsigned int port, int state) {
-	// only debug method
-	if (!rx.s["global"]["mockInputs"].toBool())
-		return 0;
-	if (rx.started == RcsStartState::stopped)
-		return 0;
-	if ((module >= IO_IN_MODULES_COUNT) || (!rx.user_active_in[module]))
-		return RCS_MODULE_INVALID_ADDR;
-	if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
+	try {
+		// only debug method
+		if (!rx.s["global"]["mockInputs"].toBool())
+			return 0;
+		if (rx.started == RcsStartState::stopped)
+			return 0;
+		if ((module >= IO_IN_MODULES_COUNT) || (!rx.user_active_in[module]))
+			return RCS_MODULE_INVALID_ADDR;
+		if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
-		return 0;
+			return 0;
 #else
-		return RCS_PORT_INVALID_NUMBER;
+			return RCS_PORT_INVALID_NUMBER;
 #endif
-	}
+		}
 
-	unsigned int portAddr = module*IO_IN_MODULE_PIN_COUNT + port-1; // 0-2047
-	rx.inputs[portAddr] = static_cast<bool>(state);
-	rx.events.call(rx.events.onInputChanged, module);
-	return 0;
+		unsigned int portAddr = module*IO_IN_MODULE_PIN_COUNT + port-1; // 0-2047
+		rx.inputs[portAddr] = static_cast<bool>(state);
+		rx.events.call(rx.events.onInputChanged, module);
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int GetInputType(unsigned int module, unsigned int port) {
-	(void)module;
-	(void)port;
-	return 0; // all inputs are plain inputs
+	try {
+		(void)module;
+		(void)port;
+		return 0; // all inputs are plain inputs
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int GetOutputType(unsigned int module, unsigned int port) {
-	unsigned int portAddr = (module<<1) + (port&1); // 0-2047
-	return rx.isSignal(portAddr) ? 1 : 0;
+	try {
+		unsigned int portAddr = (module<<1) + (port&1); // 0-2047
+		return rx.isSignal(portAddr) ? 1 : 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,9 +226,11 @@ int GetOutputType(unsigned int module, unsigned int port) {
 int GetDeviceCount() { return 1; }
 
 void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
-	(void)index;
-	const QString sname = "COM port";
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sname.utf16()), serial, serialLen);
+	try {
+		(void)index;
+		const QString sname = "COM port";
+		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sname.utf16()), serial, serialLen);
+	} catch (...) { }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -225,91 +239,113 @@ void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
 unsigned int GetModuleCount() { return rx.modules_count; }
 
 bool IsModule(unsigned int module) {
-	if (module < IO_IN_MODULES_COUNT && rx.user_active_in[module])
-		return true;
-	if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
-		return true;
-	return false;
+	try {
+		if (module < IO_IN_MODULES_COUNT && rx.user_active_in[module])
+			return true;
+		if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
+			return true;
+		return false;
+	} catch (...) { return false; }
 }
 
 unsigned int GetMaxModuleAddr() { return std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT) - 1; }
 
 bool IsModuleFailure(unsigned int module) {
-	return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT &&
-	        rx.user_active_in[module] && !rx.real_active_in[module]);
+	try {
+		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT &&
+				rx.user_active_in[module] && !rx.real_active_in[module]);
+	} catch (...) { return false; }
 }
 
 int GetModuleTypeStr(unsigned int module, char16_t *type, unsigned int typeLen) {
-	(void)module;
-	const QString stype = "XN";
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(stype.utf16()), type, typeLen);
-	return 0;
+	try {
+		(void)module;
+		const QString stype = "XN";
+		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(stype.utf16()), type, typeLen);
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
-	if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
-		return RCS_MODULE_INVALID_ADDR;
-	const QString str = "Module " + QString::number(module);
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(str.utf16()), name, nameLen);
-	return 0;
+	try {
+		if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
+			return RCS_MODULE_INVALID_ADDR;
+		const QString str = "Module " + QString::number(module);
+		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(str.utf16()), name, nameLen);
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
-	if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
-		return RCS_MODULE_INVALID_ADDR;
-	const QString sfw = "-";
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sfw.utf16()), fw, fwLen);
-	return 0;
+	try {
+		if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
+			return RCS_MODULE_INVALID_ADDR;
+		const QString sfw = "-";
+		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sfw.utf16()), fw, fwLen);
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Versions
 
 bool ApiSupportsVersion(unsigned int version) {
-	return std::find(API_SUPPORTED_VERSIONS.begin(), API_SUPPORTED_VERSIONS.end(), version) !=
-	       API_SUPPORTED_VERSIONS.end();
+	try {
+		return std::find(API_SUPPORTED_VERSIONS.begin(), API_SUPPORTED_VERSIONS.end(), version) !=
+			   API_SUPPORTED_VERSIONS.end();
+	} catch (...) { return false; }
 }
 
 int ApiSetVersion(unsigned int version) {
-	if (!ApiSupportsVersion(version))
-		return RCS_UNSUPPORTED_API_VERSION;
+	try {
+		if (!ApiSupportsVersion(version))
+			return RCS_UNSUPPORTED_API_VERSION;
 
-	rx.api_version = version;
-	return 0;
+		rx.api_version = version;
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 unsigned int GetDeviceVersion(char16_t *version, unsigned int versionLen) {
-	const QString sversion = "LI HW: " + QString::number(rx.li_ver_hw) + ", LI SW: " +
-	                          QString::number(rx.li_ver_sw);
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
-	                          versionLen);
-	return 0;
+	try {
+		const QString sversion = "LI HW: " + QString::number(rx.li_ver_hw) + ", LI SW: " +
+								  QString::number(rx.li_ver_sw);
+		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
+								  versionLen);
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
-	const QString sversion = VERSION;
-	StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
-	                          versionLen);
-	return 0;
+	try {
+		const QString sversion = VERSION;
+		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sversion.utf16()), version,
+								  versionLen);
+		return 0;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // General library configuration
 
 unsigned int GetModuleInputsCount(unsigned int module) {
-	if (module >= IO_IN_MODULES_COUNT)
-		return RCS_MODULE_INVALID_ADDR;
-	return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
+	try {
+		if (module >= IO_IN_MODULES_COUNT)
+			return RCS_MODULE_INVALID_ADDR;
+		return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 unsigned int GetModuleOutputsCount(unsigned int module) {
-	if (module >= IO_OUT_MODULES_COUNT)
-		return RCS_MODULE_INVALID_ADDR;
-	if (!rx.user_active_out[module])
-		return 0;
-	if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
-		return 1; // signal -> just one output
-	return IO_OUT_MODULE_PIN_COUNT;
+	try {
+		if (module >= IO_OUT_MODULES_COUNT)
+			return RCS_MODULE_INVALID_ADDR;
+		if (!rx.user_active_out[module])
+			return 0;
+		if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
+			return 1; // signal -> just one output
+		return IO_OUT_MODULE_PIN_COUNT;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
