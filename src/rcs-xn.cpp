@@ -660,9 +660,9 @@ int RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 		int subret = 0;
 
 		if (state == '+') {
-			subret = this->setPlainOutput(2*module, true, true);
-		} else if (state == '-') {
 			subret = this->setPlainOutput(2*module + 1, true, true);
+		} else if (state == '-') {
+			subret = this->setPlainOutput(2*module, true, true);
 		} else if (state == '0') {
 			subret = this->setPlainOutput(2*module, false, true);
 			if (subret != 0 && retval == 0)
