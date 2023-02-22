@@ -269,16 +269,20 @@ int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
 
 unsigned int GetModuleInputsCount(unsigned int module) {
 	try {
-		if (module >= IO_IN_MODULES_COUNT)
+		if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
 			return RCS_MODULE_INVALID_ADDR;
+		if (module >= IO_IN_MODULES_COUNT)
+			return 0; // intentionally not RCS_MODULE_INVALID_ADDR
 		return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
 unsigned int GetModuleOutputsCount(unsigned int module) {
 	try {
-		if (module >= IO_OUT_MODULES_COUNT)
+		if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
 			return RCS_MODULE_INVALID_ADDR;
+		if (module >= IO_OUT_MODULES_COUNT)
+			return 0; // intentionally not RCS_MODULE_INVALID_ADDR
 		if (!rx.user_active_out[module])
 			return 0;
 		if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
