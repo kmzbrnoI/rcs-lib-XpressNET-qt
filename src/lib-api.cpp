@@ -7,18 +7,14 @@
 
 namespace RcsXn {
 
+unsigned int rcs_api_version = 0;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Open/close
 
 int Open() {
 	try {
 		return rx.openDevice(rx.s["XN"]["port"].toString(), false);
-	} catch (...) { return RCS_GENERAL_EXCEPTION; }
-}
-
-int OpenDevice(char16_t *device, bool persist) {
-	try {
-		return rx.openDevice(QString::fromUtf16(device), persist);
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
@@ -74,8 +70,6 @@ int SaveConfig(char16_t *filename) {
 	} catch (...) { return RCS_FILE_CANNOT_ACCESS; }
 	return 0;
 }
-
-void SetConfigFileName(char16_t *filename) { rx.config_filename = QString::fromUtf16(filename); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Loglevel
@@ -221,19 +215,6 @@ int GetOutputType(unsigned int module, unsigned int port) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Devices
-
-int GetDeviceCount() { return 1; }
-
-void GetDeviceSerial(int index, char16_t *serial, unsigned int serialLen) {
-	try {
-		(void)index;
-		const QString sname = "COM port";
-		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(sname.utf16()), serial, serialLen);
-	} catch (...) { }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Module questionaries
 
 unsigned int GetModuleCount() { return rx.modules_count; }
@@ -286,6 +267,36 @@ int GetModuleFW(unsigned int module, char16_t *fw, unsigned int fwLen) {
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
+unsigned int GetModuleInputsCount(unsigned int module) {
+	try {
+		if (module >= IO_IN_MODULES_COUNT)
+			return RCS_MODULE_INVALID_ADDR;
+		return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
+
+unsigned int GetModuleOutputsCount(unsigned int module) {
+	try {
+		if (module >= IO_OUT_MODULES_COUNT)
+			return RCS_MODULE_INVALID_ADDR;
+		if (!rx.user_active_out[module])
+			return 0;
+		if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
+			return 1; // signal -> just one output
+		return IO_OUT_MODULE_PIN_COUNT;
+	} catch (...) { return RCS_GENERAL_EXCEPTION; }
+}
+
+bool IsModuleError(unsigned int module) {
+	(void)module;
+	return false;
+}
+
+bool IsModuleWarning(unsigned int module) {
+	(void)module;
+	return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Versions
 
@@ -301,7 +312,7 @@ int ApiSetVersion(unsigned int version) {
 		if (!ApiSupportsVersion(version))
 			return RCS_UNSUPPORTED_API_VERSION;
 
-		rx.api_version = version;
+		rcs_api_version = version;
 		return 0;
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
@@ -326,29 +337,6 @@ unsigned int GetDriverVersion(char16_t *version, unsigned int versionLen) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// General library configuration
-
-unsigned int GetModuleInputsCount(unsigned int module) {
-	try {
-		if (module >= IO_IN_MODULES_COUNT)
-			return RCS_MODULE_INVALID_ADDR;
-		return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
-	} catch (...) { return RCS_GENERAL_EXCEPTION; }
-}
-
-unsigned int GetModuleOutputsCount(unsigned int module) {
-	try {
-		if (module >= IO_OUT_MODULES_COUNT)
-			return RCS_MODULE_INVALID_ADDR;
-		if (!rx.user_active_out[module])
-			return 0;
-		if (rx.isSignal(module*IO_OUT_MODULE_PIN_COUNT))
-			return 1; // signal -> just one output
-		return IO_OUT_MODULE_PIN_COUNT;
-	} catch (...) { return RCS_GENERAL_EXCEPTION; }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Events binders
 
 void BindBeforeOpen(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.beforeOpen, f, data); }
@@ -367,12 +355,10 @@ void BindAfterStop(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.afte
 void BindOnError(StdErrorEvent f, void *data) { rx.events.bind(rx.events.onError, f, data); }
 void BindOnLog(StdLogEvent f, void *data) { rx.events.bind(rx.events.onLog, f, data); }
 
-void BindOnInputChanged(StdModuleChangeEvent f, void *data) {
-	rx.events.bind(rx.events.onInputChanged, f, data);
-}
-void BindOnOutputChanged(StdModuleChangeEvent f, void *data) {
-	rx.events.bind(rx.events.onOutputChanged, f, data);
-}
+void BindOnInputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onInputChanged, f, data); }
+void BindOnOutputChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onOutputChanged, f, data); }
+void BindOnModuleChanged(StdModuleChangeEvent f, void *data) { rx.events.bind(rx.events.onModuleChanged, f, data); }
+
 void BindOnScanned(StdNotifyEvent f, void *data) { rx.events.bind(rx.events.onScanned, f, data); }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -41,8 +41,10 @@ struct RcsEvents {
 	EventData<StdNotifyEvent> onScanned;
 	EventData<StdErrorEvent> onError;
 	EventData<StdLogEvent> onLog;
+
 	EventData<StdModuleChangeEvent> onInputChanged;
 	EventData<StdModuleChangeEvent> onOutputChanged;
+	EventData<StdModuleChangeEvent> onModuleChanged;
 
 	void call(const EventData<StdNotifyEvent> &e) const {
 		if (e.defined())

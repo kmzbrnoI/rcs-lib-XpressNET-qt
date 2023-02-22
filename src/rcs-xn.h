@@ -36,10 +36,6 @@ const QColor LOGC_DONE = QColor(0xAA, 0xFF, 0xAA);
 const QColor LOGC_GET = QColor(0xE0, 0xE0, 0xFF);
 const QColor LOGC_PUT = QColor(0xE0, 0xFF, 0xE0);
 
-constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
-    0x0301, // v1.3
-};
-
 enum class RcsXnLogLevel {
 	llNo = 0,
 	llError = 1,
@@ -87,7 +83,6 @@ public:
 	std::array<bool, IO_IN_MODULES_COUNT> user_active_in; // 0-255
 	std::array<bool, IO_OUT_MODULES_COUNT> user_active_out; // 0-1023
 	uint8_t scan_group;
-	unsigned int api_version = 0x0301;
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 	unsigned int modules_count = 0;

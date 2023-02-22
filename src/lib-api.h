@@ -3,6 +3,7 @@
 
 /* This file deafines prototypes of library API functions. */
 
+#include <array>
 #include <QtCore/QtGlobal>
 
 #include "lib-api-common-def.h"
@@ -10,10 +11,15 @@
 
 namespace RcsXn {
 
+constexpr std::array<unsigned int, 6> API_SUPPORTED_VERSIONS {
+    0x0301, 0x0401, 0x0501, // v1.3, v1.4, v1.5
+};
+
+extern unsigned int rcs_api_version;
+
 extern "C" {
 Q_DECL_EXPORT int CALL_CONV LoadConfig(char16_t *filename);
 Q_DECL_EXPORT int CALL_CONV SaveConfig(char16_t *filename);
-Q_DECL_EXPORT void CALL_CONV SetConfigFileName(char16_t *filename);
 
 Q_DECL_EXPORT void CALL_CONV SetLogLevel(unsigned int loglevel);
 Q_DECL_EXPORT unsigned int CALL_CONV GetLogLevel();
@@ -22,7 +28,6 @@ Q_DECL_EXPORT void CALL_CONV ShowConfigDialog();
 Q_DECL_EXPORT void CALL_CONV HideConfigDialog();
 
 Q_DECL_EXPORT int CALL_CONV Open();
-Q_DECL_EXPORT int CALL_CONV OpenDevice(char16_t *device, bool persist);
 Q_DECL_EXPORT int CALL_CONV Close();
 Q_DECL_EXPORT bool CALL_CONV Opened();
 
@@ -39,10 +44,6 @@ Q_DECL_EXPORT int CALL_CONV GetOutputType(unsigned int module, unsigned int port
 Q_DECL_EXPORT int CALL_CONV SetInput(unsigned int module, unsigned int port, int state);
 Q_DECL_EXPORT bool CALL_CONV IsSimulation();
 
-Q_DECL_EXPORT int CALL_CONV GetDeviceCount();
-Q_DECL_EXPORT void CALL_CONV GetDeviceSerial(int index, char16_t *serial,
-                                                    unsigned int serialLen);
-
 Q_DECL_EXPORT unsigned int CALL_CONV GetModuleCount();
 Q_DECL_EXPORT unsigned int CALL_CONV GetMaxModuleAddr();
 Q_DECL_EXPORT bool CALL_CONV IsModule(unsigned int module);
@@ -55,6 +56,8 @@ Q_DECL_EXPORT int CALL_CONV GetModuleFW(unsigned int module, char16_t *fw,
                                                unsigned int fwLen);
 Q_DECL_EXPORT unsigned int CALL_CONV GetModuleInputsCount(unsigned int module);
 Q_DECL_EXPORT unsigned int CALL_CONV GetModuleOutputsCount(unsigned int module);
+Q_DECL_EXPORT bool CALL_CONV IsModuleError(unsigned int module);
+Q_DECL_EXPORT bool CALL_CONV IsModuleWarning(unsigned int module);
 
 Q_DECL_EXPORT bool CALL_CONV ApiSupportsVersion(unsigned int version);
 Q_DECL_EXPORT int CALL_CONV ApiSetVersion(unsigned int version);
@@ -75,10 +78,14 @@ Q_DECL_EXPORT void CALL_CONV BindAfterStop(StdNotifyEvent f, void *data);
 
 Q_DECL_EXPORT void CALL_CONV BindOnError(StdErrorEvent f, void *data);
 Q_DECL_EXPORT void CALL_CONV BindOnLog(StdLogEvent f, void *data);
+Q_DECL_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data);
+
 Q_DECL_EXPORT void CALL_CONV BindOnInputChanged(StdModuleChangeEvent f, void *data);
 Q_DECL_EXPORT void CALL_CONV BindOnOutputChanged(StdModuleChangeEvent f, void *data);
-Q_DECL_EXPORT void CALL_CONV BindOnScanned(StdNotifyEvent f, void *data);
-}
+Q_DECL_EXPORT void CALL_CONV BindOnModuleChanged(StdModuleChangeEvent f, void *data);
+
+
+} // extern C
 
 } // namespace RcsXn
 
