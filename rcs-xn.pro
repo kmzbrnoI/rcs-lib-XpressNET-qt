@@ -31,13 +31,15 @@ SOURCES += \
 	lib/xn-lib-cpp-qt/xn-api.cpp \
 	lib/xn-lib-cpp-qt/xn-receive.cpp \
 	lib/xn-lib-cpp-qt/xn-send.cpp \
-	lib/xn-lib-cpp-qt/xn-hist.cpp
+	lib/xn-lib-cpp-qt/xn-hist.cpp \
+	lib/xn-lib-cpp-qt/xn-win-com-discover.cpp
 HEADERS += \
 	lib/xn-lib-cpp-qt/q-str-exception.h \
 	lib/xn-lib-cpp-qt/xn-loco-addr.h \
 	lib/xn-lib-cpp-qt/xn-commands.h \
 	lib/xn-lib-cpp-qt/xn.h \
-	lib/q-str-exception.h
+	lib/q-str-exception.h \
+	lib/xn-lib-cpp-qt/xn-win-com-discover.h
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
@@ -45,17 +47,19 @@ QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
 win32 {
 	QMAKE_LFLAGS += -Wl,--kill-at
 	QMAKE_CXXFLAGS += -enable-stdcall-fixup
+	LIBS += -lsetupapi
 }
 win64 {
 	QMAKE_LFLAGS += -Wl,--kill-at
 	QMAKE_CXXFLAGS += -enable-stdcall-fixup
+	LIBS += -lsetupapi
 }
 
 QT += core gui serialport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 VERSION_MAJOR = 1
-VERSION_MINOR = 0
+VERSION_MINOR = 1
 
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR" \
 	"VERSION_MINOR=$$VERSION_MINOR"
