@@ -138,6 +138,7 @@ private slots:
 
 	// GUI
 	void cb_loglevel_changed(int);
+	void cb_interface_type_changed(int);
 	void cb_connections_changed(int);
 	void b_serial_refresh_handle();
 	void b_active_load_handle();
