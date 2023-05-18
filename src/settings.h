@@ -27,6 +27,7 @@ const Config DEFAULTS {
 	{"modules", {
 		{"active-in", "1-32,64-72"},
 		{"active-out", "1-28,70-92"},
+		{"binary", ""},
 	}}
 };
 

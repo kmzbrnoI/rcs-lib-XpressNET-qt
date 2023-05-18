@@ -163,9 +163,13 @@ int SetOutput(unsigned int module, unsigned int port, int state) {
 		if (rx.isSignal(portAddr))
 			return rx.setSignal(static_cast<uint16_t>(portAddr), static_cast<unsigned int>(state));
 
+		if ((rx.binary[module]) && (state == 0)) {
+			portAddr = (module<<1) + ((!port)&1);
+			state = 1;
+		}
 		if (rx.outputs[portAddr] == static_cast<bool>(state))
 			return 0;
-		return rx.setPlainOutput(portAddr, state);
+		return rx.setPlainOutput(portAddr, state, true);
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 

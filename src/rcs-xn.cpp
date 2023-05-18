@@ -233,6 +233,15 @@ void RcsXn::loadConfig(const QString &filename) {
 			throw;
 		}
 		this->fillActiveIO();
+
+		try {
+			this->parseModules(s["modules"]["binary"].toString(), this->binary, false);
+		} catch (const QStrException &e) {
+			this->log("Nepodařilo se načíst binární výstupy: " + e.str(),
+			          RcsXnLogLevel::llError);
+			throw;
+		}
+
 		this->gui_config_changing = false;
 	} catch (...) {
 		this->fillSignals();
@@ -252,14 +261,15 @@ void RcsXn::first_scan() {
 void RcsXn::saveConfig(const QString &filename) {
 	s["modules"]["active-in"] = getActiveStr(this->user_active_in, ",");
 	s["modules"]["active-out"] = getActiveStr(this->user_active_out, ",");
+	s["modules"]["binary"] = getActiveStr(this->binary, ",");
 
 	s.save(filename);
 	this->saveSignals(filename);
 }
 
 void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
-	this->parseActiveModules(inputs, this->user_active_in, except);
-	this->parseActiveModules(outputs, this->user_active_out, except);
+	this->parseModules(inputs, this->user_active_in, except);
+	this->parseModules(outputs, this->user_active_out, except);
 
 	this->modules_count = this->in_count = this->out_count = 0;
 	for (size_t i = 0; i < IO_IN_MODULES_COUNT; i++)
@@ -390,17 +400,18 @@ void RcsXn::xnSetOutputError(unsigned int module) {
 	      module);
 }
 
-int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool signal) {
+int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool setInternalState) {
 	unsigned int module = portAddr / IO_OUT_MODULE_PIN_COUNT;
 	unsigned int port = portAddr % IO_OUT_MODULE_PIN_COUNT;
 	unsigned int realPortAddr = portAddr;
 
-	if (!signal) {
+	if (setInternalState) {
 		// Checks only done for non-signal outputs
 
 		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
 		if ((s["global"]["onlyOneActive"].toBool()) && (state > 0))
 			outputs[secondPort] = false;
+
 		outputs[portAddr] = static_cast<bool>(state);
 	}
 
@@ -431,8 +442,8 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool signal) {
 }
 
 template <std::size_t ArraySize>
-void RcsXn::parseActiveModules(const QString &active, std::array<bool, ArraySize> &result,
-                               bool except) {
+void RcsXn::parseModules(const QString &active, std::array<bool, ArraySize> &result,
+                         bool except) {
 	std::fill(result.begin(), result.end(), false);
 
 	const QStringList ranges = active.split(',', QString::SkipEmptyParts);
@@ -675,19 +686,19 @@ int RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 		int subret = 0;
 
 		if (state == '+') {
-			subret = this->setPlainOutput(2*module + 1, true, true);
+			subret = this->setPlainOutput(2*module + 1, true, false);
 		} else if (state == '-') {
-			subret = this->setPlainOutput(2*module, true, true);
+			subret = this->setPlainOutput(2*module, true, false);
 		} else if (state == '0') {
-			subret = this->setPlainOutput(2*module, false, true);
+			subret = this->setPlainOutput(2*module, false, false);
 			if (subret != 0 && retval == 0)
 				retval = subret;
-			subret = this->setPlainOutput(2*module + 1, false, true);
+			subret = this->setPlainOutput(2*module + 1, false, false);
 		} else if (state == '1') {
-			this->setPlainOutput(2*module, true, true);
+			this->setPlainOutput(2*module, true, false);
 			if (subret != 0 && retval == 0)
 				retval = subret;
-			this->setPlainOutput(2*module + 1, true, true);
+			this->setPlainOutput(2*module + 1, true, false);
 		}
 		if (subret != 0 && retval == 0)
 			retval = subret;
@@ -768,13 +779,9 @@ void RcsXn::m_acc_reset_timer_tick() {
 		this->m_accToResetDeq.pop_front();
 
 		if (reset.id == this->m_accToResetArr[reset.portAddr]) {
+			m_accToResetArr[reset.portAddr] = 0;
 			if (this->m_accToResetDeq.empty()) {
-				this->setPlainOutput(reset.portAddr, 0, false); // will assign m_accToResetArr[portAddr] = 0;
-			} else {
-				unsigned int module = reset.portAddr / IO_OUT_MODULE_PIN_COUNT;
-				m_accToResetArr[reset.portAddr] = 0;
-				outputs[reset.portAddr] = false;
-				events.call(events.onOutputChanged, module);
+				this->setPlainOutput(reset.portAddr, 0, false);
 			}
 		}
 	}

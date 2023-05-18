@@ -97,6 +97,7 @@ public:
 	std::array<bool, IO_IN_MODULES_COUNT> real_active_in; // 0-255
 	std::array<bool, IO_IN_MODULES_COUNT> user_active_in; // 0-255
 	std::array<bool, IO_OUT_MODULES_COUNT> user_active_out; // 0-1023
+	std::array<bool, IO_OUT_MODULES_COUNT> binary; // 0-1023
 	uint8_t scan_group;
 	QString config_filename = "";
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
@@ -129,7 +130,7 @@ public:
 	int start();
 	int stop();
 
-	int setPlainOutput(unsigned int portAddr, int state, bool signal = false);
+	int setPlainOutput(unsigned int portAddr, int state, bool setInternalState = true);
 	void xnSetOutputOk(unsigned int portAddr, int state);
 	void xnSetOutputError(unsigned int module);
 
@@ -184,8 +185,8 @@ private:
 	uint8_t inBusModuleAddr(uint8_t userAddr);
 
 	template <std::size_t ArraySize>
-	void parseActiveModules(const QString &active, std::array<bool, ArraySize> &result,
-	                        bool except = true);
+	void parseModules(const QString &active, std::array<bool, ArraySize> &result,
+	                  bool except = true);
 
 	template <std::size_t ArraySize>
 	QString getActiveStr(const std::array<bool, ArraySize> &source, const QString &separator);
