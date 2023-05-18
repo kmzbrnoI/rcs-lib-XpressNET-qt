@@ -26,6 +26,9 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	    &xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)),
 	    this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState))
 	);
+	QObject::connect(&m_acc_reset_timer, SIGNAL(timeout()), this, SLOT(m_acc_reset_timer_tick()));
+	m_acc_reset_timer.setInterval(ACC_RESET_TIMER_PERIOD);
+	m_acc_reset_timer.start();
 
 	// No loading of configuration here (caller should call LoadConfig)
 
@@ -365,10 +368,24 @@ void RcsXn::initScanningDone() {
 		this->resetSignals();
 }
 
-void RcsXn::xnSetOutputError(void *sender, void *data) {
-	(void)sender;
+void RcsXn::xnSetOutputOk(unsigned int portAddr, int state) {
+	if (this->m_acc_op_pending_count > 0)
+		this->m_acc_op_pending_count--;
+
+	if (state > 0) {
+		static unsigned int id = 0;
+		id++;
+		if (id == 0)
+			id = 1;
+		m_accToResetDeq.emplace_back(id, portAddr, QDateTime::currentDateTime().addMSecs(OUTPUT_ACTIVE_TIME));
+		m_accToResetArr[portAddr] = id; // so we know which reset time is valid
+	}
+}
+
+void RcsXn::xnSetOutputError(unsigned int module) {
 	// TODO: mark module as failed?
-	unsigned int module = reinterpret_cast<uintptr_t>(data);
+	if (this->m_acc_op_pending_count > 0)
+		this->m_acc_op_pending_count--;
 	error("Command Station did not respond to SetOutput command!", RCS_MODULE_NOT_ANSWERED_CMD,
 	      module);
 }
@@ -399,14 +416,16 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool signal) {
 	if ((s["global"]["disableSetOutputOff"].toBool()) && (rx.xn.getTrkStatus() != Xn::TrkStatus::On))
 		return RCS_MODULE_INVALID_ADDR;
 
+	this->m_acc_op_pending_count++;
 	xn.accOpRequest(
-	    static_cast<uint16_t>(realPortAddr), static_cast<bool>(state), nullptr,
-	    std::make_unique<Xn::Cb>([this](void *s, void *d) { this->xnSetOutputError(s, d); },
-	                             reinterpret_cast<void *>(module))
+		static_cast<uint16_t>(realPortAddr), static_cast<bool>(state),
+		std::make_unique<Xn::Cb>([this, portAddr, state](void *, void *) { this->xnSetOutputOk(portAddr, state); }),
+		std::make_unique<Xn::Cb>([this, module](void *, void *) { this->xnSetOutputError(module); })
 	);
 
+	if (state == 0)
+		m_accToResetArr[portAddr] = 0;
 
-clean:
 	events.call(events.onOutputChanged, module); // TODO: move to ok callback?
 	return 0;
 }
@@ -709,6 +728,9 @@ void RcsXn::resetIOState() {
 	std::fill(this->inputs.begin(), this->inputs.end(), false);
 	for (auto &signal : this->sig)
 		signal.second.currentCode = 0;
+	std::fill(this->m_accToResetArr.begin(), this->m_accToResetArr.end(), 0);
+	this->m_accToResetDeq.clear();
+	this->m_acc_op_pending_count = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -735,5 +757,27 @@ uint8_t RcsXn::inBusModuleAddr(uint8_t userAddr) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void RcsXn::m_acc_reset_timer_tick() {
+	/* Only reset of last set-output command should be performed.
+	 * But only in situation, when acc command is not pending (because reset would cancel pending set-output)!
+	 */
+
+	while ((!this->m_accToResetDeq.empty()) && (QDateTime::currentDateTime() >= this->m_accToResetDeq.front().resetTime)) {
+		const AccReset reset = std::move(this->m_accToResetDeq.front());
+		this->m_accToResetDeq.pop_front();
+
+		if (reset.id == this->m_accToResetArr[reset.portAddr]) {
+			if (this->m_accToResetDeq.empty()) {
+				this->setPlainOutput(reset.portAddr, 0, false); // will assign m_accToResetArr[portAddr] = 0;
+			} else {
+				unsigned int module = reset.portAddr / IO_OUT_MODULE_PIN_COUNT;
+				m_accToResetArr[reset.portAddr] = 0;
+				outputs[reset.portAddr] = false;
+				events.call(events.onOutputChanged, module);
+			}
+		}
+	}
+}
 
 } // namespace RcsXn

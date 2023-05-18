@@ -10,8 +10,10 @@
 #include <QThread>
 #include <QtCore/QtGlobal>
 #include <QtGlobal>
+#include <QTimer>
 #include <array>
 #include <map>
+#include <queue>
 
 #include "events.h"
 #include "form-signal-edit.h"
@@ -28,7 +30,9 @@ constexpr size_t IO_OUT_MODULE_PIN_COUNT = 2;
 constexpr size_t IO_IN_MODULE_PIN_COUNT = 8;
 constexpr size_t IO_OUT_MODULES_COUNT = IO_COUNT / IO_OUT_MODULE_PIN_COUNT;
 constexpr size_t IO_IN_MODULES_COUNT = IO_COUNT / IO_IN_MODULE_PIN_COUNT;
-constexpr size_t SIGNAL_INIT_RESET_PERIOD = 200; // 200 ms
+constexpr size_t SIGNAL_INIT_RESET_PERIOD = 200; // ms
+constexpr size_t OUTPUT_ACTIVE_TIME = 500; // ms
+constexpr size_t ACC_RESET_TIMER_PERIOD = 100; // ms
 
 const QColor LOGC_ERROR = QColor(0xFF, 0xAA, 0xAA);
 const QColor LOGC_WARN = QColor(0xFF, 0xFF, 0xAA);
@@ -63,6 +67,17 @@ class MainWindow : public QMainWindow {
 public:
 	Ui::MainWindow ui;
 	MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) { ui.setupUi(this); }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct AccReset {
+	AccReset(unsigned int id, unsigned int portAddr, QDateTime resetTime)
+		: id(id), portAddr(portAddr), resetTime(resetTime) {}
+
+	unsigned int id;
+	unsigned int portAddr;
+	QDateTime resetTime;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,7 +130,8 @@ public:
 	int stop();
 
 	int setPlainOutput(unsigned int portAddr, int state, bool signal = false);
-	void xnSetOutputError(void *sender, void *data);
+	void xnSetOutputOk(unsigned int portAddr, int state);
+	void xnSetOutputError(unsigned int module);
 
 	bool isSignal(unsigned int portAddr) const; // 0-2047
 	int setSignal(unsigned int portAddr, unsigned int code); // returns same error codes as SetOutput
@@ -130,6 +146,8 @@ private slots:
 	                         Xn::AccInputsState state);
 
 	void resetSignals();
+
+	void m_acc_reset_timer_tick();
 
 	// GUI
 	void cb_loglevel_changed(int);
@@ -148,6 +166,11 @@ private slots:
 	void b_dcc_off_handle();
 
 private:
+	unsigned int m_acc_op_pending_count = 0;
+	QTimer m_acc_reset_timer;
+	std::deque<AccReset> m_accToResetDeq;
+	std::array<unsigned int, IO_COUNT> m_accToResetArr;
+
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
 	void xnOnLIVersionError(void *, void *);
 	void xnOnCSStatusError(void *, void *);
