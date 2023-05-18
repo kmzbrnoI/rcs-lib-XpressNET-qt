@@ -198,7 +198,6 @@ void RcsXn::loadConfig(const QString &filename) {
 	try {
 		form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 		form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
-		form.ui.chb_forbid_00_output->setChecked(s["global"]["forbid00Output"].toBool());
 		form.ui.chb_reset_signals->setChecked(s["global"]["resetSignals"].toBool());
 		form.ui.chb_disable_set_output_off->setChecked(s["global"]["disableSetOutputOff"].toBool());
 		if (s["global"]["addrRange"].toString() == "basic")
@@ -386,9 +385,6 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool signal) {
 		if ((s["global"]["onlyOneActive"].toBool()) && (state > 0))
 			outputs[secondPort] = false;
 		outputs[portAddr] = static_cast<bool>(state);
-
-		if ((s["global"]["forbid00Output"].toBool()) && (!this->outputs[secondPort]) && (state == 0))
-			goto clean;
 	}
 
 	if (s["global"]["addrRange"].toString() == "lenz") {

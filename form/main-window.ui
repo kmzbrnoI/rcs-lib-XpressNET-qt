@@ -321,7 +321,7 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>220</y>
+          <y>200</y>
           <width>351</width>
           <height>17</height>
          </rect>
@@ -330,24 +330,11 @@
          <string>Nastavit všechna návěstidla při startu na stůj</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="chb_forbid_00_output">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>200</y>
-          <width>351</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Neodesílat stav, kdy by obě polohy výhybky měly být neaktivní</string>
-        </property>
-       </widget>
        <widget class="QCheckBox" name="chb_disable_set_output_off">
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>240</y>
+          <y>220</y>
           <width>351</width>
           <height>17</height>
          </rect>
@@ -640,7 +627,7 @@
            <bool>false</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="headerCascadingSectionResizes">
            <bool>false</bool>

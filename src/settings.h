@@ -22,7 +22,6 @@ const Config DEFAULTS {
 		{"addrRange", "basic"},
 		{"resetSignals", false},
 		{"mockInputs", false},
-		{"forbid00Output", true},
 		{"disableSetOutputOff", false},
 	}},
 	{"modules", {
