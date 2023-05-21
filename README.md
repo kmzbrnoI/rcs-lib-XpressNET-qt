@@ -29,42 +29,7 @@ enough. If your computer complains about unmet dependencies, use `all` variant.
 
 ## Building & toolkit
 
-This library was developed in `vim` using `qmake` & `make`. It is suggested
-to use `clang` as a compiler, because then you may use `clang-tools` (see below).
-
-### Prerequisities
-
- * Qt 5
- * Qt's `serialport`
- * [Bear](https://github.com/rizsotto/Bear)
-
-### Toolchain setup on debian
-
-```bash
-$ apt install qt5-default libqt5serialport5-dev
-$ apt install bear
-$ apt install clang-7 clang-tools-7 clang-tidy-7 clang-format-7
-```
-
-### Build
-
-Clone this repository (including submodules!):
-
-```
-$ git clone --recurse-submodules https://github.com/kmzbrnoI/rcs-lib-XpressNET-qt
-```
-
-And then build:
-
-```
-$ mkdir build
-$ cd build
-$ qmake -spec linux-clang ..
-$ bear make
-```
-
-## Compiling for Windows
-
+This library is developed mainly on Windows using Qt Creator.
 Just open the project in Qt Creator and compile it. This approach is currently used to build windows binaries in releases.
 
 ## Style checking
