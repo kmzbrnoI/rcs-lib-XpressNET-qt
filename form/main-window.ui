@@ -151,19 +151,6 @@
          <string>Obnovit</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="chb_only_one_active">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>180</y>
-          <width>351</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Nejvýše jeden výstupní pin z dvojice může být aktivní</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_8">
         <property name="geometry">
          <rect>
@@ -321,7 +308,7 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>200</y>
+          <y>180</y>
           <width>351</width>
           <height>17</height>
          </rect>
@@ -334,7 +321,7 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>220</y>
+          <y>200</y>
           <width>351</width>
           <height>17</height>
          </rect>

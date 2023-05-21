@@ -18,7 +18,6 @@ const Config DEFAULTS {
 		{"interface", "LI101"},
 	}},
 	{"global", {
-		{"onlyOneActive", true},
 		{"addrRange", "basic"},
 		{"resetSignals", false},
 		{"mockInputs", false},

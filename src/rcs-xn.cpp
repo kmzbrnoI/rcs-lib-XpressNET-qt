@@ -200,7 +200,6 @@ void RcsXn::loadConfig(const QString &filename) {
 	this->gui_config_changing = true;
 	try {
 		form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
-		form.ui.chb_only_one_active->setChecked(s["global"]["onlyOneActive"].toBool());
 		form.ui.chb_reset_signals->setChecked(s["global"]["resetSignals"].toBool());
 		form.ui.chb_disable_set_output_off->setChecked(s["global"]["disableSetOutputOff"].toBool());
 		if (s["global"]["addrRange"].toString() == "basic")
@@ -411,7 +410,7 @@ int RcsXn::setPlainOutput(unsigned int portAddr, int state, bool setInternalStat
 		// Checks only done for non-signal outputs
 
 		unsigned int secondPort = (module<<1) + !(port&1); // 0-2047
-		if ((s["global"]["onlyOneActive"].toBool()) && (state > 0))
+		if (state > 0)
 			outputs[secondPort] = false;
 
 		outputs[portAddr] = static_cast<bool>(state);
