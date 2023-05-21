@@ -35,6 +35,8 @@ void RcsXn::guiInit() {
 	                 SLOT(b_active_load_handle()));
 	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
 
+	QObject::connect(form.ui.b_apply_binary, SIGNAL(released()), this, SLOT(b_apply_binary_handle()));
+
 	QObject::connect(form.ui.b_signal_add, SIGNAL(released()), this, SLOT(b_signal_add_handle()));
 	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this,
 	                 SLOT(b_signal_remove_handle()));
@@ -84,7 +86,7 @@ void RcsXn::fillConnectionsCbs() {
 
 	// Port
 	this->fillPortCb();
-    this->gui_config_changing = true;
+	this->gui_config_changing = true;
 
 	// Speed
 	form.ui.cb_serial_speed->clear();
@@ -352,6 +354,29 @@ void RcsXn::widgetSetColor(QWidget &widget, const QColor &color) {
 	QPalette palette = widget.palette();
 	palette.setColor(QPalette::WindowText, color);
 	widget.setPalette(palette);
+}
+
+void RcsXn::b_apply_binary_handle() {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	try {
+		this->parseModules(form.ui.te_binary_outputs->toPlainText().replace("\n", ","), this->binary, true);
+		this->saveConfig(this->config_filename);
+		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
+		QApplication::restoreOverrideCursor();
+		QMessageBox::information(&(this->form), "Ok", "Použito.", QMessageBox::Ok);
+	} catch (const EInvalidRange &e) {
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(),
+		                     QMessageBox::Ok);
+	} catch (const QStrException &e) {
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
+	} catch (...) {
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning(&(this->form), "Chyba!", "Neznámá chyba.", QMessageBox::Ok);
+	}
+
 }
 
 } // namespace RcsXn

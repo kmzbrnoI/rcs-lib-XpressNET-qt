@@ -165,6 +165,7 @@ private slots:
 	void chb_general_config_changed(int state);
 	void b_dcc_on_handle();
 	void b_dcc_off_handle();
+	void b_apply_binary_handle();
 
 private:
 	unsigned int m_acc_op_pending_count = 0;

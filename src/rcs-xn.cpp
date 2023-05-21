@@ -241,11 +241,13 @@ void RcsXn::loadConfig(const QString &filename) {
 			          RcsXnLogLevel::llError);
 			throw;
 		}
+		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
 
 		this->gui_config_changing = false;
 	} catch (...) {
 		this->fillSignals();
 		this->fillActiveIO();
+		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
 
 		this->gui_config_changing = false;
 		throw;
