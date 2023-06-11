@@ -49,6 +49,8 @@ void RcsXn::guiInit() {
 	QObject::connect(form.ui.b_dcc_on, SIGNAL(released()), this, SLOT(b_dcc_on_handle()));
 	QObject::connect(form.ui.b_dcc_off, SIGNAL(released()), this, SLOT(b_dcc_off_handle()));
 
+	form.ui.tw_main->setCurrentIndex(0);
+
 	QString text;
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 	form.setWindowTitle(text);
