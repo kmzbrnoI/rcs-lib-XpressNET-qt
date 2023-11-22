@@ -5,6 +5,7 @@
 #include <QString>
 #include <cstddef>
 #include <map>
+#include <array>
 
 namespace RcsXn {
 
@@ -33,23 +34,23 @@ struct XnSignal {
 };
 
 const std::array<QString, 17> XnSignalCodes {
-    "Stůj/posun zakázán",
-    "Volno",
-    "Výstraha",
-    "Očekávejte 40 km/h",
-    "40 km/h a volno",
-    "Svítí vše (rezerva)",
-    "40 km/h a výstraha",
-    "40 km/h a očekávejte 40 km/h",
-    "Přivolávací návěst",
-    "Dovolen zajištěný posun",
-    "Dovolen nezajištěný posun",
-    "Opakování návěsti volno",
-    "Opakování návěsti výstraha",
-    "Návěstidlo zhaslé",
-    "Opak. návěsti očekávejte 40 km/h",
-    "Opak. návěsti výstraha a 40 km/h",
-    "Opak. návěsti oček. 40 km/h a 40 km/h",
+	"Stůj/posun zakázán",
+	"Volno",
+	"Výstraha",
+	"Očekávejte 40 km/h",
+	"40 km/h a volno",
+	"Svítí vše (rezerva)",
+	"40 km/h a výstraha",
+	"40 km/h a očekávejte 40 km/h",
+	"Přivolávací návěst",
+	"Dovolen zajištěný posun",
+	"Dovolen nezajištěný posun",
+	"Opakování návěsti volno",
+	"Opakování návěsti výstraha",
+	"Návěstidlo zhaslé",
+	"Opak. návěsti očekávejte 40 km/h",
+	"Opak. návěsti výstraha a 40 km/h",
+	"Opak. návěsti oček. 40 km/h a 40 km/h",
 };
 
 using SigTmplStorage = std::map<QString, XnSignalTemplate>;
