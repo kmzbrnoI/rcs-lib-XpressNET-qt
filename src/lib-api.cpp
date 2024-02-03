@@ -60,6 +60,9 @@ int LoadConfig(char16_t *filename) {
 	try {
 		rx.config_filename = QString::fromUtf16(filename);
 		rx.loadConfig(QString::fromUtf16(filename));
+	} catch (const QStrException& e) {
+		rx.log(e.str(), RcsXnLogLevel::llError);
+		return RCS_FILE_CANNOT_ACCESS;
 	} catch (...) { return RCS_FILE_CANNOT_ACCESS; }
 	return 0;
 }
@@ -67,6 +70,9 @@ int LoadConfig(char16_t *filename) {
 int SaveConfig(char16_t *filename) {
 	try {
 		rx.saveConfig(QString::fromUtf16(filename));
+	} catch (const QStrException& e) {
+		rx.log(e.str(), RcsXnLogLevel::llError);
+		return RCS_FILE_CANNOT_ACCESS;
 	} catch (...) { return RCS_FILE_CANNOT_ACCESS; }
 	return 0;
 }

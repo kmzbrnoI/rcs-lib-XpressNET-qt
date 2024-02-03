@@ -194,8 +194,18 @@ int RcsXn::stop() {
 
 void RcsXn::loadConfig(const QString &filename) {
 	s.load(filename, false); // do not load & store nonDefaults
-	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt());
+
+	bool ok;
+	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt(&ok));
 	this->xn.loglevel = static_cast<Xn::LogLevel>(s["XN"]["loglevel"].toInt());
+	if (!ok)
+		throw QStrException("logLevel invalid type!");
+
+	Xn::XNConfig xnconfig;
+	xnconfig.outInterval = s["XN"]["outIntervalMs"].toUInt(&ok);
+	if (!ok)
+		throw QStrException("outIntervalMs invalid type!");
+	this->xn.setConfig(xnconfig);
 
 	this->gui_config_changing = true;
 	try {
