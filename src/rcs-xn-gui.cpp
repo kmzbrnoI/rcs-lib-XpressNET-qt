@@ -52,7 +52,11 @@ void RcsXn::guiInit() {
 	form.ui.tw_main->setCurrentIndex(0);
 
 	QString text;
+#ifdef RCS_XN_RELEASE
 	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
+#else
+	text.sprintf("Nastavení RCS XpressNET knihovny v%d.%d-dev", VERSION_MAJOR, VERSION_MINOR);
+#endif
 	form.setWindowTitle(text);
 	form.setFixedSize(form.size());
 }

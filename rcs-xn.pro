@@ -58,10 +58,13 @@ QT += core gui serialport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 VERSION_MAJOR = 1
-VERSION_MINOR = 4
+VERSION_MINOR = 5
 
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR" \
-	"VERSION_MINOR=$$VERSION_MINOR"
+	"VERSION_MINOR=$$VERSION_MINOR" \
+
+# Uncomment for official release without '-dev' in caption
+# DEFINES += "RCS_XN_RELEASE"
 
 #Target version
 VERSION = "$${VERSION_MAJOR}.$${VERSION_MINOR}"
