@@ -30,6 +30,9 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	m_acc_reset_timer.setInterval(ACC_RESET_TIMER_PERIOD);
 	m_acc_reset_timer.start();
 
+	QObject::connect(&m_resetSignalsTimer, SIGNAL(timeout()), this, SLOT(resetNextSignal()));
+	m_resetSignalsTimer.setInterval(SIGNAL_INIT_RESET_PERIOD);
+
 	// No loading of configuration here (caller should call LoadConfig)
 
 	this->guiInit();
@@ -718,30 +721,37 @@ int RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 	return retval;
 }
 
-void RcsXn::resetSignals() {
-	static QTimer timer;
-	static auto it = this->sig.begin();
+bool RcsXn::isResettingSignals() const {
+	return this->m_resetSignalsTimer.isActive();
+}
 
-	if (!timer.isActive()) {
-		log("Nastavuji návěstidla na stůj...", RcsXnLogLevel::llInfo);
-		it = this->sig.begin();
-		QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(resetSignals()));
-		timer.setInterval(SIGNAL_INIT_RESET_PERIOD);
-		timer.start();
-	} else {
-		if (it == this->sig.end() || !this->xn.connected()) {
-			timer.stop();
-			log("Návěstidla nastavena na stůj.", RcsXnLogLevel::llInfo);
-			return;
-		}
+void RcsXn::resetSignals() {
+	if (this->isResettingSignals())
+		return;
+
+	log("Nastavuji návěstidla na stůj...", RcsXnLogLevel::llInfo);
+	this->m_resetSignalsIt = this->sig.begin();
+	this->m_resetSignalsTimer.start();
+
+	this->resetNextSignal();
+}
+
+void RcsXn::resetNextSignal() {
+	if (!this->isResettingSignals())
+		return;
+
+	if (this->m_resetSignalsIt == this->sig.end() || !this->xn.connected()) {
+		this->m_resetSignalsTimer.stop();
+		log("Návěstidla nastavena na stůj.", RcsXnLogLevel::llInfo);
+		return;
 	}
 
-	while (it->second.currentCode != 0 && it != this->sig.end())
-		++it;
+	while (this->m_resetSignalsIt->second.currentCode != 0 && this->m_resetSignalsIt != this->sig.end())
+		++this->m_resetSignalsIt;
 
-	if (it != this->sig.end()) {
-		this->setSignal(it->second.startAddr * IO_OUT_MODULE_PIN_COUNT, 0);
-		++it;
+	if (this->m_resetSignalsIt != this->sig.end()) {
+		this->setSignal(this->m_resetSignalsIt->second.startAddr * IO_OUT_MODULE_PIN_COUNT, 0);
+		++this->m_resetSignalsIt;
 	}
 }
 

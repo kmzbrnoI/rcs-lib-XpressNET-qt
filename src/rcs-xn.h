@@ -136,6 +136,7 @@ public:
 
 	bool isSignal(unsigned int portAddr) const; // 0-2047
 	int setSignal(unsigned int portAddr, unsigned int code); // returns same error codes as SetOutput
+	bool isResettingSignals() const;
 
 private slots:
 	void xnOnError(QString error);
@@ -146,7 +147,7 @@ private slots:
 	void xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::FeedbackType inputType,
 	                         Xn::AccInputsState state);
 
-	void resetSignals();
+	void resetNextSignal();
 
 	void m_acc_reset_timer_tick();
 
@@ -172,6 +173,8 @@ private:
 	QTimer m_acc_reset_timer;
 	std::deque<AccReset> m_accToResetDeq;
 	std::array<unsigned int, IO_COUNT> m_accToResetArr;
+	QTimer m_resetSignalsTimer;
+	SigStorage::iterator m_resetSignalsIt;
 
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
 	void xnOnLIVersionError(void *, void *);
@@ -201,6 +204,7 @@ private:
 	unsigned int current_editing_signal;
 	void newSignal(XnSignal);
 	void editedSignal(XnSignal);
+	void resetSignals();
 
 	void setDcc(Xn::TrkStatus);
 	void widgetSetColor(QWidget &widget, const QColor &color);
