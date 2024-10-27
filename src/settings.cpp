@@ -11,7 +11,7 @@ void Settings::loadDefaults() {
 
 void Settings::load(const QString &filename, bool loadNonDefaults) {
 	QSettings s(filename, QSettings::IniFormat);
-	s.setIniCodec("UTF-8");
+	//s.setIniCodec("UTF-8");
 	data.clear();
 
 	for (const auto &g : s.childGroups()) {
@@ -32,7 +32,7 @@ void Settings::load(const QString &filename, bool loadNonDefaults) {
 
 void Settings::save(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
-	s.setIniCodec("UTF-8");
+	//s.setIniCodec("UTF-8");
 
 	for (const auto &gm : data) {
 		s.beginGroup(gm.first);
