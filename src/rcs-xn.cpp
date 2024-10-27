@@ -227,7 +227,7 @@ void RcsXn::loadConfig(const QString &filename) {
 
 		try {
 			QSettings s(filename, QSettings::IniFormat);
-			s.setIniCodec("UTF-8");
+			//s.setIniCodec("UTF-8");
 			this->sig = signalsFromFile(s);
 			this->sigTemplates = signalTemplatesFromFile(s);
 		} catch (const QStrException &e) {
@@ -460,7 +460,7 @@ void RcsXn::parseModules(const QString &active, std::array<bool, ArraySize> &res
                          bool except) {
 	std::fill(result.begin(), result.end(), false);
 
-	const QStringList ranges = active.split(',', QString::SkipEmptyParts);
+	const QStringList ranges = active.split(',', Qt::SkipEmptyParts);
 	for (const QString &range : ranges) {
 		const QStringList bounds = range.split('-');
 		bool okl, okr = false;
@@ -656,7 +656,7 @@ void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 
 void RcsXn::saveSignals(const QString &filename) {
 	QSettings s(filename, QSettings::IniFormat);
-	s.setIniCodec("UTF-8");
+	//s.setIniCodec("UTF-8");
 
 	// delete sections
 	for (const auto &g : s.childGroups()) {
