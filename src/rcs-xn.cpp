@@ -709,10 +709,10 @@ int RcsXn::setSignal(unsigned int portAddr, unsigned int code) {
 				retval = subret;
 			subret = this->setPlainOutput(2*module + 1, false, false);
 		} else if (state == '1') {
-			this->setPlainOutput(2*module, true, false);
+			subret = this->setPlainOutput(2*module, true, false);
 			if (subret != 0 && retval == 0)
 				retval = subret;
-			this->setPlainOutput(2*module + 1, true, false);
+			subret = this->setPlainOutput(2*module + 1, true, false);
 		}
 		if (subret != 0 && retval == 0)
 			retval = subret;
