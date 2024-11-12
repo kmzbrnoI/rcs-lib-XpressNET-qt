@@ -315,7 +315,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 		// -> go to next message directly
 		uint8_t old_scan_group = this->scan_group;
 		log("Module scanning: invalid response!", RcsXnLogLevel::llError);
-		xn.histClear();
+		xn.pendingClear();
 		if (this->scan_group == old_scan_group && this->started != RcsStartState::started) {
 			// Buffer clear did not automatically call scanNextGroup -> call it manually
 			nibbles_scanned = 0;

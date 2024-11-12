@@ -26,11 +26,11 @@ FORMS += \
 	form/signal-edit.ui
 
 SOURCES += \
+	lib/xn-lib-cpp-qt/xn-pending.cpp \
 	lib/xn-lib-cpp-qt/xn.cpp \
 	lib/xn-lib-cpp-qt/xn-api.cpp \
 	lib/xn-lib-cpp-qt/xn-receive.cpp \
 	lib/xn-lib-cpp-qt/xn-send.cpp \
-	lib/xn-lib-cpp-qt/xn-hist.cpp \
 	lib/xn-lib-cpp-qt/xn-win-com-discover.cpp
 HEADERS += \
 	lib/xn-lib-cpp-qt/q-str-exception.h \
