@@ -16,15 +16,15 @@ RcsXn rx;
 RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	// XN events
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
-	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
-	                 SLOT(xnOnLog(QString, Xn::LogLevel)));
+    QObject::connect(&xn, SIGNAL(onLog(QString,Xn::LogLevel)), this,
+                     SLOT(xnOnLog(QString,Xn::LogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
 	                 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
 	QObject::connect(
-	    &xn, SIGNAL(onAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState)),
-	    this, SLOT(xnOnAccInputChanged(uint8_t, bool, bool, Xn::FeedbackType, Xn::AccInputsState))
+        &xn, SIGNAL(onAccInputChanged(uint8_t,bool,bool,Xn::FeedbackType,Xn::AccInputsState)),
+        this, SLOT(xnOnAccInputChanged(uint8_t,bool,bool,Xn::FeedbackType,Xn::AccInputsState))
 	);
 	QObject::connect(&m_acc_reset_timer, SIGNAL(timeout()), this, SLOT(m_acc_reset_timer_tick()));
 	m_acc_reset_timer.setInterval(ACC_RESET_TIMER_PERIOD);

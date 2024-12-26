@@ -39,10 +39,10 @@ void RcsXn::guiInit() {
 	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this,
 	                 SLOT(b_signal_remove_handle()));
 
-	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
-	                 SLOT(tw_log_double_clicked(QTreeWidgetItem *, int)));
-	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
-	                 SLOT(tw_signals_dbl_click(QTreeWidgetItem *, int)));
+    QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
+                     SLOT(tw_log_double_clicked(QTreeWidgetItem*,int)));
+    QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
+                     SLOT(tw_signals_dbl_click(QTreeWidgetItem*,int)));
 	QObject::connect(form.ui.tw_signals, SIGNAL(itemSelectionChanged()), this,
 	                 SLOT(tw_signals_selection_changed()));
 
