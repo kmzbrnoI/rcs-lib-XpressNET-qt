@@ -104,14 +104,14 @@ public:
 	unsigned int modules_count = 0;
 	unsigned int in_count = 0, out_count = 0;
 
+	// signals
+	SigTmplStorage sigTemplates;
+	SigStorage sig;
+
 	// UI
 	MainWindow form;
 	SignalEdit::FormSignalEdit f_signal_edit;
 	bool gui_config_changing = false;
-
-	// signals
-	SigTmplStorage sigTemplates;
-	SigStorage sig;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	~RcsXn() override;
