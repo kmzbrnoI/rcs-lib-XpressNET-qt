@@ -51,11 +51,10 @@ void RcsXn::guiInit() {
 
 	form.ui.tw_main->setCurrentIndex(0);
 
-	QString text;
 #ifdef RCS_XN_RELEASE
-	text.asprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
+	QString text = QString::asprintf("Nastavení RCS XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 #else
-	text.asprintf("Nastavení RCS XpressNET knihovny v%d.%d-dev", VERSION_MAJOR, VERSION_MINOR);
+	QString text = QString::asprintf("Nastavení RCS XpressNET knihovny v%d.%d-dev", VERSION_MAJOR, VERSION_MINOR);
 #endif
 	form.setWindowTitle(text);
 	form.setFixedSize(form.size());
