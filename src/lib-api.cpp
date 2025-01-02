@@ -243,8 +243,11 @@ unsigned int GetMaxModuleAddr() { return std::max(IO_IN_MODULES_COUNT, IO_OUT_MO
 
 bool IsModuleFailure(unsigned int module) {
 	try {
-		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT &&
-				rx.user_active_in[module] && !rx.real_active_in[module]);
+		// Output module is always marked as active - so outputs
+		// could be set even if input module is absent.
+		if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
+			return false;
+		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT && rx.user_active_in[module] && !rx.real_active_in[module]);
 	} catch (...) { return false; }
 }
 
