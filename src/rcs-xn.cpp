@@ -462,7 +462,12 @@ void RcsXn::parseModules(const QString &active, std::array<bool, ArraySize> &res
                          bool except) {
 	std::fill(result.begin(), result.end(), false);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	const QStringList ranges = active.split(',', QString::SkipEmptyParts);
+#else
 	const QStringList ranges = active.split(',', Qt::SkipEmptyParts);
+#endif
+
 	for (const QString &range : ranges) {
 		const QStringList bounds = range.split('-');
 		bool okl, okr = false;
