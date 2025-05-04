@@ -58,6 +58,7 @@ void RcsXn::guiInit() {
 #endif
 	form.setWindowTitle(text);
 	form.setFixedSize(form.size());
+	form.setWindowFlags(Qt::Dialog);
 }
 
 void RcsXn::cb_loglevel_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
