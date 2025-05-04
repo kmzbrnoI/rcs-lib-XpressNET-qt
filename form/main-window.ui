@@ -20,7 +20,7 @@
    <string>Nastavení RCS XpressNET knihovny</string>
   </property>
   <property name="locale">
-   <locale language="Czech" country="CzechRepublic"/>
+   <locale language="Czech" country="Czechia"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -295,7 +295,6 @@
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -432,10 +431,10 @@
        <widget class="QLabel" name="l_io_count">
         <property name="geometry">
          <rect>
-          <x>50</x>
+          <x>60</x>
           <y>393</y>
-          <width>131</width>
-          <height>20</height>
+          <width>121</width>
+          <height>18</height>
          </rect>
         </property>
         <property name="text">
