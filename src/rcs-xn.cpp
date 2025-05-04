@@ -499,24 +499,6 @@ void RcsXn::parseModules(const QString &active, std::array<bool, ArraySize> &res
 	}
 }
 
-template <std::size_t ArraySize>
-QString RcsXn::getActiveStr(const std::array<bool, ArraySize> &source, const QString &separator) {
-	QString output;
-	for (size_t start = 0; start < source.size(); ++start) {
-		if (source[start]) {
-			size_t end = start;
-			while (source[end] && end < source.size())
-				++end;
-			if (end == start+1)
-				output += QString::number(start)+separator;
-			else
-				output += QString::number(start)+"-"+QString::number(end-1)+separator;
-			start = end;
-		}
-	}
-	return output;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Xn events
 
