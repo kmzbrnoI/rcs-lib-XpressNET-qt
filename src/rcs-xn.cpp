@@ -188,7 +188,8 @@ int RcsXn::stop() {
 	log("Zastavuji komunikaci...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeStop);
 	this->started = RcsStartState::stopped;
-	std::fill(this->real_active_in.begin(), this->real_active_in.end(), false);
+	for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++)
+		this->modules_in[i].realActive = false;
 	this->resetIOState();
 	events.call(rx.events.afterStop);
 	log("Komunikace zastavena", RcsXnLogLevel::llInfo);
@@ -266,7 +267,8 @@ void RcsXn::loadConfig(const QString &filename) {
 
 void RcsXn::first_scan() {
 	log("Skenuji stav aktivních vstupů...", RcsXnLogLevel::llInfo);
-	std::fill(this->real_active_in.begin(), this->real_active_in.end(), false);
+	for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++)
+		this->modules_in[i].realActive = false;
 	this->scanNextGroup(-1);
 }
 
@@ -382,7 +384,7 @@ void RcsXn::scanNextGroup(int previousGroup) {
 void RcsXn::xnOnInitScanningError(void *, void *data) {
 	log("Module scanning: no response!", RcsXnLogLevel::llError);
 	bool nibble = static_cast<bool>(data);
-	this->real_active_in[this->scan_group] = false;
+	this->modules_in[this->scan_group].realActive = false;
 	this->initModuleScanned(this->scan_group, nibble); // continue scanning
 }
 
@@ -601,12 +603,12 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	this->inputs[port+3] = state.sep.i3;
 
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
-		this->real_active_in[groupAddr] = true;
+		this->modules_in[groupAddr].realActive = true;
 		this->initModuleScanned(groupAddr, nibble);
 		return;
 	}
 
-	this->real_active_in[groupAddr] = true;
+	this->modules_in[groupAddr].realActive = true;
 
 	if (!this->modules_in[groupAddr].wantActive) {
 		if (!form.ui.chb_scan_inputs->isChecked())

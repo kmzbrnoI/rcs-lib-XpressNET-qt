@@ -83,7 +83,6 @@ public:
 	std::array<RcsInputModule, IO_IN_MODULES_COUNT> modules_in;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs;
-	std::array<bool, IO_IN_MODULES_COUNT> real_active_in; // 0-255
 	std::array<bool, IO_OUT_MODULES_COUNT> user_active_out; // 0-1023
 	std::array<bool, IO_OUT_MODULES_COUNT> binary; // 0-1023
 	uint8_t scan_group;

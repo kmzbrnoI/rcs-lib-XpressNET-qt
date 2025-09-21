@@ -110,7 +110,7 @@ int GetInput(unsigned int module, unsigned int port) {
 	try {
 		if (rx.started == RcsStartState::stopped)
 			return RCS_NOT_STARTED;
-		if ((module >= IO_IN_MODULES_COUNT) || (!rx.real_active_in[module]))
+		if ((module >= IO_IN_MODULES_COUNT) || (!rx.modules_in[module].realActive))
 			return (rx.modules_in[module].wantActive) ? RCS_MODULE_FAILED : RCS_MODULE_INVALID_ADDR;
 		if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
@@ -247,7 +247,7 @@ bool IsModuleFailure(unsigned int module) {
 		// could be set even if input module is absent.
 		if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
 			return false;
-		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT && rx.modules_in[module].wantActive && !rx.real_active_in[module]);
+		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT && rx.modules_in[module].wantActive && !rx.modules_in[module].realActive);
 	} catch (...) { return false; }
 }
 
