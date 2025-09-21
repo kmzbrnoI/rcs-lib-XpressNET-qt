@@ -212,6 +212,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>le_name</tabstop>
+  <tabstop>chb_active</tabstop>
+  <tabstop>dsb_ind1</tabstop>
+  <tabstop>dsb_ind2</tabstop>
+  <tabstop>dsb_ind3</tabstop>
+  <tabstop>dsb_ind4</tabstop>
+  <tabstop>dsb_ind7</tabstop>
+  <tabstop>dsb_ind8</tabstop>
+  <tabstop>dsb_ind5</tabstop>
+  <tabstop>dsb_ind6</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
