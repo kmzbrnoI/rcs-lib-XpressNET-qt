@@ -595,12 +595,10 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 		groupAddr++;
 	}
 
-	unsigned int port = 8*groupAddr + 4*nibble;
-
-	this->inputs[port+0] = state.sep.i0;
-	this->inputs[port+1] = state.sep.i1;
-	this->inputs[port+2] = state.sep.i2;
-	this->inputs[port+3] = state.sep.i3;
+	this->modules_in[groupAddr].state[4*nibble] = state.sep.i0;
+	this->modules_in[groupAddr].state[(4*nibble)+1] = state.sep.i1;
+	this->modules_in[groupAddr].state[(4*nibble)+2] = state.sep.i2;
+	this->modules_in[groupAddr].state[(4*nibble)+3] = state.sep.i3;
 
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
 		this->modules_in[groupAddr].realActive = true;
@@ -619,6 +617,7 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	}
 
 	events.call(events.onInputChanged, groupAddr);
+	this->twUpdateInputModuleInputs(groupAddr);
 }
 
 void RcsXn::xnOnLIVersionError(void *, void *) {
@@ -762,7 +761,9 @@ void RcsXn::resetNextSignal() {
 
 void RcsXn::resetIOState() {
 	std::fill(this->outputs.begin(), this->outputs.end(), false);
-	std::fill(this->inputs.begin(), this->inputs.end(), false);
+	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++)
+		for (auto& state : this->modules_in[addr].state)
+			state = false;
 	for (auto &signal : this->sig)
 		signal.second.currentCode = 0;
 	std::fill(this->m_accToResetArr.begin(), this->m_accToResetArr.end(), 0);
