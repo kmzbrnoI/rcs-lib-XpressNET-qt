@@ -267,8 +267,10 @@ void RcsXn::loadConfig(const QString &filename) {
 
 void RcsXn::first_scan() {
 	log("Skenuji stav aktivních vstupů...", RcsXnLogLevel::llInfo);
-	for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++)
+	for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++) {
 		this->modules_in[i].realActive = false;
+		this->twUpdateInputModuleInputs(i);
+	}
 	this->scanNextGroup(-1);
 }
 
@@ -385,6 +387,7 @@ void RcsXn::xnOnInitScanningError(void *, void *data) {
 	log("Module scanning: no response!", RcsXnLogLevel::llError);
 	bool nibble = static_cast<bool>(data);
 	this->modules_in[this->scan_group].realActive = false;
+	this->twUpdateInputModuleInputs(this->scan_group);
 	this->initModuleScanned(this->scan_group, nibble); // continue scanning
 }
 
@@ -392,8 +395,10 @@ void RcsXn::initScanningDone() {
 	log("Stav vstupů naskenován.", RcsXnLogLevel::llInfo);
 
 	if (rx.s["global"]["mockInputs"].toBool()) {
-		for (RcsInputModule& module : this->modules_in)
+		for (RcsInputModule& module : this->modules_in) {
 			module.realActive = module.wantActive;
+			this->twUpdateInputModuleInputs(module.addr);
+		}
 	}
 
 	this->started = RcsStartState::started;
@@ -602,11 +607,13 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
 		this->modules_in[groupAddr].realActive = true;
+		this->twUpdateInputModuleInputs(groupAddr);
 		this->initModuleScanned(groupAddr, nibble);
 		return;
 	}
 
 	this->modules_in[groupAddr].realActive = true;
+	this->twUpdateInputModuleInputs(groupAddr);
 
 	if (!this->modules_in[groupAddr].wantActive) {
 		if (!form.ui.chb_scan_inputs->isChecked())
@@ -761,9 +768,11 @@ void RcsXn::resetNextSignal() {
 
 void RcsXn::resetIOState() {
 	std::fill(this->outputs.begin(), this->outputs.end(), false);
-	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++)
+	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++) {
 		for (auto& state : this->modules_in[addr].state)
 			state = false;
+		this->twUpdateInputModuleInputs(addr);
+	}
 	for (auto &signal : this->sig)
 		signal.second.currentCode = 0;
 	std::fill(this->m_accToResetArr.begin(), this->m_accToResetArr.end(), 0);

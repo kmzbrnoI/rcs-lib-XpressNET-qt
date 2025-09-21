@@ -426,7 +426,11 @@ void RcsXn::twUpdateInputModuleInputs(unsigned addr) {
 	for (unsigned i = 0; i < module.state.size(); i++) {
 		if (i == (module.state.size()/2))
 			state += " ";
-		state += (module.state[i] ? "1" : "0");
+
+		if (!module.realActive)
+			state += "-";
+		else
+			state += (module.state[i] ? "1" : "0");
 	}
 	item->setText(4, state);
 }
