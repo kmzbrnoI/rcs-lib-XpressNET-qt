@@ -9,6 +9,8 @@
 namespace RcsXn {
 
 void RcsXn::guiInit() {
+	this->fillInputModules();
+
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this,
 	                 SLOT(cb_loglevel_changed(int)));
@@ -57,7 +59,6 @@ void RcsXn::guiInit() {
 	QString text = QString::asprintf("Nastavení RCS XpressNET knihovny v%d.%d-dev", VERSION_MAJOR, VERSION_MINOR);
 #endif
 	form.setWindowTitle(text);
-	form.setFixedSize(form.size());
 	form.setWindowFlags(Qt::Dialog);
 }
 
@@ -378,7 +379,48 @@ void RcsXn::b_apply_binary_handle() {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(&(this->form), "Chyba!", "Neznámá chyba.", QMessageBox::Ok);
 	}
+}
 
+void RcsXn::fillInputModules() {
+	form.ui.tw_input_modules->clear();
+	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++) {
+		auto *item = new FirstNumTreeWidgetItem(form.ui.tw_input_modules);
+		const RcsInputModule& module = this->modules_in[addr];
+		item->setText(0, QString::number(addr));
+		item->setText(1, module.name);
+		item->setText(2, module.active ? "✓" : "");
+
+		{
+			QString delays = "";
+			for (unsigned i = 0; i < module.inputFallDelays.size(); i++) {
+				if (i == (module.inputFallDelays.size()/2))
+					delays += "   ";
+				delays += RcsInputModule::fallDelayToStr(module.inputFallDelays[i]) + "s";
+				if (i < (module.inputFallDelays.size()-1))
+					delays += " ";
+			}
+			item->setText(3, delays);
+		}
+
+		{
+			QString state = "";
+			for (unsigned i = 0; i < module.state.size(); i++) {
+				if (i == (module.state.size()/2))
+					state += " ";
+				state += (module.state[i] ? "1" : "0");
+			}
+			item->setText(4, state);
+		}
+
+		form.ui.tw_input_modules->addTopLevelItem(item);
+	}
+
+	for (int i = 0; i < form.ui.tw_input_modules->columnCount(); ++i)
+		form.ui.tw_input_modules->resizeColumnToContents(i);
+}
+
+QString RcsInputModule::fallDelayToStr(unsigned fallDelay) {
+	return QString::number(fallDelay/10) + "." + QString::number(fallDelay%10);
 }
 
 } // namespace RcsXn

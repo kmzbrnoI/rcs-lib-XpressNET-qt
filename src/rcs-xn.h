@@ -82,6 +82,17 @@ struct AccReset {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct RcsInputModule {
+	QString name;
+	bool active = false;
+	std::array<unsigned, IO_IN_MODULE_PIN_COUNT> inputFallDelays; // [0.1s]: 0-15 ~ 0.0-1.5 s
+	std::array<bool, IO_IN_MODULE_PIN_COUNT> state;
+
+	static QString fallDelayToStr(unsigned fallDelay);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class RcsXn : public QObject {
 	Q_OBJECT
 
@@ -92,6 +103,7 @@ public:
 	RcsXnLogLevel loglevel = RcsXnLogLevel::llInfo;
 	RcsStartState started = RcsStartState::stopped;
 	bool opening = false;
+	std::array<RcsInputModule, IO_IN_MODULES_COUNT> modules_in;
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs;
 	std::array<bool, IO_IN_MODULES_COUNT> real_active_in; // 0-255
@@ -218,6 +230,7 @@ private:
 	void fillActiveIO();
 	void fillSignals();
 	void guiAddSignal(const XnSignal &);
+	void fillInputModules();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
