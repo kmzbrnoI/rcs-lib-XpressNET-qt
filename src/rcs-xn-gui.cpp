@@ -39,12 +39,17 @@ void RcsXn::guiInit() {
 	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this,
 	                 SLOT(b_signal_remove_handle()));
 
-    QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
-                     SLOT(tw_log_double_clicked(QTreeWidgetItem*,int)));
-    QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
-                     SLOT(tw_signals_dbl_click(QTreeWidgetItem*,int)));
+	QObject::connect(form.ui.tw_xn_log, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
+	                 SLOT(tw_log_double_clicked(QTreeWidgetItem*,int)));
+	QObject::connect(form.ui.tw_signals, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
+	                 SLOT(tw_signals_dbl_click(QTreeWidgetItem*,int)));
 	QObject::connect(form.ui.tw_signals, SIGNAL(itemSelectionChanged()), this,
 	                 SLOT(tw_signals_selection_changed()));
+
+	QObject::connect(&this->f_module_edit, SIGNAL(accepted()), this,
+	                 SLOT(f_module_edit_accepted()));
+	QObject::connect(form.ui.tw_input_modules, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this,
+	                 SLOT(tw_input_modules_dbl_click(QTreeWidgetItem*,int)));
 
 	QObject::connect(form.ui.b_dcc_on, SIGNAL(released()), this, SLOT(b_dcc_on_handle()));
 	QObject::connect(form.ui.b_dcc_off, SIGNAL(released()), this, SLOT(b_dcc_off_handle()));
@@ -193,7 +198,7 @@ void RcsXn::b_active_save_handle() {
 			form.ui.te_active_inputs->toPlainText().replace("\n", ","),
 			form.ui.te_active_outputs->toPlainText().replace("\n", ",")
 		);
-		this->saveConfig(this->config_filename);
+		this->saveConfig();
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
 	} catch (const EInvalidRange &e) {
@@ -244,7 +249,7 @@ void RcsXn::b_signal_remove_handle() {
 			if (form.ui.tw_signals->topLevelItem(i) == item)
 				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
-	this->saveConfig(this->config_filename);
+	this->saveConfig();
 
 	QApplication::restoreOverrideCursor();
 }
@@ -271,7 +276,7 @@ void RcsXn::newSignal(XnSignal signal) {
 		throw QStrException("Návěstidlo s touto hJOP adresou je již definováno!");
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->guiAddSignal(signal);
-	this->saveConfig(this->config_filename);
+	this->saveConfig();
 }
 
 void RcsXn::editedSignal(XnSignal signal) {
@@ -287,7 +292,7 @@ void RcsXn::editedSignal(XnSignal signal) {
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->guiAddSignal(signal);
-	this->saveConfig(this->config_filename);
+	this->saveConfig();
 }
 
 void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
@@ -362,7 +367,7 @@ void RcsXn::b_apply_binary_handle() {
 
 	try {
 		this->parseModules(form.ui.te_binary_outputs->toPlainText().replace("\n", ","), this->binary, true);
-		this->saveConfig(this->config_filename);
+		this->saveConfig();
 		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information(&(this->form), "Ok", "Použito.", QMessageBox::Ok);
@@ -379,42 +384,72 @@ void RcsXn::b_apply_binary_handle() {
 	}
 }
 
-void RcsXn::fillInputModules() {
+void RcsXn::twFillInputModules() {
 	form.ui.tw_input_modules->clear();
+
 	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++) {
 		auto *item = new FirstNumTreeWidgetItem(form.ui.tw_input_modules);
-		const RcsInputModule& module = this->modules_in[addr];
-		item->setText(0, QString::number(addr));
-		item->setText(1, module.name);
-		item->setText(2, module.active ? "✓" : "");
-
-		{
-			QString delays = "";
-			for (unsigned i = 0; i < module.inputFallDelays.size(); i++) {
-				if (i == (module.inputFallDelays.size()/2))
-					delays += "   ";
-				delays += RcsInputModule::fallDelayToStr(module.inputFallDelays[i]) + "s";
-				if (i < (module.inputFallDelays.size()-1))
-					delays += " ";
-			}
-			item->setText(3, delays);
-		}
-
-		{
-			QString state = "";
-			for (unsigned i = 0; i < module.state.size(); i++) {
-				if (i == (module.state.size()/2))
-					state += " ";
-				state += (module.state[i] ? "1" : "0");
-			}
-			item->setText(4, state);
-		}
-
 		form.ui.tw_input_modules->addTopLevelItem(item);
+		this->twUpdateInputModule(addr);
 	}
 
 	for (int i = 0; i < form.ui.tw_input_modules->columnCount(); ++i)
 		form.ui.tw_input_modules->resizeColumnToContents(i);
+}
+
+void RcsXn::twUpdateInputModule(unsigned addr) {
+	QTreeWidgetItem *item = this->form.ui.tw_input_modules->topLevelItem(addr);
+	if ((item == nullptr) || (addr >= this->modules_in.size()))
+		return;
+	const RcsInputModule& module = this->modules_in[addr];
+
+	item->setText(0, QString::number(addr));
+	item->setText(1, module.active ? "✓" : "");
+	item->setText(2, module.name);
+
+	{
+		QString delays = "";
+		for (unsigned i = 0; i < module.inputFallDelays.size(); i++) {
+			if (i == (module.inputFallDelays.size()/2))
+				delays += "   ";
+			delays += RcsInputModule::fallDelayToStr(module.inputFallDelays[i]) + "s";
+			if (i < (module.inputFallDelays.size()-1))
+				delays += " ";
+		}
+		item->setText(3, delays);
+	}
+
+	this->twUpdateInputModuleInputs(addr);
+}
+
+void RcsXn::twUpdateInputModuleInputs(unsigned addr) {
+	QTreeWidgetItem *item = this->form.ui.tw_input_modules->topLevelItem(addr);
+	if ((item == nullptr) || (addr >= this->modules_in.size()))
+		return;
+	const RcsInputModule& module = this->modules_in[addr];
+
+	QString state = "";
+	for (unsigned i = 0; i < module.state.size(); i++) {
+		if (i == (module.state.size()/2))
+			state += " ";
+		state += (module.state[i] ? "1" : "0");
+	}
+	item->setText(4, state);
+}
+
+void RcsXn::tw_input_modules_dbl_click(QTreeWidgetItem *item, int column) {
+	(void)column;
+	f_module_edit.moduleOpen(&this->modules_in[this->form.ui.tw_input_modules->indexOfTopLevelItem(item)]);
+}
+
+void RcsXn::f_module_edit_accepted() {
+	if (this->f_module_edit.module == nullptr)
+		return;
+	const unsigned moduleAddr = this->f_module_edit.module->addr;
+
+	this->twUpdateInputModule(moduleAddr);
+	rx.events.call(rx.events.onModuleChanged, moduleAddr);
+	this->saveConfig();
 }
 
 } // namespace RcsXn

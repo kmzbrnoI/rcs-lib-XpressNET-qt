@@ -270,6 +270,10 @@ void RcsXn::first_scan() {
 	this->scanNextGroup(-1);
 }
 
+void RcsXn::saveConfig() {
+	this->saveConfig(this->config_filename);
+}
+
 void RcsXn::saveConfig(const QString &filename) {
 	s["modules"]["active-in"] = getActiveStr(this->user_active_in, ",");
 	s["modules"]["active-out"] = getActiveStr(this->user_active_out, ",");

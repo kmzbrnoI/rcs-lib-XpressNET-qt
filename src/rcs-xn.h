@@ -24,6 +24,7 @@
 #include "signals.h"
 #include "ui_main-window.h"
 #include "rcsinputmodule.h"
+#include "form-in-module-edit.h"
 
 namespace RcsXn {
 
@@ -99,6 +100,7 @@ public:
 	// UI
 	MainWindow form;
 	SignalEdit::FormSignalEdit f_signal_edit;
+	FormInModuleEdit f_module_edit;
 	bool gui_config_changing = false;
 
 	explicit RcsXn(QObject *parent = nullptr);
@@ -115,6 +117,7 @@ public:
 	int close();
 	void loadConfig(const QString &filename);
 	void saveConfig(const QString &filename);
+	void saveConfig();
 	int start();
 	int stop();
 
@@ -155,6 +158,8 @@ private slots:
 	void b_dcc_on_handle();
 	void b_dcc_off_handle();
 	void b_apply_binary_handle();
+	void tw_input_modules_dbl_click(QTreeWidgetItem *, int);
+	void f_module_edit_accepted();
 
 private:
 	unsigned int m_acc_op_pending_count = 0;
@@ -209,7 +214,9 @@ private:
 	void fillActiveIO();
 	void fillSignals();
 	void guiAddSignal(const XnSignal &);
-	void fillInputModules();
+	void twFillInputModules();
+	void twUpdateInputModule(unsigned addr);
+	void twUpdateInputModuleInputs(unsigned addr);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

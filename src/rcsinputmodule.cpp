@@ -26,7 +26,11 @@ void RcsInputModule::save(QSettings& s) const {
 	s.setValue("name", this->name);
 	s.setValue("active", this->active);
 	for (unsigned i = 0; i < IO_IN_MODULE_PIN_COUNT; i++) {
-		s.setValue("fallDelay"+QString::number(i+1), RcsInputModule::fallDelayToStr(this->inputFallDelays[i]));
+		const QString key = "fallDelay"+QString::number(i+1);
+		if (this->inputFallDelays[i] == 0)
+			s.remove(key);
+		else
+			s.setValue(key, RcsInputModule::fallDelayToStr(this->inputFallDelays[i]));
 	}
 }
 
@@ -57,7 +61,7 @@ void RcsXn::loadInputModules(QSettings &s) {
 		this->log("Nepodařilo se načíst vstupní moduly: " + e.str(), RcsXnLogLevel::llError);
 		throw;
 	}
-	this->fillInputModules();
+	this->twFillInputModules();
 }
 
 void RcsXn::saveInputModules(QSettings &s) const {

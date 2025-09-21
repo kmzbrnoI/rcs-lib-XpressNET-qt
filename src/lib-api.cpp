@@ -264,7 +264,7 @@ int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
 	try {
 		if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
 			return RCS_MODULE_INVALID_ADDR;
-		const QString str = "Module " + QString::number(module);
+		const QString str = rx.modules_in[module].name;
 		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(str.utf16()), name, nameLen);
 		return 0;
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
