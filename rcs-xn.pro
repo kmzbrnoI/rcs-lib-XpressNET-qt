@@ -5,6 +5,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
 	src/rcs-xn.cpp \
 	src/rcs-xn-gui.cpp \
+	src/rcsinputmodule.cpp \
 	src/settings.cpp \
 	src/signals.cpp \
 	src/form-signal-edit.cpp \

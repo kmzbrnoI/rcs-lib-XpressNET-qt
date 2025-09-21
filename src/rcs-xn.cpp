@@ -225,18 +225,7 @@ void RcsXn::loadConfig(const QString &filename) {
 		}
 		this->fillConnectionsCbs();
 
-		try {
-			QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-			s.setIniCodec("UTF-8");
-#endif
-			this->sig = signalsFromFile(s);
-			this->sigTemplates = signalTemplatesFromFile(s);
-		} catch (const QStrException &e) {
-			this->log("Nepodařilo se načíst návěstidla: " + e.str(), RcsXnLogLevel::llError);
-			throw;
-		}
-		this->fillSignals();
+		this->loadSignals(filename);
 
 		try {
 			this->loadActiveIO(s["modules"]["active-in"].toString(),
@@ -247,6 +236,8 @@ void RcsXn::loadConfig(const QString &filename) {
 			throw;
 		}
 		this->fillActiveIO();
+
+		this->loadInputModules(filename);
 
 		try {
 			this->parseModules(s["modules"]["binary"].toString(), this->binary, false);
@@ -281,6 +272,7 @@ void RcsXn::saveConfig(const QString &filename) {
 
 	s.save(filename);
 	this->saveSignals(filename);
+	this->saveInputModules(filename);
 }
 
 void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
@@ -643,7 +635,22 @@ void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 ///////////////////////////////////////////////////////////////////////////////
 // Signals
 
-void RcsXn::saveSignals(const QString &filename) {
+void RcsXn::loadSignals(const QString &filename) {
+	try {
+		QSettings s(filename, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+		s.setIniCodec("UTF-8");
+#endif
+		this->sig = signalsFromFile(s);
+		this->sigTemplates = signalTemplatesFromFile(s);
+	} catch (const QStrException &e) {
+		this->log("Nepodařilo se načíst návěstidla: " + e.str(), RcsXnLogLevel::llError);
+		throw;
+	}
+	this->fillSignals();
+}
+
+void RcsXn::saveSignals(const QString &filename) const {
 	QSettings s(filename, QSettings::IniFormat);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	s.setIniCodec("UTF-8");

@@ -9,8 +9,6 @@
 namespace RcsXn {
 
 void RcsXn::guiInit() {
-	this->fillInputModules();
-
 	form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this,
 	                 SLOT(cb_loglevel_changed(int)));
@@ -417,10 +415,6 @@ void RcsXn::fillInputModules() {
 
 	for (int i = 0; i < form.ui.tw_input_modules->columnCount(); ++i)
 		form.ui.tw_input_modules->resizeColumnToContents(i);
-}
-
-QString RcsInputModule::fallDelayToStr(unsigned fallDelay) {
-	return QString::number(fallDelay/10) + "." + QString::number(fallDelay%10);
 }
 
 } // namespace RcsXn

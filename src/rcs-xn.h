@@ -83,12 +83,17 @@ struct AccReset {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct RcsInputModule {
+	unsigned addr;
 	QString name;
 	bool active = false;
 	std::array<unsigned, IO_IN_MODULE_PIN_COUNT> inputFallDelays; // [0.1s]: 0-15 ~ 0.0-1.5 s
 	std::array<bool, IO_IN_MODULE_PIN_COUNT> state;
 
+	void load(const QSettings&, unsigned addr);
+	void save(QSettings&) const;
 	static QString fallDelayToStr(unsigned fallDelay);
+	bool allDefaults() const;
+	QString defaultName() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -211,7 +216,10 @@ private:
 	void resetIOState();
 
 	void loadSignals(const QString &filename);
-	void saveSignals(const QString &filename);
+	void saveSignals(const QString &filename) const;
+
+	void loadInputModules(const QString &filename);
+	void saveInputModules(const QString &filename) const;
 
 	unsigned int current_editing_signal;
 	void newSignal(XnSignal);
