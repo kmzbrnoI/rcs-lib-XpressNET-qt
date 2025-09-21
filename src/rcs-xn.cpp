@@ -196,7 +196,12 @@ int RcsXn::stop() {
 }
 
 void RcsXn::loadConfig(const QString &filename) {
-	s.load(filename, false); // do not load & store nonDefaults
+	QSettings qset(filename, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	s.setIniCodec("UTF-8");
+#endif
+
+	s.load(qset, false); // do not load & store nonDefaults
 
 	bool ok;
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt(&ok));
@@ -225,7 +230,7 @@ void RcsXn::loadConfig(const QString &filename) {
 		}
 		this->fillConnectionsCbs();
 
-		this->loadSignals(filename);
+		this->loadSignals(qset);
 
 		try {
 			this->loadActiveIO(s["modules"]["active-in"].toString(),
@@ -237,7 +242,7 @@ void RcsXn::loadConfig(const QString &filename) {
 		}
 		this->fillActiveIO();
 
-		this->loadInputModules(filename);
+		this->loadInputModules(qset);
 
 		try {
 			this->parseModules(s["modules"]["binary"].toString(), this->binary, false);
@@ -270,9 +275,14 @@ void RcsXn::saveConfig(const QString &filename) {
 	s["modules"]["active-out"] = getActiveStr(this->user_active_out, ",");
 	s["modules"]["binary"] = getActiveStr(this->binary, ",");
 
-	s.save(filename);
-	this->saveSignals(filename);
-	this->saveInputModules(filename);
+	QSettings qset(filename, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	s.setIniCodec("UTF-8");
+#endif
+
+	s.save(qset);
+	this->saveSignals(qset);
+	this->saveInputModules(qset);
 }
 
 void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
@@ -635,12 +645,8 @@ void RcsXn::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 ///////////////////////////////////////////////////////////////////////////////
 // Signals
 
-void RcsXn::loadSignals(const QString &filename) {
+void RcsXn::loadSignals(QSettings &s) {
 	try {
-		QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-		s.setIniCodec("UTF-8");
-#endif
 		this->sig = signalsFromFile(s);
 		this->sigTemplates = signalTemplatesFromFile(s);
 	} catch (const QStrException &e) {
@@ -650,12 +656,7 @@ void RcsXn::loadSignals(const QString &filename) {
 	this->fillSignals();
 }
 
-void RcsXn::saveSignals(const QString &filename) const {
-	QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-	s.setIniCodec("UTF-8");
-#endif
-
+void RcsXn::saveSignals(QSettings &s) const {
 	// delete sections
 	for (const auto &g : s.childGroups()) {
 		if (g.startsWith("Signal") || g.startsWith("SigTemplate")) {

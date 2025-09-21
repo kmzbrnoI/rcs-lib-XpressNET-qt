@@ -9,11 +9,7 @@ void Settings::loadDefaults() {
 				data[gm.first][k.first] = k.second;
 }
 
-void Settings::load(const QString &filename, bool loadNonDefaults) {
-	QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-	s.setIniCodec("UTF-8");
-#endif
+void Settings::load(QSettings &s, bool loadNonDefaults) {
 	data.clear();
 
 	for (const auto &g : s.childGroups()) {
@@ -32,12 +28,7 @@ void Settings::load(const QString &filename, bool loadNonDefaults) {
 	this->loadDefaults();
 }
 
-void Settings::save(const QString &filename) {
-	QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-	s.setIniCodec("UTF-8");
-#endif
-
+void Settings::save(QSettings& s) {
 	for (const auto &gm : data) {
 		s.beginGroup(gm.first);
 		for (const std::pair<const QString, QVariant> &k : gm.second)

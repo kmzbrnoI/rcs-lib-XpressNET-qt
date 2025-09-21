@@ -215,11 +215,11 @@ private:
 	void loadActiveIO(const QString &inputs, const QString &outputs, bool except = true);
 	void resetIOState();
 
-	void loadSignals(const QString &filename);
-	void saveSignals(const QString &filename) const;
+	void loadSignals(QSettings &s);
+	void saveSignals(QSettings &s) const;
 
-	void loadInputModules(const QString &filename);
-	void saveInputModules(const QString &filename) const;
+	void loadInputModules(QSettings &s);
+	void saveInputModules(QSettings &s) const;
 
 	unsigned int current_editing_signal;
 	void newSignal(XnSignal);

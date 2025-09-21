@@ -244,7 +244,7 @@ void RcsXn::b_signal_remove_handle() {
 			if (form.ui.tw_signals->topLevelItem(i) == item)
 				delete form.ui.tw_signals->takeTopLevelItem(i);
 	}
-	this->saveSignals(this->config_filename);
+	this->saveConfig(this->config_filename);
 
 	QApplication::restoreOverrideCursor();
 }
@@ -271,7 +271,7 @@ void RcsXn::newSignal(XnSignal signal) {
 		throw QStrException("Návěstidlo s touto hJOP adresou je již definováno!");
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->guiAddSignal(signal);
-	this->saveSignals(this->config_filename);
+	this->saveConfig(this->config_filename);
 }
 
 void RcsXn::editedSignal(XnSignal signal) {
@@ -287,7 +287,7 @@ void RcsXn::editedSignal(XnSignal signal) {
 	}
 	this->sig.emplace(signal.hJOPaddr, signal);
 	this->guiAddSignal(signal);
-	this->saveSignals(this->config_filename);
+	this->saveConfig(this->config_filename);
 }
 
 void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {

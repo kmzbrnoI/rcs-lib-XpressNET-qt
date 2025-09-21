@@ -46,12 +46,8 @@ bool RcsInputModule::allDefaults() const {
 	return true;
 }
 
-void RcsXn::loadInputModules(const QString &filename) {
+void RcsXn::loadInputModules(QSettings &s) {
 	try {
-		QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-		s.setIniCodec("UTF-8");
-#endif
 		for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++) {
 			s.beginGroup("InModule-"+QString::number(i));
 			this->modules_in[i].load(s, i);
@@ -64,11 +60,7 @@ void RcsXn::loadInputModules(const QString &filename) {
 	this->fillInputModules();
 }
 
-void RcsXn::saveInputModules(const QString &filename) const {
-	QSettings s(filename, QSettings::IniFormat);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-	s.setIniCodec("UTF-8");
-#endif
+void RcsXn::saveInputModules(QSettings &s) const {
 	for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++) {
 		s.beginGroup("InModule-"+QString::number(i));
 		this->modules_in[i].save(s);
