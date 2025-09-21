@@ -157,13 +157,13 @@ void RcsXn::guiOnOpen() {
 	form.ui.b_serial_refresh->setEnabled(false);
 
 	form.ui.b_active_save->setEnabled(false);
-	form.ui.te_active_inputs->setEnabled(false);
+	this->f_module_edit.setActiveEnabled(false);
 	form.ui.te_active_outputs->setEnabled(false);
 
 	form.ui.b_dcc_on->setEnabled(true);
 	form.ui.b_dcc_off->setEnabled(true);
 
-	this->fillActiveIO();
+	this->fillActiveOutputs();
 }
 
 void RcsXn::guiOnClose() {
@@ -174,7 +174,7 @@ void RcsXn::guiOnClose() {
 	form.ui.b_serial_refresh->setEnabled(true);
 
 	form.ui.b_active_save->setEnabled(true);
-	form.ui.te_active_inputs->setEnabled(true);
+	this->f_module_edit.setActiveEnabled(true);
 	form.ui.te_active_outputs->setEnabled(true);
 
 	form.ui.b_dcc_on->setEnabled(false);
@@ -185,7 +185,7 @@ void RcsXn::guiOnClose() {
 
 void RcsXn::b_active_load_handle() {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	this->fillActiveIO();
+	this->fillActiveOutputs();
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information(&(this->form), "Ok", "Načteno.", QMessageBox::Ok);
 }
@@ -194,10 +194,7 @@ void RcsXn::b_active_save_handle() {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	try {
-		this->loadActiveIO(
-			form.ui.te_active_inputs->toPlainText().replace("\n", ","),
-			form.ui.te_active_outputs->toPlainText().replace("\n", ",")
-		);
+		this->loadActiveIO("", form.ui.te_active_outputs->toPlainText().replace("\n", ","));
 		this->saveConfig();
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
@@ -214,11 +211,8 @@ void RcsXn::b_active_save_handle() {
 	}
 }
 
-void RcsXn::fillActiveIO() {
-	form.ui.te_active_inputs->setText(getActiveStr(this->user_active_in, ",\n"));
+void RcsXn::fillActiveOutputs() {
 	form.ui.te_active_outputs->setText(getActiveStr(this->user_active_out, ",\n"));
-	form.ui.l_io_count->setText(QString::number(this->in_count) + " vstupů, " +
-	                            QString::number(this->out_count) + " výstupů");
 }
 
 void RcsXn::tw_log_double_clicked(QTreeWidgetItem *item, int column) {
@@ -404,7 +398,7 @@ void RcsXn::twUpdateInputModule(unsigned addr) {
 	const RcsInputModule& module = this->modules_in[addr];
 
 	item->setText(0, QString::number(addr));
-	item->setText(1, module.active ? "✓" : "");
+	item->setText(1, module.wantActive ? "✓" : "");
 	item->setText(2, module.name);
 
 	{
@@ -448,6 +442,7 @@ void RcsXn::f_module_edit_accepted() {
 	const unsigned moduleAddr = this->f_module_edit.module->addr;
 
 	this->twUpdateInputModule(moduleAddr);
+	this->refreshActiveIOCounts();
 	rx.events.call(rx.events.onModuleChanged, moduleAddr);
 	this->saveConfig();
 }

@@ -9,7 +9,8 @@ namespace RcsXn {
 struct RcsInputModule {
 	unsigned addr;
 	QString name;
-	bool active = false;
+	bool wantActive = false;
+	bool realActive = false;
 	std::array<unsigned, IO_IN_MODULE_PIN_COUNT> inputFallDelays; // [0.1s]: 0-15 ~ 0.0-1.5 s
 	std::array<bool, IO_IN_MODULE_PIN_COUNT> state;
 

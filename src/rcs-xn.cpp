@@ -232,6 +232,8 @@ void RcsXn::loadConfig(const QString &filename) {
 
 		this->loadSignals(qset);
 
+		this->loadInputModules(qset);
+
 		try {
 			this->loadActiveIO(s["modules"]["active-in"].toString(),
 			                   s["modules"]["active-out"].toString(), false);
@@ -240,9 +242,7 @@ void RcsXn::loadConfig(const QString &filename) {
 			          RcsXnLogLevel::llError);
 			throw;
 		}
-		this->fillActiveIO();
-
-		this->loadInputModules(qset);
+		this->fillActiveOutputs();
 
 		try {
 			this->parseModules(s["modules"]["binary"].toString(), this->binary, false);
@@ -256,7 +256,7 @@ void RcsXn::loadConfig(const QString &filename) {
 		this->gui_config_changing = false;
 	} catch (...) {
 		this->fillSignals();
-		this->fillActiveIO();
+		this->fillActiveOutputs();
 		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
 
 		this->gui_config_changing = false;
@@ -275,9 +275,9 @@ void RcsXn::saveConfig() {
 }
 
 void RcsXn::saveConfig(const QString &filename) {
-	s["modules"]["active-in"] = getActiveStr(this->user_active_in, ",");
 	s["modules"]["active-out"] = getActiveStr(this->user_active_out, ",");
 	s["modules"]["binary"] = getActiveStr(this->binary, ",");
+	s["modules"].erase("active-in");
 
 	QSettings qset(filename, QSettings::IniFormat);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -290,25 +290,24 @@ void RcsXn::saveConfig(const QString &filename) {
 }
 
 void RcsXn::loadActiveIO(const QString &inputs, const QString &outputs, bool except) {
-	this->parseModules(inputs, this->user_active_in, except);
+	// inputs: just backward compatibility
+	std::array<bool, IO_IN_MODULES_COUNT> user_active_in;
+	this->parseModules(inputs, user_active_in, except);
+	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++) {
+		if (user_active_in[addr]) {
+			this->modules_in[addr].wantActive = true;
+			this->twUpdateInputModule(addr);
+		}
+	}
+
 	this->parseModules(outputs, this->user_active_out, except);
 
-	this->modules_count = this->in_count = this->out_count = 0;
-	for (size_t i = 0; i < IO_IN_MODULES_COUNT; i++)
-		if (this->user_active_in[i])
-			this->in_count++;
-	for (size_t i = 0; i < IO_OUT_MODULES_COUNT; i++)
-		if (this->user_active_out[i])
-			this->out_count++;
-	for (size_t i = 0; i < std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT); i++)
-		if ((i < IO_IN_MODULES_COUNT && this->user_active_in[i]) ||
-		    (i < IO_OUT_MODULES_COUNT && this->user_active_out[i]))
-			this->modules_count++;
+	this->refreshActiveIOCounts();
 
 	if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_out[0]))
 		throw EInvalidRange("Adresa výstupu 0 není validní adresou systému Lenz!");
-	if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_in[0]))
-		throw EInvalidRange("Adresa vstupního modulu 0 není validní adresou systému Lenz!");
+	// if ((s["global"]["addrRange"].toString() == "lenz") && (this->user_active_in[0]))
+	//	throw EInvalidRange("Adresa vstupního modulu 0 není validní adresou systému Lenz!");
 }
 
 void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
@@ -353,7 +352,7 @@ void RcsXn::initModuleScanned(uint8_t group, bool nibble) {
 void RcsXn::scanNextGroup(int previousGroup) {
 	unsigned int nextGroup = previousGroup+1;
 
-	while ((nextGroup < IO_IN_MODULES_COUNT) && (!this->user_active_in[nextGroup]))
+	while ((nextGroup < IO_IN_MODULES_COUNT) && (!this->modules_in[nextGroup].wantActive))
 		nextGroup += 1;
 
 	if (nextGroup >= IO_IN_MODULES_COUNT) {
@@ -390,8 +389,10 @@ void RcsXn::xnOnInitScanningError(void *, void *data) {
 void RcsXn::initScanningDone() {
 	log("Stav vstupů naskenován.", RcsXnLogLevel::llInfo);
 
-	if (rx.s["global"]["mockInputs"].toBool())
-		this->real_active_in = this->user_active_in;
+	if (rx.s["global"]["mockInputs"].toBool()) {
+		for (RcsInputModule& module : this->modules_in)
+			module.realActive = module.wantActive;
+	}
 
 	this->started = RcsStartState::started;
 	events.call(events.onScanned);
@@ -607,13 +608,12 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 
 	this->real_active_in[groupAddr] = true;
 
-	if (!this->user_active_in[groupAddr]) {
+	if (!this->modules_in[groupAddr].wantActive) {
 		if (!form.ui.chb_scan_inputs->isChecked())
 			return; // no scanning -> ignore change
-		this->user_active_in[groupAddr] = true;
-		this->modules_count++;
-		this->in_count++;
-		try { this->fillActiveIO(); } catch (...) {}
+		this->modules_in[groupAddr].wantActive = true;
+		this->twUpdateInputModule(groupAddr);
+		this->refreshActiveIOCounts();
 	}
 
 	events.call(events.onInputChanged, groupAddr);
@@ -809,6 +809,25 @@ void RcsXn::m_acc_reset_timer_tick() {
 			}
 		}
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void RcsXn::refreshActiveIOCounts() {
+	this->modules_count = this->in_count = this->out_count = 0;
+	for (size_t i = 0; i < IO_IN_MODULES_COUNT; i++)
+		if (this->modules_in[i].wantActive)
+			this->in_count++;
+	for (size_t i = 0; i < IO_OUT_MODULES_COUNT; i++)
+		if (this->user_active_out[i])
+			this->out_count++;
+	for (size_t i = 0; i < std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT); i++)
+		if ((i < IO_IN_MODULES_COUNT && this->modules_in[i].wantActive) ||
+		    (i < IO_OUT_MODULES_COUNT && this->user_active_out[i]))
+			this->modules_count++;
+
+	this->form.ui.l_in_count->setText(QString::number(this->in_count));
+	this->form.ui.l_out_count->setText(QString::number(this->out_count));
 }
 
 } // namespace RcsXn

@@ -15,7 +15,7 @@ void FormInModuleEdit::accept() {
 		return;
 	}
 
-	this->module->active = this->ui.chb_active->isChecked();
+	this->module->wantActive = this->ui.chb_active->isChecked();
 	this->module->name = this->ui.le_name->text();
 	this->module->inputFallDelays[0] = static_cast<unsigned>(this->ui.dsb_ind1->value()*10);
 	this->module->inputFallDelays[1] = static_cast<unsigned>(this->ui.dsb_ind2->value()*10);
@@ -33,7 +33,7 @@ void FormInModuleEdit::accept() {
 void FormInModuleEdit::moduleOpen(RcsXn::RcsInputModule* module) {
 	this->module = module;
 
-	this->ui.chb_active->setChecked(module->active);
+	this->ui.chb_active->setChecked(module->wantActive);
 	this->ui.le_name->setText(module->name);
 	this->ui.dsb_ind1->setValue(static_cast<double>(module->inputFallDelays[0])/10);
 	this->ui.dsb_ind2->setValue(static_cast<double>(module->inputFallDelays[1])/10);
@@ -47,4 +47,8 @@ void FormInModuleEdit::moduleOpen(RcsXn::RcsInputModule* module) {
 	this->setWindowTitle("Vstupní modul " + QString::number(module->addr));
 	this->ui.le_name->setFocus();
 	this->show();
+}
+
+void FormInModuleEdit::setActiveEnabled(bool enabled) {
+	this->ui.chb_active->setEnabled(enabled);
 }

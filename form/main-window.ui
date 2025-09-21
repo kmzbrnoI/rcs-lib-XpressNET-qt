@@ -24,7 +24,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="QTabWidget" name="tw_main">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -250,35 +250,6 @@
        <attribute name="title">
         <string>Aktivní porty</string>
        </attribute>
-       <widget class="QLabel" name="label_4">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>141</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Aktivní vstupy (0-255):</string>
-        </property>
-       </widget>
-       <widget class="QTextEdit" name="te_active_inputs">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>181</width>
-          <height>361</height>
-         </rect>
-        </property>
-        <property name="documentTitle">
-         <string/>
-        </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_5">
         <property name="geometry">
          <rect>
@@ -336,21 +307,21 @@
          <rect>
           <x>10</x>
           <y>397</y>
-          <width>47</width>
-          <height>10</height>
+          <width>91</width>
+          <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Celkem:</string>
+         <string>Celkem výstupů:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="l_io_count">
+       <widget class="QLabel" name="l_out_count">
         <property name="geometry">
          <rect>
-          <x>60</x>
+          <x>110</x>
           <y>393</y>
-          <width>121</width>
-          <height>18</height>
+          <width>71</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
@@ -363,7 +334,28 @@
         <string>Vstupy</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Celkem vstupních modulů:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="chb_scan_inputs">
+          <property name="text">
+           <string>Skenovat aktivní vstupy</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="l_in_count">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="3">
          <widget class="QTreeWidget" name="tw_input_modules">
           <property name="selectionMode">
            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
@@ -408,13 +400,6 @@
             <string>Stav vstupů</string>
            </property>
           </column>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="chb_scan_inputs">
-          <property name="text">
-           <string>Skenovat aktivní vstupy</string>
-          </property>
          </widget>
         </item>
        </layout>

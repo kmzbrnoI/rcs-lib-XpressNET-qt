@@ -25,7 +25,7 @@ const Config DEFAULTS {
 		{"disableSetOutputOff", false},
 	}},
 	{"modules", {
-		{"active-in", "1-32,64-72"},
+		{"active-in", ""}, // unused, backward compatibility only
 		{"active-out", "1-28,70-92"},
 		{"binary", ""},
 	}}

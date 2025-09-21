@@ -84,7 +84,6 @@ public:
 	std::array<bool, IO_COUNT> inputs;
 	std::array<bool, IO_COUNT> outputs;
 	std::array<bool, IO_IN_MODULES_COUNT> real_active_in; // 0-255
-	std::array<bool, IO_IN_MODULES_COUNT> user_active_in; // 0-255
 	std::array<bool, IO_OUT_MODULES_COUNT> user_active_out; // 0-1023
 	std::array<bool, IO_OUT_MODULES_COUNT> binary; // 0-1023
 	uint8_t scan_group;
@@ -211,12 +210,13 @@ private:
 	void fillPortCb();
 	void guiOnOpen();
 	void guiOnClose();
-	void fillActiveIO();
+	void fillActiveOutputs();
 	void fillSignals();
 	void guiAddSignal(const XnSignal &);
 	void twFillInputModules();
 	void twUpdateInputModule(unsigned addr);
 	void twUpdateInputModuleInputs(unsigned addr);
+	void refreshActiveIOCounts();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

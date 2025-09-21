@@ -111,7 +111,7 @@ int GetInput(unsigned int module, unsigned int port) {
 		if (rx.started == RcsStartState::stopped)
 			return RCS_NOT_STARTED;
 		if ((module >= IO_IN_MODULES_COUNT) || (!rx.real_active_in[module]))
-			return (rx.user_active_in[module]) ? RCS_MODULE_FAILED : RCS_MODULE_INVALID_ADDR;
+			return (rx.modules_in[module].wantActive) ? RCS_MODULE_FAILED : RCS_MODULE_INVALID_ADDR;
 		if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
 			return 0;
@@ -192,8 +192,8 @@ int SetInput(unsigned int module, unsigned int port, int state) {
 			return 0;
 		if (rx.started == RcsStartState::stopped)
 			return 0;
-		if ((module >= IO_IN_MODULES_COUNT) || (!rx.user_active_in[module]))
-			return (rx.user_active_in[module]) ? RCS_MODULE_FAILED : RCS_MODULE_INVALID_ADDR;
+		if ((module >= IO_IN_MODULES_COUNT) || (!rx.modules_in[module].wantActive))
+			return (rx.modules_in[module].wantActive) ? RCS_MODULE_FAILED : RCS_MODULE_INVALID_ADDR;
 		if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
 			return 0;
@@ -231,7 +231,7 @@ unsigned int GetModuleCount() { return rx.modules_count; }
 
 bool IsModule(unsigned int module) {
 	try {
-		if (module < IO_IN_MODULES_COUNT && rx.user_active_in[module])
+		if (module < IO_IN_MODULES_COUNT && rx.modules_in[module].wantActive)
 			return true;
 		if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
 			return true;
@@ -247,7 +247,7 @@ bool IsModuleFailure(unsigned int module) {
 		// could be set even if input module is absent.
 		if (module < IO_OUT_MODULES_COUNT && rx.user_active_out[module])
 			return false;
-		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT && rx.user_active_in[module] && !rx.real_active_in[module]);
+		return (rx.started == RcsStartState::started && module < IO_IN_MODULES_COUNT && rx.modules_in[module].wantActive && !rx.real_active_in[module]);
 	} catch (...) { return false; }
 }
 
@@ -286,7 +286,7 @@ unsigned int GetModuleInputsCount(unsigned int module) {
 			return RCS_MODULE_INVALID_ADDR;
 		if (module >= IO_IN_MODULES_COUNT)
 			return 0; // intentionally not RCS_MODULE_INVALID_ADDR
-		return rx.user_active_in[module] ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
+		return rx.modules_in[module].wantActive ? IO_IN_MODULE_PIN_COUNT+1 : 0; // pin 0 ignored, indexing from 1
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 

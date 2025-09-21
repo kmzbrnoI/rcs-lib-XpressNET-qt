@@ -11,10 +11,11 @@ class FormInModuleEdit : public QDialog {
 	Q_OBJECT
 
 public:
+	RcsXn::RcsInputModule* module = nullptr;
+
 	FormInModuleEdit(QWidget *parent = nullptr);
 	void moduleOpen(RcsXn::RcsInputModule* module);
-
-	RcsXn::RcsInputModule* module = nullptr;
+	void setActiveEnabled(bool enabled);
 
 private:
 	Ui::f_module_edit ui;
