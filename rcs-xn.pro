@@ -3,6 +3,7 @@ TEMPLATE = lib
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
+	src/form-in-module-edit.cpp \
 	src/rcs-xn.cpp \
 	src/rcs-xn-gui.cpp \
 	src/rcsinputmodule.cpp \
@@ -11,9 +12,12 @@ SOURCES += \
 	src/form-signal-edit.cpp \
 	src/lib-api.cpp
 HEADERS += \
+	src/common.h \
+	src/form-in-module-edit.h \
 	src/rcs-xn.h \
 	src/errors.h \
 	src/events.h \
+	src/rcsinputmodule.h \
 	src/settings.h \
 	src/util.h \
 	src/signals.h \
@@ -24,7 +28,8 @@ HEADERS += \
 
 FORMS += \
 	form/main-window.ui \
-	form/signal-edit.ui
+	form/signal-edit.ui \
+	form/input-module-edit.ui
 
 SOURCES += \
 	lib/xn-lib-cpp-qt/xn-pending.cpp \
