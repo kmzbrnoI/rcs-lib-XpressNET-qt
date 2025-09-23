@@ -138,6 +138,7 @@ private slots:
 	void resetNextSignal();
 
 	void m_acc_reset_timer_tick();
+	void inputFellTimeout(unsigned module, unsigned port);
 
 	// GUI
 	void cb_loglevel_changed(int);

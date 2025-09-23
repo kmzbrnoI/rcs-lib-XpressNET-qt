@@ -429,8 +429,12 @@ void RcsXn::twUpdateInputModuleInputs(unsigned addr) {
 
 		if (!module.realActive)
 			state += "-";
+		else if (module.state[i] == XnInState::on)
+			state += "1";
+		else if (module.state[i] == XnInState::off)
+			state += "0";
 		else
-			state += (module.state[i] ? "1" : "0");
+			state += "?";
 	}
 	item->setText(4, state);
 }

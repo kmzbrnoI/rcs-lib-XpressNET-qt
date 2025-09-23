@@ -21,6 +21,16 @@ const QColor LOGC_DONE = QColor(0xAA, 0xFF, 0xAA);
 const QColor LOGC_GET = QColor(0xE0, 0xE0, 0xFF);
 const QColor LOGC_PUT = QColor(0xE0, 0xFF, 0xE0);
 
+enum class XnInState {
+	unknown,
+	off,
+	on,
+};
+
+inline XnInState xnInState(bool state) {
+	return (state) ? XnInState::on : XnInState::off;
+}
+
 } // namespace RcsXn
 
 #endif // COMMON_H

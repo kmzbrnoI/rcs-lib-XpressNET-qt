@@ -35,6 +35,11 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 
 	// No loading of configuration here (caller should call LoadConfig)
 
+	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++)
+		for (unsigned port = 0; port < IO_IN_MODULE_PIN_COUNT; port++)
+			QObject::connect(&this->modules_in[addr].inputFallTimers[port], &QTimer::timeout,
+			                 [this, addr, port](){ inputFellTimeout(addr, port); });
+
 	this->guiInit();
 	this->fillConnectionsCbs();
 
@@ -188,8 +193,10 @@ int RcsXn::stop() {
 	log("Zastavuji komunikaci...", RcsXnLogLevel::llInfo);
 	events.call(rx.events.beforeStop);
 	this->started = RcsStartState::stopped;
-	for (unsigned i = 0; i < IO_IN_MODULES_COUNT; i++)
-		this->modules_in[i].realActive = false;
+	for (RcsInputModule& module : this->modules_in) {
+		module.realActive = false;
+		module.stopAllFallTimers();
+	}
 	this->resetIOState();
 	events.call(rx.events.afterStop);
 	log("Komunikace zastavena", RcsXnLogLevel::llInfo);
@@ -600,31 +607,52 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 		groupAddr++;
 	}
 
-	this->modules_in[groupAddr].state[4*nibble] = state.sep.i0;
-	this->modules_in[groupAddr].state[(4*nibble)+1] = state.sep.i1;
-	this->modules_in[groupAddr].state[(4*nibble)+2] = state.sep.i2;
-	this->modules_in[groupAddr].state[(4*nibble)+3] = state.sep.i3;
-
-	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
-		this->modules_in[groupAddr].realActive = true;
-		this->twUpdateInputModuleInputs(groupAddr);
-		this->initModuleScanned(groupAddr, nibble);
-		return;
-	}
-
 	this->modules_in[groupAddr].realActive = true;
-	this->twUpdateInputModuleInputs(groupAddr);
 
-	if (!this->modules_in[groupAddr].wantActive) {
-		if (!form.ui.chb_scan_inputs->isChecked())
-			return; // no scanning -> ignore change
+	if ((!this->modules_in[groupAddr].wantActive) && (form.ui.chb_scan_inputs->isChecked())) {
 		this->modules_in[groupAddr].wantActive = true;
 		this->twUpdateInputModule(groupAddr);
 		this->refreshActiveIOCounts();
 	}
 
-	events.call(events.onInputChanged, groupAddr);
-	this->twUpdateInputModuleInputs(groupAddr);
+	const bool states[4] = {state.sep.i0, state.sep.i1, state.sep.i2, state.sep.i3};
+	bool changed = false;
+
+	for (unsigned i = 0; i < 4; i++) {
+		const unsigned port = 4*nibble+i;
+		if ((this->modules_in[groupAddr].state[port] == XnInState::on) && (!states[i]) &&
+		    (this->modules_in[groupAddr].inputFallDelays[port] > 0)) {
+			// input is falling -> start timer
+			QTimer& fallTimer = this->modules_in[groupAddr].inputFallTimers[port];
+			fallTimer.stop();
+			fallTimer.start(this->modules_in[groupAddr].inputFallDelays[port]*100);
+		} else {
+			if (this->modules_in[groupAddr].state[port] != xnInState(states[i])) {
+				changed = true;
+				this->modules_in[groupAddr].state[port] = xnInState(states[i]);
+			}
+		}
+	}
+
+	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
+		this->twUpdateInputModuleInputs(groupAddr);
+		this->initModuleScanned(groupAddr, nibble);
+	} else {
+		if (changed) {
+			events.call(events.onInputChanged, groupAddr);
+			this->twUpdateInputModuleInputs(groupAddr);
+		}
+	}
+}
+
+void RcsXn::inputFellTimeout(unsigned module, unsigned port) {
+	this->log("Delayed fell: "+QString::number(module)+":"+QString::number(port), RcsXnLogLevel::llDebug);
+	if ((module > this->modules_in.size()) || (port > this->modules_in[module].state.size()))
+		return;
+
+	this->modules_in[module].state[port] = XnInState::off;
+	events.call(events.onInputChanged, module);
+	this->twUpdateInputModuleInputs(module);
 }
 
 void RcsXn::xnOnLIVersionError(void *, void *) {
@@ -770,7 +798,7 @@ void RcsXn::resetIOState() {
 	std::fill(this->outputs.begin(), this->outputs.end(), false);
 	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++) {
 		for (auto& state : this->modules_in[addr].state)
-			state = false;
+			state = XnInState::unknown;
 		this->twUpdateInputModuleInputs(addr);
 	}
 	for (auto &signal : this->sig)
@@ -827,11 +855,11 @@ void RcsXn::m_acc_reset_timer_tick() {
 
 void RcsXn::refreshActiveIOCounts() {
 	this->modules_count = this->in_count = this->out_count = 0;
-	for (size_t i = 0; i < IO_IN_MODULES_COUNT; i++)
-		if (this->modules_in[i].wantActive)
+	for (RcsInputModule& module : this->modules_in)
+		if (module.wantActive)
 			this->in_count++;
-	for (size_t i = 0; i < IO_OUT_MODULES_COUNT; i++)
-		if (this->user_active_out[i])
+	for (bool active : this->user_active_out)
+		if (active)
 			this->out_count++;
 	for (size_t i = 0; i < std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT); i++)
 		if ((i < IO_IN_MODULES_COUNT && this->modules_in[i].wantActive) ||

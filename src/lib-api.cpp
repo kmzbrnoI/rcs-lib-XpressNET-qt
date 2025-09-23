@@ -122,7 +122,7 @@ int GetInput(unsigned int module, unsigned int port) {
 		if (rx.started == RcsStartState::scanning)
 			return RCS_INPUT_NOT_YET_SCANNED;
 
-		return rx.modules_in[module].state[port-1];
+		return (rx.modules_in[module].state[port-1] == XnInState::on);
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 
@@ -201,7 +201,7 @@ int SetInput(unsigned int module, unsigned int port, int state) {
 #endif
 		}
 
-		rx.modules_in[module].state[port-1] = static_cast<bool>(state);
+		rx.modules_in[module].state[port-1] = (state == 1) ? XnInState::on : XnInState::off;
 		rx.events.call(rx.events.onInputChanged, module);
 		return 0;
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }

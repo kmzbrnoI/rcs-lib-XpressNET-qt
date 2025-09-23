@@ -2,6 +2,11 @@
 
 namespace RcsXn {
 
+RcsInputModule::RcsInputModule() {
+	for (QTimer& timer : this->inputFallTimers)
+		timer.setSingleShot(true);
+}
+
 QString RcsInputModule::fallDelayToStr(unsigned fallDelay) {
 	return QString::number(fallDelay/10) + "." + QString::number(fallDelay%10);
 }
@@ -48,6 +53,11 @@ bool RcsInputModule::allDefaults() const {
 			return false;
 
 	return true;
+}
+
+void RcsInputModule::stopAllFallTimers() {
+	for (QTimer& timer : this->inputFallTimers)
+		timer.stop();
 }
 
 void RcsXn::loadInputModules(QSettings &s) {
