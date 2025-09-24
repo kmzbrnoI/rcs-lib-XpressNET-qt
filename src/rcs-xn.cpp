@@ -616,39 +616,45 @@ void RcsXn::xnOnAccInputChanged(uint8_t groupAddr, bool nibble, bool error,
 	}
 
 	const bool states[4] = {state.sep.i0, state.sep.i1, state.sep.i2, state.sep.i3};
-	bool changed = false;
+	bool callChangeEvent = false;
+	bool refreshTable = false;
 
 	for (unsigned i = 0; i < 4; i++) {
 		const unsigned port = 4*nibble+i;
 		if ((this->modules_in[groupAddr].state[port] == XnInState::on) && (!states[i]) &&
 		    (this->modules_in[groupAddr].inputFallDelays[port] > 0)) {
 			// input is falling -> start timer
+			this->modules_in[groupAddr].state[port] = XnInState::falling;
 			QTimer& fallTimer = this->modules_in[groupAddr].inputFallTimers[port];
 			fallTimer.stop();
 			fallTimer.start(this->modules_in[groupAddr].inputFallDelays[port]*100);
+			refreshTable = true;
 		} else {
-			if (this->modules_in[groupAddr].state[port] != xnInState(states[i])) {
-				changed = true;
+			if ((this->modules_in[groupAddr].state[port] != xnInState(states[i])) &&
+			    ((this->modules_in[groupAddr].state[port] != XnInState::falling) || (states[i]))) {
+				callChangeEvent = refreshTable = true;
 				this->modules_in[groupAddr].state[port] = xnInState(states[i]);
 			}
 		}
 	}
 
 	if ((this->started == RcsStartState::scanning) && (groupAddr == this->scan_group)) {
-		this->twUpdateInputModuleInputs(groupAddr);
 		this->initModuleScanned(groupAddr, nibble);
 	} else {
-		if (changed) {
+		if (callChangeEvent)
 			events.call(events.onInputChanged, groupAddr);
-			this->twUpdateInputModuleInputs(groupAddr);
-		}
 	}
+
+	if (refreshTable)
+		this->twUpdateInputModuleInputs(groupAddr);
 }
 
 void RcsXn::inputFellTimeout(unsigned module, unsigned port) {
-	this->log("Delayed fell: "+QString::number(module)+":"+QString::number(port), RcsXnLogLevel::llDebug);
 	if ((module > this->modules_in.size()) || (port > this->modules_in[module].state.size()))
 		return;
+	if (this->modules_in[module].state[port] != XnInState::falling)
+		return; // do not fall if went high in meantime
+	this->log("Delayed fell: "+QString::number(module)+":"+QString::number(port), RcsXnLogLevel::llDebug);
 
 	this->modules_in[module].state[port] = XnInState::off;
 	events.call(events.onInputChanged, module);

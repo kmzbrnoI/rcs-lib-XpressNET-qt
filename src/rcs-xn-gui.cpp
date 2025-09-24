@@ -433,6 +433,8 @@ void RcsXn::twUpdateInputModuleInputs(unsigned addr) {
 			state += "1";
 		else if (module.state[i] == XnInState::off)
 			state += "0";
+		else if (module.state[i] == XnInState::falling)
+			state += "v";
 		else
 			state += "?";
 	}

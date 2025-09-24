@@ -25,6 +25,7 @@ enum class XnInState {
 	unknown,
 	off,
 	on,
+	falling,
 };
 
 inline XnInState xnInState(bool state) {
