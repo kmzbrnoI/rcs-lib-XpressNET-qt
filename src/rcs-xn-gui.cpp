@@ -30,10 +30,8 @@ void RcsXn::guiInit() {
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this,
 	                 SLOT(b_serial_refresh_handle()));
 	QObject::connect(form.ui.b_active_reload, SIGNAL(released()), this,
-	                 SLOT(b_active_load_handle()));
-	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_save_handle()));
-
-	QObject::connect(form.ui.b_apply_binary, SIGNAL(released()), this, SLOT(b_apply_binary_handle()));
+	                 SLOT(b_active_outputs_load_handle()));
+	QObject::connect(form.ui.b_active_save, SIGNAL(released()), this, SLOT(b_active_outputs_save_handle()));
 
 	QObject::connect(form.ui.b_signal_add, SIGNAL(released()), this, SLOT(b_signal_add_handle()));
 	QObject::connect(form.ui.b_signal_remove, SIGNAL(released()), this,
@@ -183,19 +181,22 @@ void RcsXn::guiOnClose() {
 	widgetSetColor(*form.ui.l_dcc_state, Qt::black);
 }
 
-void RcsXn::b_active_load_handle() {
+void RcsXn::b_active_outputs_load_handle() {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	this->fillActiveOutputs();
+	form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information(&(this->form), "Ok", "Načteno.", QMessageBox::Ok);
 }
 
-void RcsXn::b_active_save_handle() {
+void RcsXn::b_active_outputs_save_handle() {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	try {
 		this->loadActiveIO("", form.ui.te_active_outputs->toPlainText().replace("\n", ","));
+		this->parseModules(form.ui.te_binary_outputs->toPlainText().replace("\n", ","), this->binary, true);
 		this->saveConfig();
+		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information(&(this->form), "Ok", "Uloženo.", QMessageBox::Ok);
 	} catch (const EInvalidRange &e) {
@@ -354,28 +355,6 @@ void RcsXn::widgetSetColor(QWidget &widget, const QColor &color) {
 	QPalette palette = widget.palette();
 	palette.setColor(QPalette::WindowText, color);
 	widget.setPalette(palette);
-}
-
-void RcsXn::b_apply_binary_handle() {
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-
-	try {
-		this->parseModules(form.ui.te_binary_outputs->toPlainText().replace("\n", ","), this->binary, true);
-		this->saveConfig();
-		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
-		QApplication::restoreOverrideCursor();
-		QMessageBox::information(&(this->form), "Ok", "Použito.", QMessageBox::Ok);
-	} catch (const EInvalidRange &e) {
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(&(this->form), "Chyba!", "Zadán neplatný rozsah:\n" + e.str(),
-		                     QMessageBox::Ok);
-	} catch (const QStrException &e) {
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(&(this->form), "Chyba!", e.str(), QMessageBox::Ok);
-	} catch (...) {
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(&(this->form), "Chyba!", "Neznámá chyba.", QMessageBox::Ok);
-	}
 }
 
 void RcsXn::twFillInputModules() {

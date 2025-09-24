@@ -145,8 +145,8 @@ private slots:
 	void cb_interface_type_changed(int);
 	void cb_connections_changed(int);
 	void b_serial_refresh_handle();
-	void b_active_load_handle();
-	void b_active_save_handle();
+	void b_active_outputs_load_handle();
+	void b_active_outputs_save_handle();
 	void tw_log_double_clicked(QTreeWidgetItem *item, int column);
 	void b_signal_add_handle();
 	void b_signal_remove_handle();
@@ -155,7 +155,6 @@ private slots:
 	void chb_general_config_changed(int state);
 	void b_dcc_on_handle();
 	void b_dcc_off_handle();
-	void b_apply_binary_handle();
 	void tw_input_modules_dbl_click(QTreeWidgetItem *, int);
 	void f_module_edit_accepted();
 

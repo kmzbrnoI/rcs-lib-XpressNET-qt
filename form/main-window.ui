@@ -39,7 +39,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>4</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -317,15 +317,29 @@
         <string>Výstupy</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
-        <item row="0" column="0" colspan="2">
+        <item row="0" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>Aktivní výstupy (0-1023):</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0" colspan="4">
+        <item row="0" column="2" colspan="2">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Striktně binární výstupy (0-1023):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
          <widget class="QTextEdit" name="te_active_outputs">
+          <property name="acceptRichText">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" colspan="2">
+         <widget class="QTextEdit" name="te_binary_outputs">
           <property name="acceptRichText">
            <bool>false</bool>
           </property>
@@ -356,37 +370,6 @@
          <widget class="QPushButton" name="b_active_save">
           <property name="text">
            <string>Uložit</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="t_binary">
-       <attribute name="title">
-        <string>Binární výstupy</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Tyto výstupy jsou striktně binární (0-1023):</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QTextEdit" name="te_binary_outputs">
-          <property name="acceptRichText">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="b_apply_binary">
-          <property name="text">
-           <string>Použít</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -573,6 +556,26 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>tw_main</tabstop>
+  <tabstop>cb_interface_type</tabstop>
+  <tabstop>b_serial_refresh</tabstop>
+  <tabstop>cb_serial_port</tabstop>
+  <tabstop>cb_serial_speed</tabstop>
+  <tabstop>cb_serial_flowcontrol</tabstop>
+  <tabstop>cb_addr_range</tabstop>
+  <tabstop>chb_reset_signals</tabstop>
+  <tabstop>chb_disable_set_output_off</tabstop>
+  <tabstop>b_dcc_on</tabstop>
+  <tabstop>b_dcc_off</tabstop>
+  <tabstop>tw_input_modules</tabstop>
+  <tabstop>chb_scan_inputs</tabstop>
+  <tabstop>te_active_outputs</tabstop>
+  <tabstop>te_binary_outputs</tabstop>
+  <tabstop>b_active_reload</tabstop>
+  <tabstop>b_active_save</tabstop>
+  <tabstop>b_signal_add</tabstop>
+  <tabstop>b_signal_remove</tabstop>
+  <tabstop>tw_signals</tabstop>
   <tabstop>cb_loglevel</tabstop>
   <tabstop>tw_xn_log</tabstop>
  </tabstops>
