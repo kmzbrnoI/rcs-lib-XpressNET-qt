@@ -33,6 +33,8 @@ RcsXn::RcsXn(QObject *parent) : QObject(parent), f_signal_edit(sigTemplates) {
 	QObject::connect(&m_resetSignalsTimer, SIGNAL(timeout()), this, SLOT(resetNextSignal()));
 	m_resetSignalsTimer.setInterval(SIGNAL_INIT_RESET_PERIOD);
 
+	xn.loglevel = Xn::LogLevel::Debug; // always log everything, let parent application decide what to do with the logs
+
 	// No loading of configuration here (caller should call LoadConfig)
 
 	for (unsigned addr = 0; addr < IO_IN_MODULES_COUNT; addr++)
@@ -60,6 +62,9 @@ RcsXn::~RcsXn() {
 
 void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 	constexpr size_t COLUMN_COUNT = 3;
+
+	// call event for all loglevels, let parent application decide whether to log or not
+	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
 
 	if (loglevel > this->loglevel)
 		return;
@@ -103,14 +108,10 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 
 	form.ui.tw_xn_log->addTopLevelItem(item);
 	form.ui.tw_xn_log->setItemWidget(item, 2, label);
-
-	// event
-	this->events.call(this->events.onLog, static_cast<int>(loglevel), msg);
 }
 
 void RcsXn::setLogLevel(RcsXnLogLevel loglevel) {
 	this->loglevel = loglevel;
-	xn.loglevel = static_cast<Xn::LogLevel>(loglevel);
 	s["XN"]["loglevel"] = static_cast<int>(loglevel);
 }
 
@@ -213,7 +214,6 @@ void RcsXn::loadConfig(const QString &filename) {
 
 	bool ok;
 	this->loglevel = static_cast<RcsXnLogLevel>(s["XN"]["loglevel"].toInt(&ok));
-	this->xn.loglevel = static_cast<Xn::LogLevel>(s["XN"]["loglevel"].toInt());
 	if (!ok)
 		throw QStrException("logLevel invalid type!");
 
