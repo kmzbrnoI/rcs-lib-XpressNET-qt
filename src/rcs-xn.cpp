@@ -147,6 +147,9 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 	if (persist)
 		s["XN"]["port"] = device;
 
+	if (rx.s["global"]["mockInputs"].toBool())
+		this->log("Pozor: simulační režim (mockInputs) aktivován!", RcsXnLogLevel::llWarning);
+
 	return 0;
 }
 
