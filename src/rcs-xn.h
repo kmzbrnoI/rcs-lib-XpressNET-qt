@@ -28,6 +28,8 @@
 
 namespace RcsXn {
 
+constexpr int MAX_LOGTABLE_ITEMS = 300;
+
 enum class RcsXnLogLevel {
 	llNo = 0,
 	llError = 1,

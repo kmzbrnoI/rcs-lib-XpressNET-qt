@@ -65,7 +65,7 @@ void RcsXn::log(const QString &msg, RcsXnLogLevel loglevel) {
 		return;
 
 	// UI
-	if (form.ui.tw_xn_log->topLevelItemCount() > 300)
+	if (form.ui.tw_xn_log->topLevelItemCount() > MAX_LOGTABLE_ITEMS)
 		form.ui.tw_xn_log->clear();
 
 	auto *item = new QTreeWidgetItem(form.ui.tw_xn_log);
