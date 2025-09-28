@@ -17,6 +17,9 @@ public:
 	void moduleOpen(RcsXn::RcsInputModule* module);
 	void setActiveEnabled(bool enabled);
 
+private slots:
+	void b_united_time_set_handle();
+
 private:
 	Ui::f_module_edit ui;
 

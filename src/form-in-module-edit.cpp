@@ -5,6 +5,8 @@ FormInModuleEdit::FormInModuleEdit(QWidget *parent)
 	: QDialog(parent) {
 	ui.setupUi(this);
 	this->setFixedSize(this->size());
+
+	QObject::connect(ui.b_united_time_set, SIGNAL(released()), this, SLOT(b_united_time_set_handle()));
 }
 
 void FormInModuleEdit::accept() {
@@ -44,6 +46,8 @@ void FormInModuleEdit::moduleOpen(RcsXn::RcsInputModule* module) {
 	this->ui.dsb_ind7->setValue(static_cast<double>(module->inputFallDelays[6])/10);
 	this->ui.dsb_ind8->setValue(static_cast<double>(module->inputFallDelays[7])/10);
 
+	this->ui.dsb_united_time->setValue(0);
+
 	this->setWindowTitle("Vstupní modul " + QString::number(module->addr));
 	this->ui.le_name->setFocus();
 	this->show();
@@ -51,4 +55,15 @@ void FormInModuleEdit::moduleOpen(RcsXn::RcsInputModule* module) {
 
 void FormInModuleEdit::setActiveEnabled(bool enabled) {
 	this->ui.chb_active->setEnabled(enabled);
+}
+
+void FormInModuleEdit::b_united_time_set_handle() {
+	this->ui.dsb_ind1->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind2->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind3->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind4->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind5->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind6->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind7->setValue(this->ui.dsb_united_time->value());
+	this->ui.dsb_ind8->setValue(this->ui.dsb_united_time->value());
 }

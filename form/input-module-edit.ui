@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>250</height>
+    <height>310</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,116 +30,15 @@
       <string>Zpoždění uvolnění vstupů [sekund]</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Vstup 4:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Vstup 8:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Vstup 5:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Vstup 1:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Vstup 7:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Vstup 2:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="dsb_ind4">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>9.900000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="dsb_ind1">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>9.900000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Vstup 3:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="dsb_ind2">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>9.900000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Vstup 6:</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="3">
-       <widget class="QDoubleSpinBox" name="dsb_ind6">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>9.900000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QDoubleSpinBox" name="dsb_ind7">
+       <widget class="QDoubleSpinBox" name="dsb_ind5">
         <property name="decimals">
          <number>1</number>
         </property>
@@ -152,7 +51,27 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QDoubleSpinBox" name="dsb_ind3">
+       <widget class="QDoubleSpinBox" name="dsb_ind2">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>9.900000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Vstup 1:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="dsb_ind4">
         <property name="decimals">
          <number>1</number>
         </property>
@@ -165,6 +84,100 @@
        </widget>
       </item>
       <item row="3" column="3">
+       <widget class="QDoubleSpinBox" name="dsb_ind7">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>9.900000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Vstup 6:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="dsb_ind1">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>9.900000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Vstup 4:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Vstup 3:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Vstup 5:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="dsb_ind3">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>9.900000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="dsb_ind6">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>9.900000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Vstup 7:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Vstup 8:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
        <widget class="QDoubleSpinBox" name="dsb_ind8">
         <property name="decimals">
          <number>1</number>
@@ -177,17 +190,33 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QDoubleSpinBox" name="dsb_ind5">
-        <property name="decimals">
-         <number>1</number>
+      <item row="0" column="0" colspan="4">
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Stejné zpoždění pro všechny vstupy</string>
         </property>
-        <property name="maximum">
-         <double>9.900000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QDoubleSpinBox" name="dsb_united_time">
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <double>9.900000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="b_united_time_set">
+           <property name="text">
+            <string>Nastavit</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -215,6 +244,8 @@
  <tabstops>
   <tabstop>le_name</tabstop>
   <tabstop>chb_active</tabstop>
+  <tabstop>dsb_united_time</tabstop>
+  <tabstop>b_united_time_set</tabstop>
   <tabstop>dsb_ind1</tabstop>
   <tabstop>dsb_ind2</tabstop>
   <tabstop>dsb_ind3</tabstop>
