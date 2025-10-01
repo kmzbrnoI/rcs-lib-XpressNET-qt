@@ -25,8 +25,10 @@ void RcsInputModule::load(const QSettings& s, unsigned addr) {
 }
 
 void RcsInputModule::save(QSettings& s) const {
-	if (this->allDefaults())
+	if (this->allDefaults()) {
+		s.remove("");
 		return; // do not save default module; if module is not default, save everything
+	}
 
 	s.setValue("name", this->name);
 	s.setValue("active", this->wantActive);
