@@ -187,13 +187,13 @@ bool IsSimulation() {
 
 int SetInput(unsigned int module, unsigned int port, int state) {
 	try {
-		// only debug method
+		// only debug function
 		if (!rx.s["global"]["mockInputs"].toBool())
 			return 0;
 		if (rx.started == RcsStartState::stopped)
 			return 0;
 		if ((module >= IO_IN_MODULES_COUNT) || (!rx.modules_in[module].wantActive))
-			return (rx.modules_in[module].wantActive) ? RCS_MODULE_FAILED : RCS_MODULE_INVALID_ADDR;
+			return RCS_MODULE_INVALID_ADDR;
 		if ((port > IO_IN_MODULE_PIN_COUNT) || (port == 0)) { // ports 1-8, not 0-7!
 #ifdef IGNORE_PIN_BOUNDS
 			return 0;
@@ -263,7 +263,7 @@ int GetModuleName(unsigned int module, char16_t *name, unsigned int nameLen) {
 	try {
 		if (module >= std::max(IO_IN_MODULES_COUNT, IO_OUT_MODULES_COUNT))
 			return RCS_MODULE_INVALID_ADDR;
-		const QString str = rx.modules_in[module].name;
+		const QString str = (module < IO_IN_MODULES_COUNT) ? rx.modules_in[module].name : "Module " + QString::number(module);
 		StrUtil::strcpy<char16_t>(reinterpret_cast<const char16_t *>(str.utf16()), name, nameLen);
 		return 0;
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
