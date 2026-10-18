@@ -99,7 +99,6 @@ public:
 	MainWindow form;
 	SignalEdit::FormSignalEdit f_signal_edit;
 	FormInModuleEdit f_module_edit;
-	bool gui_config_changing = false;
 
 	explicit RcsXn(QObject *parent = nullptr);
 	~RcsXn() override;
@@ -111,7 +110,7 @@ public:
 	void first_scan();
 	void setLogLevel(RcsXnLogLevel);
 
-	int openDevice(const QString &device, bool persist);
+	int open();
 	int close();
 	void loadConfig(const QString &filename);
 	void saveConfig(const QString &filename);
@@ -144,7 +143,6 @@ private slots:
 	// GUI
 	void cb_loglevel_changed(int);
 	void cb_interface_type_changed(int);
-	void cb_connections_changed(int);
 	void b_serial_refresh_handle();
 	void b_active_outputs_load_handle();
 	void b_active_outputs_save_handle();
@@ -153,7 +151,6 @@ private slots:
 	void b_signal_remove_handle();
 	void tw_signals_dbl_click(QTreeWidgetItem *, int);
 	void tw_signals_selection_changed();
-	void chb_general_config_changed(int state);
 	void b_dcc_on_handle();
 	void b_dcc_off_handle();
 	void tw_input_modules_dbl_click(QTreeWidgetItem *, int);
@@ -176,7 +173,6 @@ private:
 	void initModuleScanned(uint8_t group, bool nibble);
 	void scanNextGroup(int previousGroup);
 	void initScanningDone();
-	Xn::LIType interface(const QString &name) const;
 	uint8_t inBusModuleAddr(uint8_t userAddr);
 
 	template <std::size_t ArraySize>
@@ -205,6 +201,7 @@ private:
 
 	// GUI:
 	void guiInit();
+	void applyConnectionInfoFromGUI();
 	void fillConnectionsCbs();
 	void fillPortCb();
 	void guiOnOpen();

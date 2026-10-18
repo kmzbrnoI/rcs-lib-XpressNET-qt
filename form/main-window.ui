@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>570</width>
-    <height>624</height>
+    <height>633</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,7 +39,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -55,20 +55,111 @@
         <string>Připojení</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="7" column="0">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Orientation::Vertical</enum>
+        <item row="1" column="0" colspan="3">
+         <widget class="QTabWidget" name="tw_connection">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
+          <property name="currentIndex">
+           <number>0</number>
           </property>
-         </spacer>
+          <widget class="QWidget" name="t_com">
+           <attribute name="title">
+            <string>COM/USB</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,1">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Port:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="b_serial_refresh">
+              <property name="text">
+               <string>Obnovit</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QComboBox" name="cb_serial_port"/>
+            </item>
+            <item row="1" column="2">
+             <widget class="QComboBox" name="cb_serial_speed"/>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Rychlost:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QComboBox" name="cb_serial_flowcontrol">
+              <item>
+               <property name="text">
+                <string>Žádná</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hardware</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Software</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Kontrola toku:</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="t_net">
+           <attribute name="title">
+            <string>Síťové připojení</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>IP adresa / host:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="le_host"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Port:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="sb_port">
+              <property name="maximum">
+               <number>65535</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
-        <item row="4" column="2" colspan="2">
+        <item row="2" column="1" colspan="2">
          <widget class="QComboBox" name="cb_addr_range">
           <item>
            <property name="text">
@@ -82,71 +173,14 @@
           </item>
          </widget>
         </item>
-        <item row="5" column="0" colspan="4">
-         <widget class="QCheckBox" name="chb_reset_signals">
-          <property name="text">
-           <string>Nastavit všechna návěstidla při startu na stůj</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
-           <string>Typ rozhraní:</string>
+           <string>Rozhraní k centrále:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Rychlost:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2" colspan="2">
-         <widget class="QComboBox" name="cb_serial_speed"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Adresy dekod. příslušenství:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2" colspan="2">
-         <widget class="QComboBox" name="cb_serial_flowcontrol">
-          <item>
-           <property name="text">
-            <string>Žádná</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Hardware</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Software</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Sériový port:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Kontrola toku:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" colspan="2">
+        <item row="0" column="1" colspan="2">
          <widget class="QComboBox" name="cb_interface_type">
           <item>
            <property name="text">
@@ -165,19 +199,37 @@
           </item>
           <item>
            <property name="text">
-            <string>LI-USB-Ethernet</string>
+            <string>LI-USB-Ethernet USB</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>LI-USB-Ethernet Ethernet</string>
            </property>
           </item>
          </widget>
         </item>
-        <item row="6" column="0" colspan="4">
-         <widget class="QCheckBox" name="chb_disable_set_output_off">
+        <item row="3" column="0" colspan="3">
+         <widget class="QCheckBox" name="chb_reset_signals">
           <property name="text">
-           <string>Neumožnit nastavit výstup při vypnutém DCC</string>
+           <string>Nastavit všechna návěstidla při startu na stůj</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="4">
+        <item row="5" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="6" column="0" colspan="3">
          <widget class="QGroupBox" name="gb_dcc">
           <property name="title">
            <string>DCC</string>
@@ -225,15 +277,19 @@
           </layout>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="b_serial_refresh">
+        <item row="4" column="0" colspan="3">
+         <widget class="QCheckBox" name="chb_disable_set_output_off">
           <property name="text">
-           <string>Obnovit</string>
+           <string>Neumožnit nastavit výstup při vypnutém DCC</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="2" colspan="2">
-         <widget class="QComboBox" name="cb_serial_port"/>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Adresy dekodérů příslušenství:</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -558,10 +614,6 @@
  <tabstops>
   <tabstop>tw_main</tabstop>
   <tabstop>cb_interface_type</tabstop>
-  <tabstop>b_serial_refresh</tabstop>
-  <tabstop>cb_serial_port</tabstop>
-  <tabstop>cb_serial_speed</tabstop>
-  <tabstop>cb_serial_flowcontrol</tabstop>
   <tabstop>cb_addr_range</tabstop>
   <tabstop>chb_reset_signals</tabstop>
   <tabstop>chb_disable_set_output_off</tabstop>

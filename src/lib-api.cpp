@@ -14,7 +14,7 @@ unsigned int rcs_api_version = 0;
 
 int Open() {
 	try {
-		return rx.openDevice(rx.s["XN"]["port"].toString(), false);
+		return rx.open();
 	} catch (...) { return RCS_GENERAL_EXCEPTION; }
 }
 

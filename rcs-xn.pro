@@ -68,8 +68,8 @@ win64 {
 QT += core gui serialport network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-VERSION_MAJOR = 2
-VERSION_MINOR = 1
+VERSION_MAJOR = 3
+VERSION_MINOR = 0
 
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR" \
 	"VERSION_MINOR=$$VERSION_MINOR" \

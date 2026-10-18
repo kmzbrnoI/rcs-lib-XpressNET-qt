@@ -53,6 +53,7 @@ RcsXn::~RcsXn() {
 	try {
 		if (xn.connected())
 			close();
+		this->applyConnectionInfoFromGUI();
 		if (this->config_filename != "")
 			this->saveConfig(this->config_filename);
 	} catch (...) {
@@ -122,18 +123,25 @@ void RcsXn::error(const QString &message, uint16_t code, unsigned int module) {
 void RcsXn::error(const QString &message, uint16_t code) { this->error(message, code, 0); }
 void RcsXn::error(const QString &message) { this->error(message, RCS_GENERAL_EXCEPTION, 0); }
 
-int RcsXn::openDevice(const QString &device, bool persist) {
+int RcsXn::open() {
 	if (xn.connected())
 		return RCS_ALREADY_OPENNED;
 
+	this->applyConnectionInfoFromGUI();
 	this->resetIOState();
 	events.call(rx.events.beforeOpen);
 	this->guiOnOpen();
 
+	const bool net = s["XN"]["interface"].toString().endsWith("net");
 	try {
-		xn.connectCom(device, s["XN"]["baudrate"].toInt(),
-		              static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()),
-		              interface(s["XN"]["interface"].toString()));
+		if (net) {
+			xn.connectNet(s["XN"]["netHost"].toString(), s["XN"]["netPort"].toInt(),
+			              Xn::liInterface(s["XN"]["interface"].toString()));
+		} else {
+			xn.connectCom(s["XN"]["port"].toString(), s["XN"]["baudrate"].toInt(),
+			              static_cast<QSerialPort::FlowControl>(s["XN"]["flowcontrol"].toInt()),
+			              Xn::liInterface(s["XN"]["interface"].toString()));
+		}
 	} catch (const Xn::QStrException &e) {
 		const QString errMsg = "XN connect error while opening serial port '" +
 			s["XN"]["port"].toString() + "': " + e;
@@ -143,9 +151,6 @@ int RcsXn::openDevice(const QString &device, bool persist) {
 		this->guiOnClose();
 		return RCS_CANNOT_OPEN_PORT;
 	}
-
-	if (persist)
-		s["XN"]["port"] = device;
 
 	if (rx.s["global"]["mockInputs"].toBool())
 		this->log("Pozor: simulační režim (mockInputs) aktivován!", RcsXnLogLevel::llWarning);
@@ -226,7 +231,6 @@ void RcsXn::loadConfig(const QString &filename) {
 		throw QStrException("outIntervalMs invalid type!");
 	this->xn.setConfig(xnconfig);
 
-	this->gui_config_changing = true;
 	try {
 		form.ui.cb_loglevel->setCurrentIndex(static_cast<int>(this->loglevel));
 		form.ui.chb_reset_signals->setChecked(s["global"]["resetSignals"].toBool());
@@ -263,14 +267,10 @@ void RcsXn::loadConfig(const QString &filename) {
 			throw;
 		}
 		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
-
-		this->gui_config_changing = false;
 	} catch (...) {
 		this->fillSignals();
 		this->fillActiveOutputs();
 		form.ui.te_binary_outputs->setText(getActiveStr(this->binary, ",\n"));
-
-		this->gui_config_changing = false;
 		throw;
 	}
 }
@@ -815,18 +815,6 @@ void RcsXn::resetIOState() {
 	std::fill(this->m_accToResetArr.begin(), this->m_accToResetArr.end(), 0);
 	this->m_accToResetDeq.clear();
 	this->m_acc_op_pending_count = 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Xn::LIType RcsXn::interface(const QString &name) const {
-	if (name == "LI101")
-		return Xn::LIType::LI101;
-	if (name == "uLI")
-		return Xn::LIType::uLI;
-	if (name == "LI-USB-Ethernet")
-		return Xn::LIType::LIUSBEth;
-	return Xn::LIType::LI100;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -13,19 +13,7 @@ void RcsXn::guiInit() {
 	QObject::connect(form.ui.cb_loglevel, SIGNAL(currentIndexChanged(int)), this,
 	                 SLOT(cb_loglevel_changed(int)));
 	QObject::connect(form.ui.cb_interface_type, SIGNAL(currentIndexChanged(int)), this,
-					 SLOT(cb_interface_type_changed(int)));
-	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.chb_reset_signals, SIGNAL(stateChanged(int)), this,
-	                 SLOT(chb_general_config_changed(int)));
-	QObject::connect(form.ui.chb_disable_set_output_off, SIGNAL(stateChanged(int)), this,
-					 SLOT(chb_general_config_changed(int)));
-	QObject::connect(form.ui.cb_addr_range, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(chb_general_config_changed(int)));
+	                 SLOT(cb_interface_type_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this,
 	                 SLOT(b_serial_refresh_handle()));
@@ -65,34 +53,65 @@ void RcsXn::guiInit() {
 
 void RcsXn::cb_loglevel_changed(int index) { this->setLogLevel(static_cast<RcsXnLogLevel>(index)); }
 
-void RcsXn::cb_interface_type_changed(int arg) {
-	this->cb_connections_changed(arg);
+void RcsXn::cb_interface_type_changed(int) {
+	const bool net = form.ui.cb_interface_type->currentText().endsWith("net");
+	form.ui.tw_connection->setTabVisible(0, !net);
+	form.ui.tw_connection->setTabVisible(1, net);
+
+	const bool uLI = (form.ui.cb_interface_type->currentText() == "uLI");
+	if (uLI) {
+		form.ui.cb_serial_speed->setCurrentText("115200");
+		form.ui.cb_serial_flowcontrol->setCurrentIndex(0);
+	}
+	form.ui.cb_serial_speed->setEnabled(!uLI);
+	form.ui.cb_serial_flowcontrol->setEnabled(!uLI);
+
+	if (form.ui.cb_interface_type->currentText().startsWith("LI-USB-Eth")) {
+		// Defaults according to "Befehlsbeschreibung XpressNet V3.6 mit LAN/USB Interface 23151 Kommunikation auf den Schnittstellen"
+		form.ui.cb_serial_speed->setCurrentText("57600");
+		form.ui.cb_serial_flowcontrol->setCurrentIndex(0);
+	}
+	if (form.ui.cb_interface_type->currentText() == "LI100") {
+		// Defaults according to XpressNet Specification 6/2003
+		form.ui.cb_serial_speed->setCurrentText("9600");
+		form.ui.cb_serial_flowcontrol->setCurrentText("Software");
+	}
+	if (form.ui.cb_interface_type->currentText() == "LI101") {
+		// Defaults according to XpressNet Specification 6/2003
+		form.ui.cb_serial_flowcontrol->setCurrentText("Hardware");
+	}
+
 	if ((s["XN"]["port"].toString() == "auto") && (form.ui.cb_interface_type->currentText() != "uLI"))
 		s["XN"]["port"] = "";
 	this->fillPortCb();
 }
 
-void RcsXn::cb_connections_changed(int) {
-	if (this->gui_config_changing)
-		return;
-
+void RcsXn::applyConnectionInfoFromGUI() {
 	s["XN"]["interface"] = form.ui.cb_interface_type->currentText();
 	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
+	s["XN"]["netHost"] = form.ui.le_host->text();
+	s["XN"]["netPort"] = form.ui.sb_port->value();
 
 	const QString port = form.ui.cb_serial_port->currentText();
 	s["XN"]["port"] = (port.startsWith("Auto")) ? "auto" : port;
+
+	s["global"]["resetSignals"] = (form.ui.chb_reset_signals->checkState() == Qt::CheckState::Checked);
+	s["global"]["disableSetOutputOff"] = (form.ui.chb_disable_set_output_off->checkState() == Qt::CheckState::Checked);
+
+	if (form.ui.cb_addr_range->currentIndex() == 0)
+		s["global"]["addrRange"] = "basic";
+	else if (form.ui.cb_addr_range->currentIndex() == 1)
+		s["global"]["addrRange"] = "lenz";
+
 }
 
 void RcsXn::fillConnectionsCbs() {
-	this->gui_config_changing = true;
-
 	// Interface type
 	form.ui.cb_interface_type->setCurrentText(s["XN"]["interface"].toString());
 
 	// Port
 	this->fillPortCb();
-	this->gui_config_changing = true;
 
 	// Speed
 	form.ui.cb_serial_speed->clear();
@@ -110,12 +129,11 @@ void RcsXn::fillConnectionsCbs() {
 	// Flow control
 	form.ui.cb_serial_flowcontrol->setCurrentIndex(s["XN"]["flowcontrol"].toInt());
 
-	this->gui_config_changing = false;
+	form.ui.le_host->setText(s["XN"]["netHost"].toString());
+	form.ui.sb_port->setValue(s["XN"]["netPort"].toInt());
 }
 
 void RcsXn::fillPortCb() {
-	this->gui_config_changing = true;
-
 	form.ui.cb_serial_port->clear();
 
 	bool is_item = false;
@@ -141,18 +159,16 @@ void RcsXn::fillPortCb() {
 		else
 			form.ui.cb_serial_port->setCurrentIndex(-1);
 	}
-
-	this->gui_config_changing = false;
 }
 
 void RcsXn::b_serial_refresh_handle() { this->fillPortCb(); }
 
 void RcsXn::guiOnOpen() {
 	form.ui.cb_interface_type->setEnabled(false);
-	form.ui.cb_serial_port->setEnabled(false);
-	form.ui.cb_serial_speed->setEnabled(false);
-	form.ui.cb_serial_flowcontrol->setEnabled(false);
-	form.ui.b_serial_refresh->setEnabled(false);
+	form.ui.tw_connection->setEnabled(false);
+	form.ui.cb_addr_range->setEnabled(false);
+	form.ui.chb_disable_set_output_off->setEnabled(false);
+	form.ui.chb_reset_signals->setEnabled(false);
 
 	form.ui.b_active_save->setEnabled(false);
 	this->f_module_edit.setActiveEnabled(false);
@@ -166,10 +182,10 @@ void RcsXn::guiOnOpen() {
 
 void RcsXn::guiOnClose() {
 	form.ui.cb_interface_type->setEnabled(true);
-	form.ui.cb_serial_port->setEnabled(true);
-	form.ui.cb_serial_speed->setEnabled(true);
-	form.ui.cb_serial_flowcontrol->setEnabled(true);
-	form.ui.b_serial_refresh->setEnabled(true);
+	form.ui.tw_connection->setEnabled(true);
+	form.ui.cb_addr_range->setEnabled(true);
+	form.ui.chb_disable_set_output_off->setEnabled(true);
+	form.ui.chb_reset_signals->setEnabled(true);
 
 	form.ui.b_active_save->setEnabled(true);
 	this->f_module_edit.setActiveEnabled(true);
@@ -299,21 +315,6 @@ void RcsXn::tw_signals_dbl_click(QTreeWidgetItem *item, int column) {
 
 void RcsXn::tw_signals_selection_changed() {
 	form.ui.b_signal_remove->setEnabled(!form.ui.tw_signals->selectedItems().empty());
-}
-
-void RcsXn::chb_general_config_changed(int) {
-	if (this->gui_config_changing)
-		return;
-
-	s["global"]["resetSignals"] =
-	    (form.ui.chb_reset_signals->checkState() == Qt::CheckState::Checked);
-	s["global"]["disableSetOutputOff"] =
-		(form.ui.chb_disable_set_output_off->checkState() == Qt::CheckState::Checked);
-
-	if (form.ui.cb_addr_range->currentIndex() == 0)
-		s["global"]["addrRange"] = "basic";
-	else if (form.ui.cb_addr_range->currentIndex() == 1)
-		s["global"]["addrRange"] = "lenz";
 }
 
 void RcsXn::xn_onDccError(void *, void *) {
