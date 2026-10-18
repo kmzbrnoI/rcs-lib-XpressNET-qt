@@ -13,13 +13,12 @@
 #include <QTimer>
 #include <array>
 #include <map>
-#include <queue>
 
 #include "common.h"
 #include "events.h"
 #include "form-signal-edit.h"
 #include "lib/q-str-exception.h"
-#include "lib/xn-lib-cpp-qt/xn.h"
+#include "lib/xn-lib-cpp-qt/src/xn.h"
 #include "settings.h"
 #include "signals.h"
 #include "ui_main-window.h"

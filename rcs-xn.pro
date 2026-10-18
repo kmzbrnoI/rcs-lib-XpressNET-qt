@@ -32,19 +32,24 @@ FORMS += \
 	form/input-module-edit.ui
 
 SOURCES += \
-	lib/xn-lib-cpp-qt/xn-pending.cpp \
-	lib/xn-lib-cpp-qt/xn.cpp \
-	lib/xn-lib-cpp-qt/xn-api.cpp \
-	lib/xn-lib-cpp-qt/xn-receive.cpp \
-	lib/xn-lib-cpp-qt/xn-send.cpp \
-	lib/xn-lib-cpp-qt/xn-win-com-discover.cpp
+	lib/xn-lib-cpp-qt/src/li/xn-li-com.cpp \
+	lib/xn-lib-cpp-qt/src/li/xn-li-net.cpp \
+	lib/xn-lib-cpp-qt/src/xn-pending.cpp \
+	lib/xn-lib-cpp-qt/src/xn.cpp \
+	lib/xn-lib-cpp-qt/src/xn-api.cpp \
+	lib/xn-lib-cpp-qt/src/xn-receive.cpp \
+	lib/xn-lib-cpp-qt/src/xn-send.cpp \
+	lib/xn-lib-cpp-qt/src/xn-win-com-discover.cpp
 HEADERS += \
-	lib/xn-lib-cpp-qt/q-str-exception.h \
-	lib/xn-lib-cpp-qt/xn-loco-addr.h \
-	lib/xn-lib-cpp-qt/xn-commands.h \
-	lib/xn-lib-cpp-qt/xn.h \
-	lib/q-str-exception.h \
-	lib/xn-lib-cpp-qt/xn-win-com-discover.h
+	lib/xn-lib-cpp-qt/src/q-str-exception.h \
+	lib/xn-lib-cpp-qt/src/li/xn-li.h \
+	lib/xn-lib-cpp-qt/src/li/xn-li-com.h \
+	lib/xn-lib-cpp-qt/src/li/xn-li-net.h \
+	lib/xn-lib-cpp-qt/src/xn-loco-addr.h \
+	lib/xn-lib-cpp-qt/src/xn-commands.h \
+	lib/xn-lib-cpp-qt/src/xn.h \
+	lib/xn-lib-cpp-qt/src/xn-win-com-discover.h \
+	lib/q-str-exception.h
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
@@ -60,7 +65,7 @@ win64 {
 	LIBS += -lsetupapi
 }
 
-QT += core gui serialport
+QT += core gui serialport network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 VERSION_MAJOR = 2
