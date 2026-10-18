@@ -555,6 +555,13 @@ void RcsXn::xnOnConnect() {
 }
 
 void RcsXn::xnOnDisconnect() {
+	this->started = RcsStartState::stopped;
+	for (RcsInputModule& module : this->modules_in) {
+		module.realActive = false;
+		module.stopAllFallTimers();
+	}
+	this->resetIOState();
+
 	this->events.call(this->events.afterClose);
 	this->guiOnClose();
 }
